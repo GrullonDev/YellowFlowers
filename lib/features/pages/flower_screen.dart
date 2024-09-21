@@ -15,7 +15,6 @@ class _FlowerScreenState extends State<FlowerScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  late Animation<double> _animationFlower;
 
   List<Offset> _flowerPositions = [];
   final int _flowerCount = 85;
@@ -29,7 +28,7 @@ class _FlowerScreenState extends State<FlowerScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
 
     _animation = Tween<double>(
@@ -42,17 +41,7 @@ class _FlowerScreenState extends State<FlowerScreen>
       ),
     );
 
-    _animationFlower = Tween<double>(
-      begin: 500,
-      end: 50,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       setState(() {
         _generateRandomFlowerPositions();
       });
