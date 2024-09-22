@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:yellow_flowers/features/utils/base_model.dart';
+import 'package:yellow_flowers/utils/base_model.dart';
 
 class BaseModelScaffold<T extends BaseModel> extends StatefulWidget {
   const BaseModelScaffold({

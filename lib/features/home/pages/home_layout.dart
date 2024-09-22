@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yellow_flowers/features/Flowers/pages/flower_screen.dart';
-import 'package:yellow_flowers/features/utils/buttons/elevated_button.dart';
+import 'package:yellow_flowers/utils/buttons/elevated_button.dart';
 
 class HomeLayout extends StatelessWidget {
   const HomeLayout({super.key});

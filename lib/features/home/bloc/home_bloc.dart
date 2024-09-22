@@ -1,3 +1,3 @@
-import 'package:yellow_flowers/features/utils/base_model.dart';
+import 'package:yellow_flowers/utils/base_model.dart';
 
 class HomeBloc extends BaseModel {}

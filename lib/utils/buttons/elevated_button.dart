@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yellow_flowers/features/utils/styles/button_style.dart';
+import 'package:yellow_flowers/utils/styles/button_style.dart';
 
 class AppElevatedButton extends StatelessWidget {
   const AppElevatedButton({
