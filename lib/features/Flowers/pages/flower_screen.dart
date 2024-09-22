@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:async';
 
-import 'package:yellow_flowers/features/widgets/flower.dart';
+import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
 
 class FlowerScreen extends StatefulWidget {
   const FlowerScreen({super.key});
