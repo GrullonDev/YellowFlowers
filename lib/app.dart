@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yellow_flowers/features/pages/flower_screen.dart';
+import 'package:yellow_flowers/features/home/pages/home_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Yellow Flowers',
       theme: ThemeData.dark(),
-      home: const FlowerScreen(),
+      home: const HomePage(),
     );
   }
 }
