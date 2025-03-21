@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/romantic_music/bloc/romantic_music_bloc.dart';
-import 'package:yellow_flowers/features/romantic_music/data/repository/music_remote_repository.dart';
-import 'package:yellow_flowers/features/romantic_music/pages/music_layout.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/features/music/pages/music_layout.dart';
 import 'package:yellow_flowers/utils/base_model_scaffold.dart';
 import 'package:yellow_flowers/utils/inyenction_container.dart' as sl;
 

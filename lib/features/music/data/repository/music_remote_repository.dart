@@ -1,5 +1,5 @@
-import 'package:yellow_flowers/features/romantic_music/data/datasource/music_remote_datasource.dart';
-import 'package:yellow_flowers/features/romantic_music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
+import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 abstract class MusicRemoteRepository {
   Future<List<Song>> getSongs(String genre);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/romantic_music/bloc/romantic_music_bloc.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 
 class MusicPlayer extends StatelessWidget {
   final MusicBloc model;

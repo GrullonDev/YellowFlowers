@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/romantic_music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 class MusicListTile extends StatelessWidget {
   final Song song;

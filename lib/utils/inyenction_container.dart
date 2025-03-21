@@ -2,9 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
-import 'package:yellow_flowers/features/romantic_music/bloc/romantic_music_bloc.dart';
-import 'package:yellow_flowers/features/romantic_music/data/datasource/music_remote_datasource.dart';
-import 'package:yellow_flowers/features/romantic_music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
+import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 
 // Global GetIt instance for dependency injection
 final get = GetIt.instance;

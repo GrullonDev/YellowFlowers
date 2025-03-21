@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import 'package:yellow_flowers/features/romantic_music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 class JamendoApiService {
   final String clientId = '5f4b0a1e'; // Reemplaza con tu client ID

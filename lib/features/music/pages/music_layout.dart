@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:yellow_flowers/features/romantic_music/bloc/romantic_music_bloc.dart';
-import 'package:yellow_flowers/features/romantic_music/widgets/music_list.dart';
-import 'package:yellow_flowers/features/romantic_music/widgets/music_player.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/widgets/music_list.dart';
+import 'package:yellow_flowers/features/music/widgets/music_player.dart';
 
 class MusicLayout extends StatelessWidget {
   const MusicLayout({super.key});

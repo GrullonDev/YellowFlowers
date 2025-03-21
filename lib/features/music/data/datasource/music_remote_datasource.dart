@@ -1,7 +1,7 @@
 import 'package:just_audio/just_audio.dart';
 
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
-import 'package:yellow_flowers/features/romantic_music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 abstract class MusicRemoteDataSource {
   Future<List<Song>> getSongs(String genre);

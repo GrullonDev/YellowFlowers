@@ -1,5 +1,5 @@
-import 'package:yellow_flowers/features/romantic_music/data/model/song.dart';
-import 'package:yellow_flowers/features/romantic_music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/features/music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 
 class MusicBloc extends BaseModel {

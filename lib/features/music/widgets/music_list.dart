@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:yellow_flowers/features/romantic_music/bloc/romantic_music_bloc.dart';
-import 'package:yellow_flowers/features/romantic_music/widgets/music_list_tile.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/widgets/music_list_tile.dart';
 
 class MusicList extends StatefulWidget {
   const MusicList({super.key});
