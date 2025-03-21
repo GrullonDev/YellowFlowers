@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:yellow_flowers/features/flowers/widgets/name_entry_flower.dart';
-import 'package:yellow_flowers/features/home/data/object/menu_item.dart';
+import 'package:yellow_flowers/features/home/data/model/menu_item.dart';
 import 'package:yellow_flowers/features/romantic_music/pages/romantic_music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 
@@ -25,7 +25,7 @@ class HomeBloc extends BaseModel {
         MenuItem(
           title: 'Música Romántica',
           icon: Icons.music_note,
-          destination: const RomanticMusicPage(),
+          destination: const MusicPage(),
         ),
         MenuItem(
           title: 'Tarjetas Virtuales',
