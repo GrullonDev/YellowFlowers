@@ -15,7 +15,38 @@ class MusicBloc extends BaseModel {
   bool _isPlaying = false;
   Duration _position = Duration.zero;
   String _selectedGenre = 'pop';
-  List<String> _genres = ['pop', 'rock', 'jazz'];
+  final List<String> _genres = [
+    'pop',
+    'rock',
+    'jazz',
+    'classical',
+    'electronic',
+    'hip-hop',
+    'r&b',
+    'reggae',
+    'latin',
+    'blues',
+    'country',
+    'folk',
+    'metal',
+    'indie',
+    'soul',
+    'funk',
+    'disco',
+    'ambient',
+    'reggaeton',
+    'salsa',
+    'merengue',
+    'bachata',
+    'romantic',
+    'instrumental',
+    'lofi',
+    'dance',
+    'house',
+    'techno',
+    'trap',
+    'alternative',
+  ];
   bool _isLoading = true;
 
   List<Song> get songs => _songs
