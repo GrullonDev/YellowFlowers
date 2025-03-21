@@ -11,7 +11,8 @@ class HomeBloc extends BaseModel {
           icon: Icons.local_florist,
           destination: const NameEntryFlower(),
         ),
-        MenuItem(
+        // TODO: Estos elementos no se muestran en el menú ya que estan en desarrollo.
+        /* MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
           destination: const Scaffold(),
@@ -30,6 +31,6 @@ class HomeBloc extends BaseModel {
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
           destination: const Scaffold(),
-        ),
+        ), */
       ];
 }
