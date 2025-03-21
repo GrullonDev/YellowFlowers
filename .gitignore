@@ -22,6 +22,20 @@ migrate_working_dir/
 /android/.cxx/
 /android/app/.cxx/
 /android/**/cmake/**/build/
+/android/app/.cxx/**/*
+
+# iOS related
+/ios/Podfile.lock
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+
+# macOS related
+/macos/Flutter/
+/macos/Pods/
+/macos/Podfile.lock
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
