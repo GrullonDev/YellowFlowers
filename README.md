@@ -171,7 +171,7 @@ open build/app/outputs/flutter-apk/
 ```
 
 ```bash
-open build/app/outputs/bundle/release/
+open build/app/outputs/flutter-apk/
 ```
 
 ## iOS IPA/Bundle
