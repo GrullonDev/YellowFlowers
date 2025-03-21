@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:yellow_flowers/features/Flowers/bloc/flower_bloc.dart';
-import 'package:yellow_flowers/features/Flowers/pages/flower_screen.dart';
+import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
+import 'package:yellow_flowers/features/flowers/pages/flower_screen.dart';
 
 class NameEntryFlower extends StatelessWidget {
   const NameEntryFlower({super.key});
@@ -15,7 +15,7 @@ class NameEntryFlower extends StatelessWidget {
       child: Builder(
         builder: (context) {
           final model = context.watch<FlowerBloc>();
-          
+
           return Scaffold(
             appBar: AppBar(
               title: const Center(

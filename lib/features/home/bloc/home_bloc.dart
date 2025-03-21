@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/Flowers/widgets/name_entry_flower.dart';
-import 'package:yellow_flowers/features/home/data/object/menu_item.dart';
+import 'package:yellow_flowers/features/flowers/widgets/name_entry_flower.dart';
+import 'package:yellow_flowers/features/home/data/model/menu_item.dart';
+import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 
 class HomeBloc extends BaseModel {
@@ -11,8 +12,7 @@ class HomeBloc extends BaseModel {
           icon: Icons.local_florist,
           destination: const NameEntryFlower(),
         ),
-        // TODO: Estos elementos no se muestran en el menú ya que estan en desarrollo.
-        /* MenuItem(
+        MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
           destination: const Scaffold(),
@@ -25,12 +25,12 @@ class HomeBloc extends BaseModel {
         MenuItem(
           title: 'Música Romántica',
           icon: Icons.music_note,
-          destination: const Scaffold(),
+          destination: const MusicPage(),
         ),
         MenuItem(
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
           destination: const Scaffold(),
-        ), */
+        ),
       ];
 }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:yellow_flowers/features/Flowers/bloc/flower_bloc.dart';
-import 'package:yellow_flowers/features/Flowers/widgets/name_entry_flower.dart';
 import 'package:yellow_flowers/features/home/bloc/home_bloc.dart';
 
 class HomeLayout extends StatelessWidget {

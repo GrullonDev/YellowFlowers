@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yellow_flowers/app.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
 import 'firebase_options.dart';
 
 void main() async {
@@ -8,6 +9,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize dependencies
+  di.initializeDependencies();
 
   runApp(const MyApp());
 }
