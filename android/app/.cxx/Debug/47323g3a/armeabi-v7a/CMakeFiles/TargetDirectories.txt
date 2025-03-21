@@ -1,0 +1,2 @@
+/Users/jorgegrullon/Projects/yellow_flowers/android/app/.cxx/Debug/47323g3a/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/jorgegrullon/Projects/yellow_flowers/android/app/.cxx/Debug/47323g3a/armeabi-v7a/CMakeFiles/rebuild_cache.dir
