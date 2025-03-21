@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower.dart';
 
 class FlowerScreen extends StatefulWidget {
   final String recipientName;
