@@ -28,6 +28,21 @@ class _FlowerScreenState extends State<FlowerScreen>
     "Tu sonrisa ilumina mis días. ☀️ ☀️ ☀️",
     "Contigo, cada momento es especial. ✨",
     "Eres mi compañera, amiga y amor. 💖",
+    "Tu fuerza interior brilla más que mil estrellas. ⭐️",
+    "Eres capaz de lograr todo lo que te propongas. 💪",
+    "Tu valentía inspira a quienes te rodean. 🦋",
+    "Cada día brillas con luz propia. 🌟",
+    "Tu determinación mueve montañas. 🏔️",
+    "Eres un ejemplo de fortaleza y gracia. 👑",
+    "Tu bondad hace del mundo un lugar mejor. 🌈",
+    "No hay límites para una mujer que sueña en grande. 🚀",
+    "Tu inteligencia y belleza son incomparables. 💫",
+    "Eres la protagonista de tu propia historia. 📖",
+    "Tu presencia alegra cada espacio. 🌺",
+    "Mereces todo lo hermoso que la vida tiene. 🎀",
+    "Tu esencia es única y maravillosa. 💝",
+    "Eres un regalo para quienes te conocen. 🎁",
+    "Tu corazón es un tesoro invaluable. 💎",
   ];
 
   @override
