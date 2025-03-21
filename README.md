@@ -148,6 +148,49 @@ git push origin feature/nueva-funcionalidad
 
 - Abre un Pull Request en GitHub.
 
+# Generación de Builds
+
+## Android APK/Bundle
+
+Para generar un APK de debug:
+
+```bash
+fvm flutter build apk --debug
+```
+
+```bash
+fvm flutter build apk --release
+```
+
+```bash
+fvm flutter build appbundle --release
+```
+
+```bash
+open build/app/outputs/flutter-apk/
+```
+
+```bash
+open build/app/outputs/bundle/release/
+```
+
+## iOS IPA/Bundle
+
+- Configurar certificados en Xcode
+- Generar archivo IPA:
+
+```bash
+fvm flutter build ipa
+```
+
+```bash
+fvm flutter build ipa --release
+```
+
+```bash
+open build/ios/ipa/
+```
+
 # Recursos
 
 Algunos recursos para ayudarte a comenzar si este es tu primer proyecto Flutter:
