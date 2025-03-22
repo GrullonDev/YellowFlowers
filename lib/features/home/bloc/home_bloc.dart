@@ -12,7 +12,7 @@ class HomeBloc extends BaseModel {
           icon: Icons.local_florist,
           destination: const NameEntryFlower(),
         ),
-        MenuItem(
+        /* MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
           destination: const Scaffold(),
@@ -21,16 +21,16 @@ class HomeBloc extends BaseModel {
           title: 'Mensajes Especiales',
           icon: Icons.message,
           destination: const Scaffold(),
-        ),
+        ), */
         MenuItem(
           title: 'Música Romántica',
           icon: Icons.music_note,
           destination: const MusicPage(),
         ),
-        MenuItem(
+        /* MenuItem(
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
           destination: const Scaffold(),
-        ),
+        ), */
       ];
 }
