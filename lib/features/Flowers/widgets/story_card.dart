@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
@@ -37,9 +39,7 @@ class StoryCard extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        decoration: const BoxDecoration(
-          // colors injected below via DecoratedBox
-        ),
+        decoration: const BoxDecoration(),
         child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -49,84 +49,83 @@ class StoryCard extends StatelessWidget {
             ),
           ),
           child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 64),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                '✨🌻💛',
-                style: GoogleFonts.poppins(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 64),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                Text(
+                  '✨🌻💛',
+                  style: GoogleFonts.poppins(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                '$name, $message',
-                textAlign: TextAlign.center,
-                style: (fancyName
-                        ? GoogleFonts.raleway().copyWith(
-                            fontStyle: FontStyle.italic)
-                        : GoogleFonts.poppins())
-                    .copyWith(
-                  color: Colors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2,
+                const SizedBox(height: 24),
+                Text(
+                  '$name, $message',
+                  textAlign: TextAlign.center,
+                  style: (fancyName
+                          ? GoogleFonts.raleway()
+                              .copyWith(fontStyle: FontStyle.italic)
+                          : GoogleFonts.poppins())
+                      .copyWith(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              // Simple flower field decoration at the bottom of story
-              SizedBox(
-                width: double.infinity,
-                height: height * 0.28,
-                child: CustomPaint(
-                  painter: _StoryFlowersPainter(),
+                const Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  height: height * 0.28,
+                  child: CustomPaint(
+                    painter: _StoryFlowersPainter(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 240,
-                      height: 240,
-                      child: PrettyQrView.data(
-                        data: qrUrl,
-                        decoration: const PrettyQrDecoration(
-                          quietZone: PrettyQrQuietZone.standart,
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 240,
+                        height: 240,
+                        child: PrettyQrView.data(
+                          data: qrUrl,
+                          decoration: const PrettyQrDecoration(
+                            quietZone: PrettyQrQuietZone.standart,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Escanéame para abrir la app',
-                      style: GoogleFonts.poppins(
-                        color: Colors.black87,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      const SizedBox(height: 12),
+                      Text(
+                        'Escanéame para abrir la app',
+                        style: GoogleFonts.poppins(
+                          color: Colors.black87,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         ),
       ),
