@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseModelScaffold(
-      model: HomeBloc(),
+      model: HomeBloc(context: context),
       builder: (context, value) => const HomeLayout(),
     );
   }
