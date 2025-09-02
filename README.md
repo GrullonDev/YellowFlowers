@@ -19,8 +19,8 @@ Yellow Flowers es una aplicación móvil desarrollada con Flutter que [descripci
 
 ## Versión y Requisitos
 
-- Flutter versión: 3.29.1
-- Dart SDK: ≥ 3.3.0
+- Flutter versión: 3.35.2 (estable)
+- Dart SDK: 3.9.0 (por defecto)
 - iOS: iOS 12.0 o superior
 - Android: Android 5.0 (API 21) o superior
 

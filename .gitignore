@@ -36,11 +36,14 @@ migrate_working_dir/
 /macos/Flutter/
 /macos/Pods/
 /macos/Podfile.lock
+GeneratedPluginRegistrant.swift
+Flutter-Debug.xcconfig
+Flutter-Release.xcconfig
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
-#.vscode/
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -69,3 +72,16 @@ firebase.json
 .vscode/
 .metadata
 database.rules.json
+
+# FVM Version Cache
+.fvm/
+.fvmrc
+
+# Linux
+/.dart_tool/
+/flutter
+
+# windows
+generated_plugins.cmake
+generated_plugin_registrant.h
+generated_plugin_registrant.cc
