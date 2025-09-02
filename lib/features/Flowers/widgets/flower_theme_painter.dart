@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
 import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
 
 class ThemedFlowerPainter extends CustomPainter {
@@ -18,7 +20,8 @@ class ThemedFlowerPainter extends CustomPainter {
     }
   }
 
-  void _drawStem(Canvas canvas, Size size, {Color color = const Color(0xFF5A8F5D)}) {
+  void _drawStem(Canvas canvas, Size size,
+      {Color color = const Color(0xFF5A8F5D)}) {
     final center = Offset(size.width / 2, size.height / 2);
     final stemPaint = Paint()
       ..color = color
@@ -60,7 +63,8 @@ class ThemedFlowerPainter extends CustomPainter {
       canvas.save();
       canvas.translate(center.dx, center.dy);
       canvas.rotate(i * (math.pi * 2 / 12));
-      final rect = Rect.fromCenter(center: const Offset(0, -22), width: 16, height: 36);
+      final rect =
+          Rect.fromCenter(center: const Offset(0, -22), width: 16, height: 36);
       canvas.drawOval(rect, petal);
       canvas.drawOval(rect, outline);
       canvas.restore();
@@ -75,11 +79,13 @@ class ThemedFlowerPainter extends CustomPainter {
     final layers = [18.0, 14.0, 10.0, 6.0];
     for (var i = 0; i < layers.length; i++) {
       final r = layers[i];
-      canvas.drawCircle(center, r, rose..color = rose.color.withValues(alpha: 0.8 - i * 0.12));
+      canvas.drawCircle(center, r,
+          rose..color = rose.color.withValues(alpha: 0.8 - i * 0.12));
     }
     _drawStem(canvas, size);
   }
 
   @override
-  bool shouldRepaint(covariant ThemedFlowerPainter oldDelegate) => oldDelegate.theme != theme;
+  bool shouldRepaint(covariant ThemedFlowerPainter oldDelegate) =>
+      oldDelegate.theme != theme;
 }

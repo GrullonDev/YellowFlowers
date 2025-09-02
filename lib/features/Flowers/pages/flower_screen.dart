@@ -9,8 +9,8 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
 import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
+import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
 import 'package:yellow_flowers/features/Flowers/widgets/flower_themed.dart';
 
 class FlowerScreen extends StatefulWidget {
@@ -415,7 +415,7 @@ class _Petal extends StatelessWidget {
       width: size,
       height: size * 1.8,
       decoration: BoxDecoration(
-  color: const Color(0xFFFFE07D).withValues(alpha: 0.9),
+        color: const Color(0xFFFFE07D).withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(size),
         boxShadow: [
           BoxShadow(

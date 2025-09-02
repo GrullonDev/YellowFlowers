@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/Flowers/bloc/flower_bloc.dart';
+import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/Flowers/pages/flower_screen.dart';
 import 'package:yellow_flowers/features/Flowers/widgets/flower_illustration.dart';
-import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
 
 class NameEntryFlower extends StatefulWidget {
   const NameEntryFlower({super.key});
