@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yellow_flowers/features/flowers/widgets/flower_painter.dart';
+import 'package:yellow_flowers/features/Flowers/widgets/flower_painter.dart';
 
 /// Simple sized illustration of the yellow flower for onboarding/hero.
 class FlowerIllustration extends StatelessWidget {

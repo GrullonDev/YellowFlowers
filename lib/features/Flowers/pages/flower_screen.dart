@@ -5,15 +5,26 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 
 import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
+import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
+import 'package:yellow_flowers/features/Flowers/widgets/flower_themed.dart';
 
 class FlowerScreen extends StatefulWidget {
   final String recipientName;
-  const FlowerScreen({super.key, required this.recipientName});
+  final FlowerTheme theme;
+  final Mood mood;
+  final bool fancyName; // cursiva elegante para el nombre
+  const FlowerScreen({
+    super.key,
+    required this.recipientName,
+    this.theme = FlowerTheme.daisy,
+    this.mood = Mood.joy,
+    this.fancyName = false,
+  });
 
   @override
   State<FlowerScreen> createState() => _FlowerScreenState();
@@ -104,13 +115,15 @@ class _FlowerScreenState extends State<FlowerScreen>
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat(reverse: true);
+    // Gradientes según ánimo
+    final gradients = _gradientsForMood(widget.mood);
     _topColorAnim = ColorTween(
-      begin: const Color(0xFFFFF7C2), // amarillo suave
-      end: const Color(0xFFFFE0E0), // rosa pálido
+      begin: gradients.$1,
+      end: gradients.$2,
     ).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
     _bottomColorAnim = ColorTween(
-      begin: const Color(0xFFFFD3B6), // durazno
-      end: const Color(0xFFFFB3C6), // rosa más intenso
+      begin: gradients.$3,
+      end: gradients.$4,
     ).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
 
     // Falling petals
@@ -143,8 +156,12 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   @override
   void dispose() {
-    for (final c in _flowerControllers) c.dispose();
-    for (final c in _sparkleControllers) c.dispose();
+    for (final c in _flowerControllers) {
+      c.dispose();
+    }
+    for (final c in _sparkleControllers) {
+      c.dispose();
+    }
     _messageAnimationController.dispose();
     _bgController.dispose();
     _petalController.dispose();
@@ -154,7 +171,8 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   Future<void> _shareMessageCard() async {
     try {
-      final boundary = _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _shareKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) return;
       final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -219,13 +237,14 @@ class _FlowerScreenState extends State<FlowerScreen>
                     key: _shareKey,
                     child: Container(
                       constraints: BoxConstraints(maxWidth: screenWidth * 0.88),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 18),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -239,7 +258,11 @@ class _FlowerScreenState extends State<FlowerScreen>
                           Text(
                             "${widget.recipientName}, $_currentMessage",
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
+                            style: (widget.fancyName
+                                    ? GoogleFonts.raleway()
+                                        .copyWith(fontStyle: FontStyle.italic)
+                                    : GoogleFonts.poppins())
+                                .copyWith(
                               color: Colors.black87,
                               fontSize: 22,
                               fontWeight: FontWeight.w600,
@@ -253,7 +276,8 @@ class _FlowerScreenState extends State<FlowerScreen>
                               IconButton(
                                 tooltip: 'Compartir',
                                 onPressed: _shareMessageCard,
-                                icon: const Icon(Icons.share_rounded, color: Colors.pinkAccent),
+                                icon: const Icon(Icons.share_rounded,
+                                    color: Colors.pinkAccent),
                               ),
                             ],
                           ),
@@ -270,10 +294,15 @@ class _FlowerScreenState extends State<FlowerScreen>
                 (index) => AnimatedBuilder(
                   animation: _sparkleControllers[index],
                   builder: (context, child) {
-                    final x = math.Random(index * 997).nextDouble() * screenWidth;
-                    final y = screenHeight * 0.15 + math.Random(index * 1337).nextDouble() * (screenHeight * 0.35);
-                    final sizeDot = 2.0 + _sparkleControllers[index].value * 3.0;
-                    final opacity = 0.2 + _sparkleControllers[index].value * 0.6;
+                    final x =
+                        math.Random(index * 997).nextDouble() * screenWidth;
+                    final y = screenHeight * 0.15 +
+                        math.Random(index * 1337).nextDouble() *
+                            (screenHeight * 0.35);
+                    final sizeDot =
+                        2.0 + _sparkleControllers[index].value * 3.0;
+                    final opacity =
+                        0.2 + _sparkleControllers[index].value * 0.6;
                     return Positioned(
                       left: x,
                       top: y,
@@ -293,7 +322,7 @@ class _FlowerScreenState extends State<FlowerScreen>
                 ),
               ),
 
-              // Elegant minimal flowers
+              // Elegant minimal flowers with theme selection
               ...List.generate(
                 _flowerCount,
                 (index) => AnimatedBuilder(
@@ -301,8 +330,12 @@ class _FlowerScreenState extends State<FlowerScreen>
                   builder: (context, child) {
                     final rnd = math.Random(index);
                     final x = rnd.nextDouble() * screenWidth;
-                    final y = screenHeight * 0.38 + rnd.nextDouble() * (screenHeight * 0.45);
-                    final scale = 0.9 + math.sin(_flowerControllers[index].value * 2 * math.pi) * 0.05;
+                    final y = screenHeight * 0.38 +
+                        rnd.nextDouble() * (screenHeight * 0.45);
+                    final scale = 0.9 +
+                        math.sin(
+                                _flowerControllers[index].value * 2 * math.pi) *
+                            0.05;
                     return Positioned(
                       left: x,
                       top: y,
@@ -311,7 +344,9 @@ class _FlowerScreenState extends State<FlowerScreen>
                         child: SizedBox(
                           width: screenWidth / 11,
                           height: screenHeight / 2.3,
-                          child: const Flor(),
+                          child: widget.theme == FlowerTheme.daisy
+                              ? const Flor()
+                              : FlowerThemed(theme: widget.theme),
                         ),
                       ),
                     );
@@ -324,7 +359,8 @@ class _FlowerScreenState extends State<FlowerScreen>
                 final seed = _petalSeeds[i];
                 final t = (_petalController.value + seed.phase) % 1.0;
                 final y = (t * (screenHeight + 60)) - 60 + seed.startY * 40;
-                final x = seed.startX * screenWidth + math.sin(t * seed.swayFreq * 2 * math.pi) * seed.swayAmp;
+                final x = seed.startX * screenWidth +
+                    math.sin(t * seed.swayFreq * 2 * math.pi) * seed.swayAmp;
                 final rot = t * seed.rotationSpeed * 2 * math.pi;
                 return Positioned(
                   left: x,
@@ -343,6 +379,33 @@ class _FlowerScreenState extends State<FlowerScreen>
   }
 }
 
+// Gradientes por estado de ánimo
+(Color, Color, Color, Color) _gradientsForMood(Mood mood) {
+  switch (mood) {
+    case Mood.joy:
+      return (
+        const Color(0xFFFFF7C2), // top begin amarillo suave
+        const Color(0xFFFFE8A3), // top end amarillo vivo
+        const Color(0xFFFFD3B6), // bottom begin durazno
+        const Color(0xFFFFB347), // bottom end anaranjado
+      );
+    case Mood.calm:
+      return (
+        const Color(0xFFEDE7F6), // lavanda pálido
+        const Color(0xFFD1C4E9),
+        const Color(0xFFB39DDB),
+        const Color(0xFF9575CD),
+      );
+    case Mood.passion:
+      return (
+        const Color(0xFFFFE0E0), // rosa pálido
+        const Color(0xFFFFC0CB),
+        const Color(0xFFFFA6C1),
+        const Color(0xFFFF77A9),
+      );
+  }
+}
+
 class _Petal extends StatelessWidget {
   const _Petal({required this.size});
   final double size;
@@ -352,11 +415,11 @@ class _Petal extends StatelessWidget {
       width: size,
       height: size * 1.8,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFE07D).withOpacity(0.9),
+  color: const Color(0xFFFFE07D).withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(size),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFE07D).withOpacity(0.4),
+            color: const Color(0xFFFFE07D).withValues(alpha: 0.4),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
