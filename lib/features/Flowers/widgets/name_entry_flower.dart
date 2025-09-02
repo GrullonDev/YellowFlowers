@@ -51,7 +51,10 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: const Text(''),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
             body: Container(
               decoration: const BoxDecoration(

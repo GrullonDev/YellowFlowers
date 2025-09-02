@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
@@ -184,33 +184,40 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   Future<void> _shareMessageCard() async {
     try {
-  // Activa render temporal del StoryCard oculto
-  if (mounted) setState(() => _exportActive = true);
-  // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
+      // Activa render temporal del StoryCard oculto
+      if (mounted) setState(() => _exportActive = true);
+      // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
       await Future<void>.delayed(Duration.zero);
       await WidgetsBinding.instance.endOfFrame;
-  await WidgetsBinding.instance.endOfFrame;
-  // Frame extra por seguridad en dispositivos lentos
-  await WidgetsBinding.instance.endOfFrame;
+      await WidgetsBinding.instance.endOfFrame;
+      // Frame extra por seguridad en dispositivos lentos
+      await WidgetsBinding.instance.endOfFrame;
       Uint8List? pngBytes;
       try {
-        pngBytes = await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+        pngBytes =
+            await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
       } catch (_) {}
-      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
-      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
       if (pngBytes == null) return;
       // Save to temp file then share
       final dir = await getTemporaryDirectory();
       final path = '${dir.path}/mensaje_flores.png';
       final f = File(path);
       await f.writeAsBytes(pngBytes, flush: true);
-      await Share.shareXFiles(
-        [XFile(f.path, mimeType: 'image/png', name: 'mensaje_flores.png')],
-        text: 'Un mensaje para ti 💛',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [
+            XFile(f.path, mimeType: 'image/png', name: 'mensaje_flores.png')
+          ],
+          text: 'Un mensaje para ti 💛',
+        ),
       );
-  if (mounted) setState(() => _exportActive = false);
+      if (mounted) setState(() => _exportActive = false);
     } catch (e) {
-  if (mounted) setState(() => _exportActive = false);
+      if (mounted) setState(() => _exportActive = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo compartir la tarjeta: $e')),
@@ -220,20 +227,23 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   Future<void> _saveStoryCard() async {
     try {
-  // Activa render temporal del StoryCard oculto
-  if (mounted) setState(() => _exportActive = true);
-  // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
+      // Activa render temporal del StoryCard oculto
+      if (mounted) setState(() => _exportActive = true);
+      // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
       await Future<void>.delayed(Duration.zero);
       await WidgetsBinding.instance.endOfFrame;
-  await WidgetsBinding.instance.endOfFrame;
-  // Frame extra por seguridad en dispositivos lentos
-  await WidgetsBinding.instance.endOfFrame;
+      await WidgetsBinding.instance.endOfFrame;
+      // Frame extra por seguridad en dispositivos lentos
+      await WidgetsBinding.instance.endOfFrame;
       Uint8List? pngBytes;
       try {
-        pngBytes = await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+        pngBytes =
+            await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
       } catch (_) {}
-      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
-      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
       if (pngBytes == null) return;
       final dir = await getApplicationDocumentsDirectory();
       final folder = Directory('${dir.path}/YellowFlowers');
@@ -246,13 +256,13 @@ class _FlowerScreenState extends State<FlowerScreen>
           .replaceAll('.', '-');
       final file = File('${folder.path}/story_$ts.png');
       await file.writeAsBytes(pngBytes, flush: true);
-  if (mounted) setState(() => _exportActive = false);
-  if (!mounted) return;
+      if (mounted) setState(() => _exportActive = false);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tarjeta guardada en: ${file.path}')),
       );
     } catch (e) {
-  if (mounted) setState(() => _exportActive = false);
+      if (mounted) setState(() => _exportActive = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo guardar la tarjeta: $e')),
@@ -271,6 +281,10 @@ class _FlowerScreenState extends State<FlowerScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: AnimatedBuilder(
         animation: Listenable.merge([
@@ -301,8 +315,8 @@ class _FlowerScreenState extends State<FlowerScreen>
                             qrUrl: kQrCodeUrl,
                             topColor:
                                 _topColorAnim.value ?? const Color(0xFFFFF7C2),
-                            bottomColor:
-                                _bottomColorAnim.value ?? const Color(0xFFFFB3C6),
+                            bottomColor: _bottomColorAnim.value ??
+                                const Color(0xFFFFB3C6),
                             fancyName: widget.fancyName,
                             boundaryKey: _exportBoundaryKey,
                           ),
