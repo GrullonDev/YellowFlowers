@@ -133,11 +133,7 @@ class _HomeLayoutState extends State<HomeLayout>
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          subtitle: Text(
-                            index == 0
-                                ? 'Un detalle con flores 💛'
-                                : 'Música para el corazón 🎵',
-                          ),
+                          subtitle: Text(item.description),
                           trailing: const Icon(Icons.arrow_forward_ios),
                           onTap: () => Navigator.push(
                             context,

@@ -15,26 +15,58 @@ class HomeBloc extends BaseModel {
           title: 'Flores Amarillas',
           icon: Icons.local_florist,
           destination: const FlowerOnboardingPage(),
+          description: 'Un detalle con flores y un mensaje especial 💛',
         ),
         MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
-          destination: const Scaffold(),
+          destination: AlertDialog(
+            title: const Text('Mensaje'),
+            content: const Text('¡Hola! Este es un mensaje de prueba.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cerrar'),
+              ),
+            ],
+          ),
+          description: 'Tus recuerdos favoritos, en un solo lugar 🖼️',
         ),
         MenuItem(
           title: 'Mensajes Especiales',
           icon: Icons.message,
-          destination: const Scaffold(),
+          destination: AlertDialog(
+            title: const Text('Mensaje'),
+            content: const Text('¡Hola! Este es un mensaje de prueba.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cerrar'),
+              ),
+            ],
+          ),
+          description: 'Palabras que llegan al corazón ✍️',
         ),
         MenuItem(
           title: 'Música Romántica',
           icon: Icons.music_note,
           destination: const MusicPage(),
+          description: 'Melodías para acompañar tu momento 🎵',
         ),
         MenuItem(
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
-          destination: const Scaffold(),
+          destination: AlertDialog(
+            title: const Text('Mensaje'),
+            content: const Text('¡Hola! Este es un mensaje de prueba.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cerrar'),
+              ),
+            ],
+          ),
+          description: 'Diseña y comparte una tarjeta en segundos 🎁',
         ),
       ];
 
