@@ -143,7 +143,7 @@ class _FlowerScreenState extends State<FlowerScreen>
               opacity: _messageAnimationController.value,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(12.0),
                 ),
                 padding: const EdgeInsets.all(12.0),
