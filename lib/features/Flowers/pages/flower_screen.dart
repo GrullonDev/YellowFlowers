@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
 import 'package:yellow_flowers/features/Flowers/widgets/flower_themed.dart';
 import 'package:yellow_flowers/features/Flowers/widgets/story_card.dart';
+import 'package:yellow_flowers/utils/constants.dart';
 
 class FlowerScreen extends StatefulWidget {
   final String recipientName;
@@ -58,6 +60,9 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   // Share as image
   final GlobalKey _shareKey = GlobalKey();
+  // Persistent export boundary to avoid overlay race conditions
+  final GlobalKey _exportBoundaryKey = GlobalKey();
+  bool _exportActive = false;
   // Offstage story builder key (uses StoryCard.repaintKey internally)
 
   // Messages
@@ -179,39 +184,33 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   Future<void> _shareMessageCard() async {
     try {
-      const qrUrl = 'https://jorgegrullondev.com/';
-      final boundaryKey = GlobalKey();
-      final overlay = OverlayEntry(
-        builder: (_) => Offstage(
-          child: Center(
-            child: StoryCard(
-              name: widget.recipientName,
-              message: _currentMessage,
-              qrUrl: qrUrl,
-              topColor: _topColorAnim.value ?? const Color(0xFFFFF7C2),
-              bottomColor: _bottomColorAnim.value ?? const Color(0xFFFFB3C6),
-              fancyName: widget.fancyName,
-              boundaryKey: boundaryKey,
-            ),
-          ),
-        ),
-      );
-      Overlay.of(context).insert(overlay);
+  // Activa render temporal del StoryCard oculto
+  if (mounted) setState(() => _exportActive = true);
+  // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
       await Future<void>.delayed(Duration.zero);
       await WidgetsBinding.instance.endOfFrame;
-      final pngBytes = await StoryCard.exportPng(boundaryKey, pixelRatio: 3.0);
-      overlay.remove();
+  await WidgetsBinding.instance.endOfFrame;
+  // Frame extra por seguridad en dispositivos lentos
+  await WidgetsBinding.instance.endOfFrame;
+      Uint8List? pngBytes;
+      try {
+        pngBytes = await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+      } catch (_) {}
+      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
+      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
       if (pngBytes == null) return;
       // Save to temp file then share
       final dir = await getTemporaryDirectory();
       final path = '${dir.path}/mensaje_flores.png';
       final f = File(path);
       await f.writeAsBytes(pngBytes, flush: true);
-      await SharePlus.instance.share(ShareParams(
-        files: [XFile(f.path)],
+      await Share.shareXFiles(
+        [XFile(f.path, mimeType: 'image/png', name: 'mensaje_flores.png')],
         text: 'Un mensaje para ti 💛',
-      ));
+      );
+  if (mounted) setState(() => _exportActive = false);
     } catch (e) {
+  if (mounted) setState(() => _exportActive = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo compartir la tarjeta: $e')),
@@ -221,28 +220,20 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   Future<void> _saveStoryCard() async {
     try {
-      const qrUrl = 'https://jorgegrullondev.com/';
-      final boundaryKey = GlobalKey();
-      final overlay = OverlayEntry(
-        builder: (_) => Offstage(
-          child: Center(
-            child: StoryCard(
-              name: widget.recipientName,
-              message: _currentMessage,
-              qrUrl: qrUrl,
-              topColor: _topColorAnim.value ?? const Color(0xFFFFF7C2),
-              bottomColor: _bottomColorAnim.value ?? const Color(0xFFFFB3C6),
-              fancyName: widget.fancyName,
-              boundaryKey: boundaryKey,
-            ),
-          ),
-        ),
-      );
-      Overlay.of(context).insert(overlay);
+  // Activa render temporal del StoryCard oculto
+  if (mounted) setState(() => _exportActive = true);
+  // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
       await Future<void>.delayed(Duration.zero);
       await WidgetsBinding.instance.endOfFrame;
-      final pngBytes = await StoryCard.exportPng(boundaryKey, pixelRatio: 3.0);
-      overlay.remove();
+  await WidgetsBinding.instance.endOfFrame;
+  // Frame extra por seguridad en dispositivos lentos
+  await WidgetsBinding.instance.endOfFrame;
+      Uint8List? pngBytes;
+      try {
+        pngBytes = await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+      } catch (_) {}
+      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
+      pngBytes ??= await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
       if (pngBytes == null) return;
       final dir = await getApplicationDocumentsDirectory();
       final folder = Directory('${dir.path}/YellowFlowers');
@@ -255,11 +246,13 @@ class _FlowerScreenState extends State<FlowerScreen>
           .replaceAll('.', '-');
       final file = File('${folder.path}/story_$ts.png');
       await file.writeAsBytes(pngBytes, flush: true);
-      if (!mounted) return;
+  if (mounted) setState(() => _exportActive = false);
+  if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tarjeta guardada en: ${file.path}')),
       );
     } catch (e) {
+  if (mounted) setState(() => _exportActive = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo guardar la tarjeta: $e')),
@@ -288,6 +281,36 @@ class _FlowerScreenState extends State<FlowerScreen>
         builder: (context, _) {
           return Stack(
             children: [
+              // Hidden story card rendered only during export
+              if (_exportActive)
+                IgnorePointer(
+                  ignoring: true,
+                  child: Opacity(
+                    opacity: 0.01, // pequeño pero visible al motor para pintar
+                    child: Center(
+                      child: OverflowBox(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 1080,
+                          height: 1920,
+                          child: StoryCard(
+                            name: widget.recipientName,
+                            message: _currentMessage,
+                            qrUrl: kQrCodeUrl,
+                            topColor:
+                                _topColorAnim.value ?? const Color(0xFFFFF7C2),
+                            bottomColor:
+                                _bottomColorAnim.value ?? const Color(0xFFFFB3C6),
+                            fancyName: widget.fancyName,
+                            boundaryKey: _exportBoundaryKey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
