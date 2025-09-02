@@ -5,9 +5,10 @@ class FlorPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final petaloPaint = Paint()..color = Colors.yellow;
-    final centroPaint = Paint()..color = Colors.orange;
-    final talloPaint = Paint()
+  // Paleta más suave y elegante
+  final petaloPaint = Paint()..color = const Color(0xFFFFE07D); // amarillo suave
+  final centroPaint = Paint()..color = const Color(0xFFFFB347); // naranja durazno
+  final talloPaint = Paint()
       ..color = Colors.green
       ..strokeWidth = 2;
 
