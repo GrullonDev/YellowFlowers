@@ -9,10 +9,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
-import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
-import 'package:yellow_flowers/features/Flowers/widgets/flower_themed.dart';
-import 'package:yellow_flowers/features/Flowers/widgets/story_card.dart';
+import 'package:yellow_flowers/features/flowers/models/personalization.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower_themed.dart';
+import 'package:yellow_flowers/features/flowers/widgets/story_card.dart';
 import 'package:yellow_flowers/utils/constants.dart';
 
 class FlowerScreen extends StatefulWidget {
@@ -20,12 +20,14 @@ class FlowerScreen extends StatefulWidget {
   final FlowerTheme theme;
   final Mood mood;
   final bool fancyName;
+  final FlowerAnimationStyle animationStyle;
   const FlowerScreen({
     super.key,
     required this.recipientName,
     this.theme = FlowerTheme.daisy,
     this.mood = Mood.joy,
     this.fancyName = false,
+    this.animationStyle = FlowerAnimationStyle.sway,
   });
 
   @override
@@ -493,24 +495,41 @@ class _FlowerScreenState extends State<FlowerScreen>
                   animation: _flowerControllers[index],
                   builder: (context, child) {
                     final rnd = math.Random(index);
-                    final x = rnd.nextDouble() * screenWidth;
+                    final baseX = rnd.nextDouble() * screenWidth;
                     final y = screenHeight * 0.38 +
                         rnd.nextDouble() * (screenHeight * 0.45);
-                    final scale = 0.9 +
-                        math.sin(
-                                _flowerControllers[index].value * 2 * math.pi) *
-                            0.05;
+                    final t = _flowerControllers[index].value;
+                    // Animation styles
+                    double scale = 1.0;
+                    double angle = 0.0;
+                    double swayX = 0.0;
+                    switch (widget.animationStyle) {
+                      case FlowerAnimationStyle.pulse:
+                        scale = 0.95 + math.sin(t * 2 * math.pi) * 0.06;
+                        break;
+                      case FlowerAnimationStyle.spin:
+                        angle = math.sin(t * 2 * math.pi) * 0.35; // ~20°
+                        scale = 0.98 + math.sin(t * 2 * math.pi) * 0.02;
+                        break;
+                      case FlowerAnimationStyle.sway:
+                        swayX = math.sin(t * 2 * math.pi + index) * 14.0;
+                        scale = 0.98 + math.sin(t * 2 * math.pi) * 0.02;
+                        break;
+                    }
                     return Positioned(
-                      left: x,
+                      left: baseX + swayX,
                       top: y,
-                      child: Transform.scale(
-                        scale: scale,
-                        child: SizedBox(
-                          width: screenWidth / 11,
-                          height: screenHeight / 2.3,
-                          child: widget.theme == FlowerTheme.daisy
-                              ? const Flor()
-                              : FlowerThemed(theme: widget.theme),
+                      child: Transform.rotate(
+                        angle: angle,
+                        child: Transform.scale(
+                          scale: scale,
+                          child: SizedBox(
+                            width: screenWidth / 11,
+                            height: screenHeight / 2.3,
+                            child: widget.theme == FlowerTheme.daisy
+                                ? const Flor()
+                                : FlowerThemed(theme: widget.theme),
+                          ),
                         ),
                       ),
                     );

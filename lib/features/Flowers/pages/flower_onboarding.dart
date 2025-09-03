@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:lottie/lottie.dart';
 
-import 'package:yellow_flowers/features/Flowers/widgets/name_entry_flower.dart';
+import 'package:yellow_flowers/features/flowers/widgets/name_entry_flower.dart';
 
 class FlowerOnboardingPage extends StatefulWidget {
   const FlowerOnboardingPage({super.key});

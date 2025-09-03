@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
-import 'package:yellow_flowers/features/Flowers/widgets/flower_theme_painter.dart';
+import 'package:yellow_flowers/features/flowers/models/personalization.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower_theme_painter.dart';
 
 class FlowerThemed extends StatelessWidget {
   const FlowerThemed({super.key, required this.theme, this.width, this.height});
