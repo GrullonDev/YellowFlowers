@@ -17,7 +17,7 @@ class HomeBloc extends BaseModel {
           destination: const FlowerOnboardingPage(),
           description: 'Un detalle con flores y un mensaje especial 💛',
         ),
-        MenuItem(
+        /* MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
           destination: AlertDialog(
@@ -31,8 +31,8 @@ class HomeBloc extends BaseModel {
             ],
           ),
           description: 'Tus recuerdos favoritos, en un solo lugar 🖼️',
-        ),
-        MenuItem(
+        ), */
+        /* MenuItem(
           title: 'Mensajes Especiales',
           icon: Icons.message,
           destination: AlertDialog(
@@ -46,14 +46,14 @@ class HomeBloc extends BaseModel {
             ],
           ),
           description: 'Palabras que llegan al corazón ✍️',
-        ),
+        ), */
         MenuItem(
           title: 'Música Romántica',
           icon: Icons.music_note,
           destination: const MusicPage(),
           description: 'Melodías para acompañar tu momento 🎵',
         ),
-        MenuItem(
+        /* MenuItem(
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
           destination: AlertDialog(
@@ -67,7 +67,7 @@ class HomeBloc extends BaseModel {
             ],
           ),
           description: 'Diseña y comparte una tarjeta en segundos 🎁',
-        ),
+        ), */
       ];
 
   void showMessage() {
