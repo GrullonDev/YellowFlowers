@@ -155,6 +155,7 @@ class _HomeLayoutState extends State<HomeLayout>
   }
 }
 
+// End of _HomeLayoutState
 class _AnimatedLeadingIcon extends StatelessWidget {
   const _AnimatedLeadingIcon({
     required this.icon,

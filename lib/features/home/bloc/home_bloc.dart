@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/Flowers/pages/flower_onboarding.dart';
+import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
 import 'package:yellow_flowers/features/home/data/model/menu_item.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';

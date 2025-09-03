@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:yellow_flowers/features/Flowers/bloc/flower_bloc.dart';
-import 'package:yellow_flowers/features/Flowers/models/personalization.dart';
-import 'package:yellow_flowers/features/Flowers/pages/flower_screen.dart';
-import 'package:yellow_flowers/features/Flowers/widgets/flower_illustration.dart';
+import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
+import 'package:yellow_flowers/features/flowers/models/personalization.dart';
+import 'package:yellow_flowers/features/flowers/pages/flower_screen.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower_illustration.dart';
 
 class NameEntryFlower extends StatefulWidget {
   const NameEntryFlower({super.key});
@@ -21,6 +21,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
   FlowerTheme _theme = FlowerTheme.daisy;
   Mood _mood = Mood.joy;
   bool _fancyName = false;
+  FlowerAnimationStyle? _animationStyle; // null => usa el sugerido por tema
 
   @override
   void initState() {
@@ -174,6 +175,44 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                           ],
                         ),
                         const SizedBox(height: 12),
+                        // Animación dinámica de flores de fondo
+                        const Text(
+                          'Animación de flores:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Row(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('🌬️ Balanceo'),
+                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                                  FlowerAnimationStyle.sway,
+                              onSelected: (_) => setState(
+                                  () => _animationStyle = FlowerAnimationStyle.sway),
+                            ),
+                            ChoiceChip(
+                              label: const Text('🌀 Giro'),
+                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                                  FlowerAnimationStyle.spin,
+                              onSelected: (_) => setState(
+                                  () => _animationStyle = FlowerAnimationStyle.spin),
+                            ),
+                            ChoiceChip(
+                              label: const Text('💓 Latido'),
+                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                                  FlowerAnimationStyle.pulse,
+                              onSelected: (_) => setState(
+                                  () => _animationStyle = FlowerAnimationStyle.pulse),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
                         // Personalización: ánimo (gradiente)
                         const Text(
                           'Ánimo:',
@@ -257,6 +296,8 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                                       theme: _theme,
                                       mood: _mood,
                                       fancyName: _fancyName,
+                    animationStyle:
+                      _animationStyle ?? _theme.defaultAnimation,
                                     ),
                                   ),
                                 ),
