@@ -1,19 +1,34 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 
-import 'package:yellow_flowers/features/Flowers/widgets/flower.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+
+import 'package:yellow_flowers/features/flowers/models/personalization.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower.dart';
+import 'package:yellow_flowers/features/flowers/widgets/flower_themed.dart';
+import 'package:yellow_flowers/features/flowers/widgets/story_card.dart';
+import 'package:yellow_flowers/utils/constants.dart';
 
 class FlowerScreen extends StatefulWidget {
   final String recipientName;
-  const FlowerScreen({super.key, required this.recipientName});
+  final FlowerTheme theme;
+  final Mood mood;
+  final bool fancyName;
+  final FlowerAnimationStyle animationStyle;
+  const FlowerScreen({
+    super.key,
+    required this.recipientName,
+    this.theme = FlowerTheme.daisy,
+    this.mood = Mood.joy,
+    this.fancyName = false,
+    this.animationStyle = FlowerAnimationStyle.sway,
+  });
 
   @override
   State<FlowerScreen> createState() => _FlowerScreenState();
@@ -27,6 +42,8 @@ class _FlowerScreenState extends State<FlowerScreen>
   late final List<AnimationController> _sparkleControllers;
   late final AnimationController _bgController;
   late final AnimationController _petalController;
+  late final AnimationController _sparkleBurstController;
+  late final AnimationController _shareBloomController;
 
   // Background gradient
   late final Animation<Color?> _topColorAnim;
@@ -37,7 +54,7 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   // Counts
   final int _sparkleCount = 30;
-  final int _flowerCount = 24; // minimalista, menos saturación visual
+  final int _flowerCount = 24;
   final int _petalCount = 20;
 
   // Petal seeds
@@ -45,6 +62,10 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   // Share as image
   final GlobalKey _shareKey = GlobalKey();
+  // Persistent export boundary to avoid overlay race conditions
+  final GlobalKey _exportBoundaryKey = GlobalKey();
+  bool _exportActive = false;
+  // Offstage story builder key (uses StoryCard.repaintKey internally)
 
   // Messages
   static const List<String> _messages = [
@@ -75,7 +96,6 @@ class _FlowerScreenState extends State<FlowerScreen>
   void initState() {
     super.initState();
 
-    // Flowers
     _flowerControllers = List.generate(
       _flowerCount,
       (_) => AnimationController(
@@ -84,7 +104,6 @@ class _FlowerScreenState extends State<FlowerScreen>
       )..repeat(reverse: true),
     );
 
-    // Sparkles
     _sparkleControllers = List.generate(
       _sparkleCount,
       (_) => AnimationController(
@@ -93,31 +112,37 @@ class _FlowerScreenState extends State<FlowerScreen>
       )..repeat(reverse: true),
     );
 
-    // Message card fade-in
     _messageAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..forward();
 
-    // Background gradient animation
     _bgController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat(reverse: true);
+    final gradients = _gradientsForMood(widget.mood);
     _topColorAnim = ColorTween(
-      begin: const Color(0xFFFFF7C2), // amarillo suave
-      end: const Color(0xFFFFE0E0), // rosa pálido
+      begin: gradients.$1,
+      end: gradients.$2,
     ).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
     _bottomColorAnim = ColorTween(
-      begin: const Color(0xFFFFD3B6), // durazno
-      end: const Color(0xFFFFB3C6), // rosa más intenso
+      begin: gradients.$3,
+      end: gradients.$4,
     ).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
 
-    // Falling petals
     _petalController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 14),
     )..repeat();
+    _sparkleBurstController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _shareBloomController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
     final rnd = math.Random();
     _petalSeeds = List.generate(_petalCount, (i) {
       return _PetalSeed(
@@ -133,48 +158,116 @@ class _FlowerScreenState extends State<FlowerScreen>
 
     _currentMessage = _messages[rnd.nextInt(_messages.length)];
 
-    // Refresh message periodically
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       setState(() {
         _currentMessage = _messages[rnd.nextInt(_messages.length)];
       });
+      // Dispara un destello extra de brillos cada cambio de mensaje
+      _sparkleBurstController.forward(from: 0);
     });
   }
 
   @override
   void dispose() {
-    for (final c in _flowerControllers) c.dispose();
-    for (final c in _sparkleControllers) c.dispose();
+    for (final c in _flowerControllers) {
+      c.dispose();
+    }
+    for (final c in _sparkleControllers) {
+      c.dispose();
+    }
     _messageAnimationController.dispose();
     _bgController.dispose();
     _petalController.dispose();
+    _sparkleBurstController.dispose();
+    _shareBloomController.dispose();
     _timer.cancel();
     super.dispose();
   }
 
   Future<void> _shareMessageCard() async {
     try {
-      final boundary = _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return;
-      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-      final Uint8List pngBytes = byteData.buffer.asUint8List();
-      final xFile = XFile.fromData(
-        pngBytes,
-        mimeType: 'image/png',
-      );
+      // Activa render temporal del StoryCard oculto
+      if (mounted) setState(() => _exportActive = true);
+      // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
+      await Future<void>.delayed(Duration.zero);
+      await WidgetsBinding.instance.endOfFrame;
+      await WidgetsBinding.instance.endOfFrame;
+      // Frame extra por seguridad en dispositivos lentos
+      await WidgetsBinding.instance.endOfFrame;
+      Uint8List? pngBytes;
+      try {
+        pngBytes =
+            await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+      } catch (_) {}
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
+      if (pngBytes == null) return;
+      // Save to temp file then share
+      final dir = await getTemporaryDirectory();
+      final path = '${dir.path}/mensaje_flores.png';
+      final f = File(path);
+      await f.writeAsBytes(pngBytes, flush: true);
       await SharePlus.instance.share(
         ShareParams(
-          files: [xFile],
-          fileNameOverrides: ['mensaje_flores.png'],
+          files: [
+            XFile(f.path, mimeType: 'image/png', name: 'mensaje_flores.png')
+          ],
           text: 'Un mensaje para ti 💛',
         ),
       );
+      if (mounted) setState(() => _exportActive = false);
     } catch (e) {
+      if (mounted) setState(() => _exportActive = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo compartir la tarjeta: $e')),
+      );
+    }
+  }
+
+  Future<void> _saveStoryCard() async {
+    try {
+      // Activa render temporal del StoryCard oculto
+      if (mounted) setState(() => _exportActive = true);
+      // Espera 2 frames para garantizar layout y pintado del RepaintBoundary persistente
+      await Future<void>.delayed(Duration.zero);
+      await WidgetsBinding.instance.endOfFrame;
+      await WidgetsBinding.instance.endOfFrame;
+      // Frame extra por seguridad en dispositivos lentos
+      await WidgetsBinding.instance.endOfFrame;
+      Uint8List? pngBytes;
+      try {
+        pngBytes =
+            await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+      } catch (_) {}
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.5);
+      pngBytes ??=
+          await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 1.0);
+      if (pngBytes == null) return;
+      final dir = await getApplicationDocumentsDirectory();
+      final folder = Directory('${dir.path}/YellowFlowers');
+      if (!await folder.exists()) {
+        await folder.create(recursive: true);
+      }
+      final ts = DateTime.now()
+          .toIso8601String()
+          .replaceAll(':', '-')
+          .replaceAll('.', '-');
+      final file = File('${folder.path}/story_$ts.png');
+      await file.writeAsBytes(pngBytes, flush: true);
+      if (mounted) setState(() => _exportActive = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tarjeta guardada en: ${file.path}')),
+      );
+    } catch (e) {
+      if (mounted) setState(() => _exportActive = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo guardar la tarjeta: $e')),
       );
     }
   }
@@ -190,13 +283,50 @@ class _FlowerScreenState extends State<FlowerScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: AnimatedBuilder(
-        animation: Listenable.merge([_bgController, _petalController]),
+        animation: Listenable.merge([
+          _bgController,
+          _petalController,
+          _sparkleBurstController,
+        ]),
         builder: (context, _) {
           return Stack(
             children: [
-              // Dynamic gradient background
+              // Hidden story card rendered only during export
+              if (_exportActive)
+                IgnorePointer(
+                  ignoring: true,
+                  child: Opacity(
+                    opacity: 0.01, // pequeño pero visible al motor para pintar
+                    child: Center(
+                      child: OverflowBox(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: 1080,
+                          height: 1920,
+                          child: StoryCard(
+                            name: widget.recipientName,
+                            message: _currentMessage,
+                            qrUrl: kQrCodeUrl,
+                            topColor:
+                                _topColorAnim.value ?? const Color(0xFFFFF7C2),
+                            bottomColor: _bottomColorAnim.value ??
+                                const Color(0xFFFFB3C6),
+                            fancyName: widget.fancyName,
+                            boundaryKey: _exportBoundaryKey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -209,8 +339,6 @@ class _FlowerScreenState extends State<FlowerScreen>
                   ),
                 ),
               ),
-
-              // Floating message card in the center top
               Align(
                 alignment: const Alignment(0, -0.15),
                 child: Opacity(
@@ -219,13 +347,14 @@ class _FlowerScreenState extends State<FlowerScreen>
                     key: _shareKey,
                     child: Container(
                       constraints: BoxConstraints(maxWidth: screenWidth * 0.88),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 18),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -236,24 +365,84 @@ class _FlowerScreenState extends State<FlowerScreen>
                         children: [
                           const Text('✨🌻💛', style: TextStyle(fontSize: 18)),
                           const SizedBox(height: 8),
-                          Text(
-                            "${widget.recipientName}, $_currentMessage",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
-                              color: Colors.black87,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              height: 1.35,
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 500),
+                            transitionBuilder: (child, anim) {
+                              final curved = CurvedAnimation(
+                                  parent: anim, curve: Curves.easeOut);
+                              return FadeTransition(
+                                opacity: curved,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.15),
+                                    end: Offset.zero,
+                                  ).animate(curved),
+                                  child: ScaleTransition(
+                                    scale: Tween<double>(begin: 0.98, end: 1.0)
+                                        .animate(curved),
+                                    child: child,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "${widget.recipientName}, $_currentMessage",
+                              key: ValueKey(_currentMessage),
+                              textAlign: TextAlign.center,
+                              style: (widget.fancyName
+                                      ? GoogleFonts.raleway()
+                                          .copyWith(fontStyle: FontStyle.italic)
+                                      : GoogleFonts.poppins())
+                                  .copyWith(
+                                color: Colors.black87,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                                height: 1.35,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    AnimatedBuilder(
+                                      animation: _shareBloomController,
+                                      builder: (context, _) => CustomPaint(
+                                        painter: _BloomPainter(
+                                          progress: _shareBloomController.value,
+                                          color: Colors.pinkAccent,
+                                        ),
+                                        size: const Size(48, 48),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Compartir',
+                                      onPressed: () async {
+                                        _shareBloomController.forward(from: 0);
+                                        await _shareMessageCard();
+                                      },
+                                      icon: const Icon(
+                                        Icons.share_rounded,
+                                        color: Colors.pinkAccent,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               IconButton(
-                                tooltip: 'Compartir',
-                                onPressed: _shareMessageCard,
-                                icon: const Icon(Icons.share_rounded, color: Colors.pinkAccent),
+                                tooltip: 'Guardar',
+                                onPressed: _saveStoryCard,
+                                icon: const Icon(
+                                  Icons.download_rounded,
+                                  color: Colors.pinkAccent,
+                                ),
                               ),
                             ],
                           ),
@@ -263,17 +452,25 @@ class _FlowerScreenState extends State<FlowerScreen>
                   ),
                 ),
               ),
-
-              // Soft sparkles around the message
               ...List.generate(
                 _sparkleCount,
                 (index) => AnimatedBuilder(
                   animation: _sparkleControllers[index],
                   builder: (context, child) {
-                    final x = math.Random(index * 997).nextDouble() * screenWidth;
-                    final y = screenHeight * 0.15 + math.Random(index * 1337).nextDouble() * (screenHeight * 0.35);
-                    final sizeDot = 2.0 + _sparkleControllers[index].value * 3.0;
-                    final opacity = 0.2 + _sparkleControllers[index].value * 0.6;
+                    final x =
+                        math.Random(index * 997).nextDouble() * screenWidth;
+                    final y = screenHeight * 0.15 +
+                        math.Random(index * 1337).nextDouble() *
+                            (screenHeight * 0.35);
+                    final baseSize =
+                        2.0 + _sparkleControllers[index].value * 3.0;
+                    final baseOpacity =
+                        0.2 + _sparkleControllers[index].value * 0.6;
+                    final burst = 1.0 + 0.8 * _sparkleBurstController.value;
+                    final sizeDot = baseSize * burst;
+                    final opacity = (baseOpacity *
+                            (1.0 + 1.0 * _sparkleBurstController.value))
+                        .clamp(0.0, 1.0);
                     return Positioned(
                       left: x,
                       top: y,
@@ -292,39 +489,59 @@ class _FlowerScreenState extends State<FlowerScreen>
                   },
                 ),
               ),
-
-              // Elegant minimal flowers
               ...List.generate(
                 _flowerCount,
                 (index) => AnimatedBuilder(
                   animation: _flowerControllers[index],
                   builder: (context, child) {
                     final rnd = math.Random(index);
-                    final x = rnd.nextDouble() * screenWidth;
-                    final y = screenHeight * 0.38 + rnd.nextDouble() * (screenHeight * 0.45);
-                    final scale = 0.9 + math.sin(_flowerControllers[index].value * 2 * math.pi) * 0.05;
+                    final baseX = rnd.nextDouble() * screenWidth;
+                    final y = screenHeight * 0.38 +
+                        rnd.nextDouble() * (screenHeight * 0.45);
+                    final t = _flowerControllers[index].value;
+                    // Animation styles
+                    double scale = 1.0;
+                    double angle = 0.0;
+                    double swayX = 0.0;
+                    switch (widget.animationStyle) {
+                      case FlowerAnimationStyle.pulse:
+                        scale = 0.95 + math.sin(t * 2 * math.pi) * 0.06;
+                        break;
+                      case FlowerAnimationStyle.spin:
+                        angle = math.sin(t * 2 * math.pi) * 0.35; // ~20°
+                        scale = 0.98 + math.sin(t * 2 * math.pi) * 0.02;
+                        break;
+                      case FlowerAnimationStyle.sway:
+                        swayX = math.sin(t * 2 * math.pi + index) * 14.0;
+                        scale = 0.98 + math.sin(t * 2 * math.pi) * 0.02;
+                        break;
+                    }
                     return Positioned(
-                      left: x,
+                      left: baseX + swayX,
                       top: y,
-                      child: Transform.scale(
-                        scale: scale,
-                        child: SizedBox(
-                          width: screenWidth / 11,
-                          height: screenHeight / 2.3,
-                          child: const Flor(),
+                      child: Transform.rotate(
+                        angle: angle,
+                        child: Transform.scale(
+                          scale: scale,
+                          child: SizedBox(
+                            width: screenWidth / 11,
+                            height: screenHeight / 2.3,
+                            child: widget.theme == FlowerTheme.daisy
+                                ? const Flor()
+                                : FlowerThemed(theme: widget.theme),
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
               ),
-
-              // Falling petals
               ...List.generate(_petalCount, (i) {
                 final seed = _petalSeeds[i];
                 final t = (_petalController.value + seed.phase) % 1.0;
                 final y = (t * (screenHeight + 60)) - 60 + seed.startY * 40;
-                final x = seed.startX * screenWidth + math.sin(t * seed.swayFreq * 2 * math.pi) * seed.swayAmp;
+                final x = seed.startX * screenWidth +
+                    math.sin(t * seed.swayFreq * 2 * math.pi) * seed.swayAmp;
                 final rot = t * seed.rotationSpeed * 2 * math.pi;
                 return Positioned(
                   left: x,
@@ -343,6 +560,33 @@ class _FlowerScreenState extends State<FlowerScreen>
   }
 }
 
+// Gradientes por estado de ánimo
+(Color, Color, Color, Color) _gradientsForMood(Mood mood) {
+  switch (mood) {
+    case Mood.joy:
+      return (
+        const Color(0xFFFFF7C2),
+        const Color(0xFFFFE8A3),
+        const Color(0xFFFFD3B6),
+        const Color(0xFFFFB347),
+      );
+    case Mood.calm:
+      return (
+        const Color(0xFFEDE7F6),
+        const Color(0xFFD1C4E9),
+        const Color(0xFFB39DDB),
+        const Color(0xFF9575CD),
+      );
+    case Mood.passion:
+      return (
+        const Color(0xFFFFE0E0),
+        const Color(0xFFFFC0CB),
+        const Color(0xFFFFA6C1),
+        const Color(0xFFFF77A9),
+      );
+  }
+}
+
 class _Petal extends StatelessWidget {
   const _Petal({required this.size});
   final double size;
@@ -352,11 +596,11 @@ class _Petal extends StatelessWidget {
       width: size,
       height: size * 1.8,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFE07D).withOpacity(0.9),
+        color: const Color(0xFFFFE07D).withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(size),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFFE07D).withOpacity(0.4),
+            color: const Color(0xFFFFE07D).withValues(alpha: 0.4),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -383,4 +627,48 @@ class _PetalSeed {
   final double size;
   final double rotationSpeed;
   final double phase;
+}
+
+class _BloomPainter extends CustomPainter {
+  _BloomPainter({required this.progress, required this.color});
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    canvas.translate(center.dx, center.dy);
+    final t = Curves.easeOut.transform(progress.clamp(0.0, 1.0));
+
+    // Petals
+    const petals = 8;
+    const baseLen = 10.0;
+    final len = baseLen + 22.0 * t;
+    final width = 6.0 + 8.0 * t;
+    final yOffset = 6.0 + 8.0 * t;
+    final petalPaint = Paint()
+      ..color = color.withValues(alpha: 0.5 * (1.0 - t))
+      ..style = PaintingStyle.fill;
+    for (var i = 0; i < petals; i++) {
+      canvas.save();
+      canvas.rotate(i * (2 * math.pi / petals));
+      final rect = Rect.fromCenter(
+        center: Offset(0, -yOffset - len / 2),
+        width: width,
+        height: len,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, Radius.circular(width / 2)),
+        petalPaint,
+      );
+      canvas.restore();
+    }
+
+    final corePaint = Paint()..color = color.withValues(alpha: 0.6 * (1.0 - t));
+    canvas.drawCircle(Offset.zero, 6.0 + 6.0 * t, corePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _BloomPainter oldDelegate) =>
+      oldDelegate.progress != progress || oldDelegate.color != color;
 }

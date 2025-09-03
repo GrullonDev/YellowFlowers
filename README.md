@@ -1,6 +1,6 @@
-# yellow_flowers
+# Yellow Flowers
 
-Una aplicación móvil desarrollada en Flutter para [descripción breve del propósito de la aplicación]
+Una app Flutter para crear y personalizar tarjetas de flores virtuales con animaciones sutiles y opciones de compartir/guardar listas para Instagram Stories.
 
 ## Tabla de Contenido
 
@@ -15,24 +15,38 @@ Una aplicación móvil desarrollada en Flutter para [descripción breve del prop
 
 ## Descripción
 
-Yellow Flowers es una aplicación móvil desarrollada con Flutter que [descripción detallada del propósito y funcionalidades principales de la aplicación]. El proyecto implementa las mejores prácticas de desarrollo y arquitectura limpia para garantizar un código mantenible y escalable.
+Yellow Flowers permite generar mensajes bonitos con un fondo animado, flores elegantes y microinteracciones. Puedes personalizar el tema de flores, el estado de ánimo del gradiente y el estilo del nombre. La app exporta una tarjeta en formato 1080×1920 con un código QR configurable para compartir en redes.
 
 ## Versión y Requisitos
 
-- Flutter versión: 3.35.2 (estable)
-- Dart SDK: 3.9.0 (por defecto)
-- iOS: iOS 12.0 o superior
-- Android: Android 5.0 (API 21) o superior
+- Dart SDK: >= 3.5.1 (según `environment.sdk` del proyecto)
+- Flutter: compatible con Dart 3.5 (por ejemplo, Flutter 3.24+)
+- iOS: 12.0+
+- Android: 5.0 (API 21)+
 
-### Mejoras Internas Implementadas
+### Funcionalidades clave
 
-- Implementación de arquitectura limpia (Clean Architecture)
-- Gestión de estado con [nombre del state management]
-- Inyección de dependencias
-- Manejo de rutas con AutoRoute
-- Localización implementada
-- Tema dinámico (modo claro/oscuro)
-- Tests unitarios y de widgets
+- Onboarding cálido con ilustración floral y entrada de nombre estilizada
+- Personalización:
+	- Tema de flores: Daisy, Rose, Sunflower
+	- Ánimo del gradiente de fondo: Joy, Calm, Passion
+	- Nombre en cursiva elegante (opcional)
+- Pantalla de mensaje animada:
+	- Gradiente dinámico, pétalos cayendo, brillos suaves y flores elegantes
+	- Transición sutil del mensaje y microinteracciones (bloom al compartir)
+- Compartir/Guardar como imagen:
+	- Exportación a 1080×1920 (formato Instagram Story)
+	- Código QR configurable hacia tu app/sitio
+	- Compartir como archivo (share_plus) y guardar en documentos de la app
+
+### Stack técnico
+
+- Flutter + Dart 3.5+
+- State management: Provider
+- Inyección de dependencias: get_it
+- Pintado personalizado (CustomPainter) para flores y efectos
+- Paquetes clave: share_plus, pretty_qr_code, google_fonts, path_provider
+	- Opcional: just_audio (base presente en el repo para música ambiental)
 
 ## Instalación
 
@@ -41,8 +55,8 @@ Sigue estos pasos para clonar el repositorio e instalar las dependencias necesar
 1. Clona el repositorio:
 
 ```bash
-git clone https://github.com/tu-usuario/yellow_flowers.git
-cd yellow_flowers
+git clone https://github.com/GrullonDev/YellowFlowers.git
+cd YellowFlowers
 ```
 
 2. Instala FVM (Flutter Version Management) si no lo tienes instalado:
@@ -51,7 +65,7 @@ cd yellow_flowers
 dart pub global activate fvm
 ```
 
-3. Usa FVM para instalar la versión de Flutter especificada en el proyecto:
+3. Usa FVM para instalar y usar la versión de Flutter deseada (opcional):
 
 ```bash
 fvm install
@@ -72,9 +86,18 @@ Para ejecutar la aplicación, usa el siguiente comando:
 flutter run
 ```
 
+Flujo básico:
+- Ingresa el nombre de la persona (opcionalmente activa el estilo cursivo)
+- Elige el tema de flor y el estado de ánimo del fondo
+- En la pantalla del mensaje, usa los íconos de compartir o de descarga
+
+Configurar el enlace del QR:
+- Edita `lib/features/Flowers/pages/flower_screen.dart`
+- Busca `const qrUrl = 'https://jorgegrullondev.com/';` y cambia al URL final (Play Store/App Store/Deep Link)
+
 ## Solución de Problemas
 
-### Compilación en iOS
+### Compilación en iOS (macOS)
 
 Para resolver problemas comunes de compilación en iOS:
 
@@ -88,7 +111,7 @@ sudo gem install cocoapods
 ```
 
 ```bash
-cd /Users/jorgegrullon/Projects/yellow_flowers/ios && pod repo update
+cd ios && pod repo update
 ```
 
 ```bash
@@ -166,13 +189,7 @@ fvm flutter build apk --release
 fvm flutter build appbundle --release
 ```
 
-```bash
-open build/app/outputs/flutter-apk/
-```
-
-```bash
-open build/app/outputs/flutter-apk/
-```
+En Windows: explora la carpeta `build\app\outputs\flutter-apk\` en el Explorador.
 
 ## iOS IPA/Bundle
 
@@ -187,9 +204,7 @@ fvm flutter build ipa
 fvm flutter build ipa --release
 ```
 
-```bash
-open build/ios/ipa/
-```
+En macOS: abre `build/ios/ipa/` desde Finder.
 
 # Recursos
 

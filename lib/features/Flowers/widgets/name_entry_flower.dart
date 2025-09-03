@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
+import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_screen.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower_illustration.dart';
 
@@ -17,6 +18,10 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
     with SingleTickerProviderStateMixin {
   late AnimationController _pressController;
   late Animation<double> _scale;
+  FlowerTheme _theme = FlowerTheme.daisy;
+  Mood _mood = Mood.joy;
+  bool _fancyName = false;
+  FlowerAnimationStyle? _animationStyle; // null => usa el sugerido por tema
 
   @override
   void initState() {
@@ -47,7 +52,10 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: const Text(''),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
             body: Container(
               decoration: const BoxDecoration(
@@ -132,6 +140,127 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                           ),
                         ),
                         const SizedBox(height: 20),
+                        // Personalización: tema de flor
+                        const Text(
+                          'Tema:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Row(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('🌼 Margarita'),
+                              selected: _theme == FlowerTheme.daisy,
+                              onSelected: (_) =>
+                                  setState(() => _theme = FlowerTheme.daisy),
+                            ),
+                            ChoiceChip(
+                              label: const Text('🌻 Girasol'),
+                              selected: _theme == FlowerTheme.sunflower,
+                              onSelected: (_) => setState(
+                                  () => _theme = FlowerTheme.sunflower),
+                            ),
+                            ChoiceChip(
+                              label: const Text('🌸 Rosa'),
+                              selected: _theme == FlowerTheme.rose,
+                              onSelected: (_) =>
+                                  setState(() => _theme = FlowerTheme.rose),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Animación dinámica de flores de fondo
+                        const Text(
+                          'Animación de flores:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Row(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('🌬️ Balanceo'),
+                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                                  FlowerAnimationStyle.sway,
+                              onSelected: (_) => setState(
+                                  () => _animationStyle = FlowerAnimationStyle.sway),
+                            ),
+                            ChoiceChip(
+                              label: const Text('🌀 Giro'),
+                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                                  FlowerAnimationStyle.spin,
+                              onSelected: (_) => setState(
+                                  () => _animationStyle = FlowerAnimationStyle.spin),
+                            ),
+                            ChoiceChip(
+                              label: const Text('💓 Latido'),
+                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                                  FlowerAnimationStyle.pulse,
+                              onSelected: (_) => setState(
+                                  () => _animationStyle = FlowerAnimationStyle.pulse),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Personalización: ánimo (gradiente)
+                        const Text(
+                          'Ánimo:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Row(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('💛 Alegría'),
+                              selected: _mood == Mood.joy,
+                              onSelected: (_) =>
+                                  setState(() => _mood = Mood.joy),
+                            ),
+                            ChoiceChip(
+                              label: const Text('🟣 Calma'),
+                              selected: _mood == Mood.calm,
+                              onSelected: (_) =>
+                                  setState(() => _mood = Mood.calm),
+                            ),
+                            ChoiceChip(
+                              label: const Text('💗 Pasión'),
+                              selected: _mood == Mood.passion,
+                              onSelected: (_) =>
+                                  setState(() => _mood = Mood.passion),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Tipografía especial para el nombre
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text(
+                            'Nombre en tipografía elegante (cursiva)',
+                            style: TextStyle(
+                              color: Colors.black87,
+                            ),
+                          ),
+                          value: _fancyName,
+                          onChanged: (v) => setState(() => _fancyName = v),
+                        ),
+                        const SizedBox(height: 12),
                         // Botón principal con microinteracción
                         AnimatedBuilder(
                           animation: _scale,
@@ -144,8 +273,9 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                           child: GestureDetector(
                             onTapDown: (_) => _pressController.forward(),
                             onTapCancel: () => _pressController.reverse(),
-                            onTapUp: (_) async {
-                              await _pressController.reverse();
+                            onTapUp: (_) {
+                              // No await to avoid async gap before using context
+                              _pressController.reverse();
                               final name = model.nameController.text.trim();
                               if (name.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -161,7 +291,14 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                                   builder: (context) => HeroControllerScope(
                                     controller: MaterialApp
                                         .createMaterialHeroController(),
-                                    child: FlowerScreen(recipientName: name),
+                                    child: FlowerScreen(
+                                      recipientName: name,
+                                      theme: _theme,
+                                      mood: _mood,
+                                      fancyName: _fancyName,
+                    animationStyle:
+                      _animationStyle ?? _theme.defaultAnimation,
+                                    ),
                                   ),
                                 ),
                               );
@@ -180,7 +317,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(0xFFFF69B4)
-                                        .withOpacity(0.35),
+                                        .withValues(alpha: 0.35),
                                     blurRadius: 18,
                                     offset: const Offset(0, 8),
                                   ),
