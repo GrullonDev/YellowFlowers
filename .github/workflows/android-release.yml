@@ -1,0 +1,59 @@
+name: Android Release (APK + Firebase App Distribution)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.2'
+          channel: 'stable'
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      - name: Print resolved version
+        run: |
+          ./android/gradlew -p android app:printVersion --no-daemon
+
+      - name: Build APK (release)
+        run: flutter build apk --release
+
+      - name: Find APK
+        id: apk
+        run: |
+          # Prefer flutter-apk path
+          APK_PATH=$(ls -1 build/app/outputs/flutter-apk/app-release.apk)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: ${{ secrets.FIREBASE_TEST_GROUPS }}
+          file: ${{ steps.apk.outputs.apk_path }}
+          releaseNotes: |
+            Build ${{ github.run_number }} from ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            VersionCode/Name is resolved by Gradle script.

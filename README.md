@@ -56,6 +56,29 @@ Sigue estos pasos para clonar el repositorio e instalar las dependencias necesar
 
 ```bash
 git clone https://github.com/GrullonDev/YellowFlowers.git
+
+### Versionado automático de APK (Android)
+
+Se configuró `android/app/build.gradle` para calcular `versionCode` automáticamente al compilar:
+
+Prioridad del `versionCode`:
+- Propiedad de Gradle: `-PversionCode=123`
+- Variables de entorno CI: `BUILD_NUMBER`, `GITHUB_RUN_NUMBER` o `CI_PIPELINE_IID`
+- Cantidad de commits: `git rev-list --count HEAD`
+- Marca de tiempo: `yyyyMMddHH`
+
+El `versionName` se mantiene con el valor de `pubspec.yaml` y se concatena `+versionCode` para trazabilidad.
+
+Comandos útiles:
+
+- Mostrar versión resuelta:
+	- `./gradlew :app:printVersion`
+- Construir APK release con versión automática:
+	- `flutter build apk --release`
+- Forzar un `versionCode` desde CI/local:
+	- `./gradlew :app:assembleRelease -PversionCode=42`
+
+El nombre del APK incluye versión: `yellowflowers-release-v<name>(<code>).apk`, útil para subir a Firebase App Distribution.
 cd YellowFlowers
 ```
 

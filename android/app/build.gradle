@@ -13,6 +13,44 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // --- Automated versioning for APKs ---
+    // Priority order:
+    // 1) -PversionCode (Gradle property): ./gradlew assembleRelease -PversionCode=123
+    // 2) CI env vars: BUILD_NUMBER, GITHUB_RUN_NUMBER, CI_PIPELINE_IID
+    // 3) Git commit count
+    // 4) Timestamp (yyyyMMddHH)
+    def resolveDynamicVersionCode = { ->
+        // Gradle property override
+        def prop = project.findProperty("versionCode")
+        if (prop != null) {
+            try { return Integer.parseInt(prop.toString()) } catch (ignored) {}
+        }
+        // CI envs
+        def ciEnv = System.getenv("BUILD_NUMBER") ?: System.getenv("GITHUB_RUN_NUMBER") ?: System.getenv("CI_PIPELINE_IID")
+        if (ciEnv != null) {
+            try { return Integer.parseInt(ciEnv.toString()) } catch (ignored) {}
+        }
+        // Git commit count
+        try {
+            def proc = "git rev-list --count HEAD".execute(null, rootDir)
+            proc.waitFor()
+            if (proc.exitValue() == 0) {
+                def text = proc.text.trim()
+                if (text) {
+                    return Integer.parseInt(text)
+                }
+            }
+        } catch (ignored) {}
+        // Timestamp fallback (fits 32-bit int for years around now)
+        try {
+            return Integer.parseInt(new Date().format("yyyyMMddHH"))
+        } catch (ignored) {
+            return flutter.versionCode // ultimate fallback
+        }
+    }
+
+    def dynamicVersionCode = resolveDynamicVersionCode()
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -29,8 +67,9 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+    versionCode = dynamicVersionCode
+    // Keep base name from pubspec and append dynamic code for traceability
+    versionName = "${flutter.versionName}+${dynamicVersionCode}"
     }
 
     buildTypes {
@@ -38,6 +77,24 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            // Name the APK with version info to ease Firebase/App Distribution uploads
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def vName = variant.versionName
+                    def vCode = variant.versionCode
+                    def flavor = variant.flavorName ? "-${variant.flavorName}" : ""
+                    def buildType = variant.buildType.name
+                    outputFileName = "yellowflowers-${buildType}${flavor}-v${vName}(${vCode}).apk"
+                }
+            }
+        }
+    }
+
+    // Helper task to print the resolved version values
+    tasks.register("printVersion") {
+        doLast {
+            println("Resolved versionCode: ${dynamicVersionCode}")
+            println("Resolved versionName: ${flutter.versionName}+${dynamicVersionCode}")
         }
     }
 }
