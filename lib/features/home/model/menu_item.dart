@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
 class MenuItem {
-  final String title;
-  final IconData icon;
-  final Widget destination;
-  final String description;
 
   MenuItem({
     required this.title,
@@ -12,4 +8,8 @@ class MenuItem {
     required this.destination,
     required this.description,
   });
+  final String title;
+  final IconData icon;
+  final Widget destination;
+  final String description;
 }

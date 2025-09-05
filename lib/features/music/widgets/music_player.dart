@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 
 class MusicPlayer extends StatelessWidget {
-  final MusicBloc model;
-  final bool isMiniPlayer;
 
   const MusicPlayer({
     super.key,
     required this.model,
     this.isMiniPlayer = false,
   });
+  final MusicBloc model;
+  final bool isMiniPlayer;
 
   @override
   Widget build(BuildContext context) {

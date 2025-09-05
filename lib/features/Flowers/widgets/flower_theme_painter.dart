@@ -184,23 +184,29 @@ class ThemedFlowerPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     // Helper: draw single petal as a teardrop using a path
-  Path petalPath(double w, double h, {double curvature = 0.55}) {
+    Path petalPath(double w, double h, {double curvature = 0.55}) {
       final path = Path();
       final top = Offset(0, -h / 2);
       final bottom = Offset(0, h / 2);
-  final rightCtrl = Offset(w * curvature, -h * 0.15);
+      final rightCtrl = Offset(w * curvature, -h * 0.15);
       path.moveTo(bottom.dx, bottom.dy);
       // Left curve to top
       path.cubicTo(
-        -w / 2, h * 0.25,
-        -w / 2, -h * 0.15,
-        top.dx, top.dy,
+        -w / 2,
+        h * 0.25,
+        -w / 2,
+        -h * 0.15,
+        top.dx,
+        top.dy,
       );
       // Right curve back to bottom
       path.cubicTo(
-        rightCtrl.dx, rightCtrl.dy,
-        w / 2, h * 0.25,
-        bottom.dx, bottom.dy,
+        rightCtrl.dx,
+        rightCtrl.dy,
+        w / 2,
+        h * 0.25,
+        bottom.dx,
+        bottom.dy,
       );
       path.close();
       return path;
@@ -215,7 +221,7 @@ class ThemedFlowerPainter extends CustomPainter {
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
       canvas.translate(0, -18);
-  final path = petalPath(22, 36);
+      final path = petalPath(22, 36);
       // Slight color variation per petal
       petalPaint.color = Color.lerp(roseBase, roseLight, 0.25 + 0.2 * t)!;
       canvas.drawPath(path, petalPaint);
@@ -232,7 +238,7 @@ class ThemedFlowerPainter extends CustomPainter {
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
       canvas.translate(0, -10);
-  final path = petalPath(16, 26, curvature: 0.6);
+      final path = petalPath(16, 26, curvature: 0.6);
       petalPaint.color = Color.lerp(roseBase, roseLight, 0.15 + 0.25 * t)!;
       canvas.drawPath(path, petalPaint);
       canvas.drawPath(path, petalStroke);
@@ -272,8 +278,8 @@ class ThemedFlowerPainter extends CustomPainter {
     const sepalCount = 3;
     for (var i = 0; i < sepalCount; i++) {
       final ang = i * (2 * math.pi / sepalCount) + math.pi / 6;
-      final p1 = Offset(center.dx + 2 * math.cos(ang),
-          center.dy + 10 + 2 * math.sin(ang));
+      final p1 = Offset(
+          center.dx + 2 * math.cos(ang), center.dy + 10 + 2 * math.sin(ang));
       final p2 = Offset(center.dx + 10 * math.cos(ang + 0.25),
           center.dy + 16 + 10 * math.sin(ang + 0.25));
       final p3 = Offset(center.dx + 10 * math.cos(ang - 0.25),

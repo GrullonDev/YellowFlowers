@@ -53,7 +53,8 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
               backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: Colors.black87),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
@@ -191,24 +192,27 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                           children: [
                             ChoiceChip(
                               label: const Text('🌬️ Balanceo'),
-                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                              selected: (_animationStyle ??
+                                      _theme.defaultAnimation) ==
                                   FlowerAnimationStyle.sway,
-                              onSelected: (_) => setState(
-                                  () => _animationStyle = FlowerAnimationStyle.sway),
+                              onSelected: (_) => setState(() =>
+                                  _animationStyle = FlowerAnimationStyle.sway),
                             ),
                             ChoiceChip(
                               label: const Text('🌀 Giro'),
-                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                              selected: (_animationStyle ??
+                                      _theme.defaultAnimation) ==
                                   FlowerAnimationStyle.spin,
-                              onSelected: (_) => setState(
-                                  () => _animationStyle = FlowerAnimationStyle.spin),
+                              onSelected: (_) => setState(() =>
+                                  _animationStyle = FlowerAnimationStyle.spin),
                             ),
                             ChoiceChip(
                               label: const Text('💓 Latido'),
-                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
+                              selected: (_animationStyle ??
+                                      _theme.defaultAnimation) ==
                                   FlowerAnimationStyle.pulse,
-                              onSelected: (_) => setState(
-                                  () => _animationStyle = FlowerAnimationStyle.pulse),
+                              onSelected: (_) => setState(() =>
+                                  _animationStyle = FlowerAnimationStyle.pulse),
                             ),
                           ],
                         ),
@@ -296,8 +300,8 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                                       theme: _theme,
                                       mood: _mood,
                                       fancyName: _fancyName,
-                    animationStyle:
-                      _animationStyle ?? _theme.defaultAnimation,
+                                      animationStyle: _animationStyle ??
+                                          _theme.defaultAnimation,
                                     ),
                                   ),
                                 ),

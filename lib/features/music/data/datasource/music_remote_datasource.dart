@@ -13,14 +13,14 @@ abstract class MusicRemoteDataSource {
 }
 
 class MusicRemoteDataSourceImpl implements MusicRemoteDataSource {
-  final AudioPlayer _audioPlayer;
-  final JamendoApiService _apiService;
 
   MusicRemoteDataSourceImpl({
     required AudioPlayer audioPlayer,
     required JamendoApiService apiService,
   })  : _audioPlayer = audioPlayer,
         _apiService = apiService;
+  final AudioPlayer _audioPlayer;
+  final JamendoApiService _apiService;
 
   @override
   Future<List<Song>> getSongs(String genre) async {

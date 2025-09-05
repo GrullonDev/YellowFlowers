@@ -16,11 +16,6 @@ import 'package:yellow_flowers/features/flowers/widgets/story_card.dart';
 import 'package:yellow_flowers/utils/constants.dart';
 
 class FlowerScreen extends StatefulWidget {
-  final String recipientName;
-  final FlowerTheme theme;
-  final Mood mood;
-  final bool fancyName;
-  final FlowerAnimationStyle animationStyle;
   const FlowerScreen({
     super.key,
     required this.recipientName,
@@ -29,6 +24,11 @@ class FlowerScreen extends StatefulWidget {
     this.fancyName = false,
     this.animationStyle = FlowerAnimationStyle.sway,
   });
+  final String recipientName;
+  final FlowerTheme theme;
+  final Mood mood;
+  final bool fancyName;
+  final FlowerAnimationStyle animationStyle;
 
   @override
   State<FlowerScreen> createState() => _FlowerScreenState();
@@ -69,26 +69,26 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   // Messages
   static const List<String> _messages = [
-    "Gracias por ser parte de mi vida, contigo todo es mejor. ❤️❤️",
-    "Eres la flor más hermosa de mi jardín. 🌼",
-    "Tu sonrisa ilumina mis días. ☀️ ☀️ ☀️",
-    "Contigo, cada momento es especial. ✨",
-    "Eres mi compañera, amiga y amor. 💖",
-    "Tu fuerza interior brilla más que mil estrellas. ⭐️",
-    "Eres capaz de lograr todo lo que te propongas. 💪",
-    "Tu valentía inspira a quienes te rodean. 🦋",
-    "Cada día brillas con luz propia. 🌟",
-    "Tu determinación mueve montañas. 🏔️",
-    "Eres un ejemplo de fortaleza y gracia. 👑",
-    "Tu bondad hace del mundo un lugar mejor. 🌈",
-    "No hay límites para una mujer que sueña en grande. 🚀",
-    "Tu inteligencia y belleza son incomparables. 💫",
-    "Eres la protagonista de tu propia historia. 📖",
-    "Tu presencia alegra cada espacio. 🌺",
-    "Mereces todo lo hermoso que la vida tiene. 🎀",
-    "Tu esencia es única y maravillosa. 💝",
-    "Eres un regalo para quienes te conocen. 🎁",
-    "Tu corazón es un tesoro invaluable. 💎",
+    'Gracias por ser parte de mi vida, contigo todo es mejor. ❤️❤️',
+    'Eres la flor más hermosa de mi jardín. 🌼',
+    'Tu sonrisa ilumina mis días. ☀️ ☀️ ☀️',
+    'Contigo, cada momento es especial. ✨',
+    'Eres mi compañera, amiga y amor. 💖',
+    'Tu fuerza interior brilla más que mil estrellas. ⭐️',
+    'Eres capaz de lograr todo lo que te propongas. 💪',
+    'Tu valentía inspira a quienes te rodean. 🦋',
+    'Cada día brillas con luz propia. 🌟',
+    'Tu determinación mueve montañas. 🏔️',
+    'Eres un ejemplo de fortaleza y gracia. 👑',
+    'Tu bondad hace del mundo un lugar mejor. 🌈',
+    'No hay límites para una mujer que sueña en grande. 🚀',
+    'Tu inteligencia y belleza son incomparables. 💫',
+    'Eres la protagonista de tu propia historia. 📖',
+    'Tu presencia alegra cada espacio. 🌺',
+    'Mereces todo lo hermoso que la vida tiene. 🎀',
+    'Tu esencia es única y maravillosa. 💝',
+    'Eres un regalo para quienes te conocen. 🎁',
+    'Tu corazón es un tesoro invaluable. 💎',
   ];
   late String _currentMessage;
 
@@ -284,7 +284,8 @@ class _FlowerScreenState extends State<FlowerScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: Colors.black87),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -386,7 +387,7 @@ class _FlowerScreenState extends State<FlowerScreen>
                               );
                             },
                             child: Text(
-                              "${widget.recipientName}, $_currentMessage",
+                              '${widget.recipientName}, $_currentMessage',
                               key: ValueKey(_currentMessage),
                               textAlign: TextAlign.center,
                               style: (widget.fancyName

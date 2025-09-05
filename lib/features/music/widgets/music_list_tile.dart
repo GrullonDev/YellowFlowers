@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 class MusicListTile extends StatelessWidget {
-  final Song song;
-  final bool isPlaying;
-  final bool isSelected;
-  final VoidCallback onTap;
 
   const MusicListTile({
     super.key,
@@ -15,6 +11,10 @@ class MusicListTile extends StatelessWidget {
     required this.onTap,
     this.isSelected = false,
   });
+  final Song song;
+  final bool isPlaying;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

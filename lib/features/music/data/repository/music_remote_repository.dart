@@ -11,10 +11,10 @@ abstract class MusicRemoteRepository {
 }
 
 class MusicRemoteRepositoryImpl implements MusicRemoteRepository {
-  final MusicRemoteDataSource _dataSource;
 
   MusicRemoteRepositoryImpl({required MusicRemoteDataSource dataSource})
       : _dataSource = dataSource;
+  final MusicRemoteDataSource _dataSource;
 
   @override
   Future<List<Song>> getSongs(String genre) async {

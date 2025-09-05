@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
 import 'package:yellow_flowers/features/home/model/menu_item.dart';
-import 'package:yellow_flowers/features/music/pages/music_page.dart';
-import 'package:yellow_flowers/utils/base_model.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
+import 'package:yellow_flowers/features/music/pages/music_page.dart';
+import 'package:yellow_flowers/utils/base_model.dart';
 
 class HomeBloc extends BaseModel {
   HomeBloc({required this.context});
@@ -19,18 +19,18 @@ class HomeBloc extends BaseModel {
           destination: const FlowerOnboardingPage(),
           description: 'Un detalle con flores y un mensaje especial 💛',
         ),
-        /* MenuItem(
+        MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
           destination: const MomentsGalleryPage(),
           description: 'Tus recuerdos favoritos, en un solo lugar 🖼️',
-        ), */
-        /* MenuItem(
+        ),
+        MenuItem(
           title: 'Mensajes Especiales',
           icon: Icons.message,
           destination: const SpecialMessagesPage(),
           description: 'Palabras que llegan al corazón ✍️',
-        ), */
+        ),
         MenuItem(
           title: 'Música Romántica',
           icon: Icons.music_note,
