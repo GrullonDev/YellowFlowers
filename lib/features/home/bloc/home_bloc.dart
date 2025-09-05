@@ -5,6 +5,7 @@ import 'package:yellow_flowers/features/home/model/menu_item.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
+import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
 
 class HomeBloc extends BaseModel {
   HomeBloc({required this.context});
@@ -21,16 +22,7 @@ class HomeBloc extends BaseModel {
         MenuItem(
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
-          destination: AlertDialog(
-            title: const Text('Mensaje'),
-            content: const Text('¡Hola! Este es un mensaje de prueba.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
-          ),
+          destination: const MomentsGalleryPage(),
           description: 'Tus recuerdos favoritos, en un solo lugar 🖼️',
         ),
         MenuItem(
