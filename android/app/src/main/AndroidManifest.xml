@@ -2,7 +2,7 @@
     <application
         android:label="yellow_flowers"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/yellow_flowers_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"
