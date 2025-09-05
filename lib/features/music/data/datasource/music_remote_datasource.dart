@@ -13,7 +13,6 @@ abstract class MusicRemoteDataSource {
 }
 
 class MusicRemoteDataSourceImpl implements MusicRemoteDataSource {
-
   MusicRemoteDataSourceImpl({
     required AudioPlayer audioPlayer,
     required JamendoApiService apiService,

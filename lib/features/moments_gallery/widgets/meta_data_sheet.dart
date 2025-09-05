@@ -40,6 +40,7 @@ class _MetadataSheetState extends State<MetadataSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final scheme = Theme.of(context).colorScheme;
     return SafeArea(
       top: false,
       child: LayoutBuilder(
@@ -69,11 +70,13 @@ class _MetadataSheetState extends State<MetadataSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Nuevo recuerdo',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                    color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -94,13 +97,33 @@ class _MetadataSheetState extends State<MetadataSheet> {
                 ),
                 const SizedBox(height: 12),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 10,
+                  runSpacing: 10,
                   children: [
                     for (final a in widget.albums)
                       ChoiceChip(
-                        label: Text(a.label),
+                        label: Text(
+                          a.label,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: a.id == selected.id
+                                ? scheme.onPrimary
+                                : scheme.onSurface.withValues(alpha:0.85),
+                          ),
+                        ),
                         selected: a.id == selected.id,
+                        elevation: a.id == selected.id ? 2 : 0,
+                        pressElevation: 0,
+                        selectedColor: scheme.primary,
+                        backgroundColor: scheme.surfaceContainerHighest,
+                        side: BorderSide(
+                          color: a.id == selected.id
+                              ? scheme.primary
+                              : scheme.outlineVariant,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         onSelected: (_) => setState(() => selected = a),
                       ),
                   ],
@@ -108,32 +131,39 @@ class _MetadataSheetState extends State<MetadataSheet> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: controller,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
+                  maxLines: 3,
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
                     labelText: 'Descripción (opcional)',
-                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: scheme.surfaceContainerHighest.withValues(alpha:0.35),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
+                      child: OutlinedButton.icon(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancelar'),
+                        icon: const Icon(Icons.close),
+                        label: const Text('Cancelar'),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Expanded(
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: () => Navigator.pop(
                           context,
                           PendingMeta(
                             album: selected,
-                            description: controller.text,
+                            description: controller.text.trim(),
                           ),
                         ),
-                        child: const Text('Guardar'),
+                        icon: const Icon(Icons.check_circle_outline),
+                        label: const Text('Guardar'),
                       ),
                     ),
                   ],

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AlbumCategory {
-
   const AlbumCategory({
     required this.id,
     required this.label,

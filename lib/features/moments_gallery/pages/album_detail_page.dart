@@ -22,7 +22,8 @@ class AlbumDetailPage extends StatelessWidget {
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         return Scaffold(
           appBar: AppBar(
-            title: Text('${album.emoji} ${album.label}'),
+            title: Text('${album.emoji} ${album.label}',
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             actions: [
               if (list.isNotEmpty)
                 IconButton(
@@ -55,66 +56,75 @@ class AlbumDetailPage extends StatelessWidget {
                   itemCount: list.length,
                   itemBuilder: (context, i) {
                     final mem = list[i];
-                    return GestureDetector(
-                      onLongPress: () => _editDescription(context, mem),
-                      onTap: () => _openViewer(context, list, i),
-                      child: FutureBuilder<File>(
-                        future: _resolveMemoryFile(mem.fileName),
-                        builder: (context, snap) {
-                          final file = snap.data;
-                          return Hero(
-                            tag: mem.fileName,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: file == null
-                                        ? Container(color: Colors.grey.shade200)
-                                        : Image.file(
-                                            file,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                Container(
-                                              color: Colors.grey.shade300,
-                                              alignment: Alignment.center,
-                                              child: const Icon(
-                                                  Icons.image_not_supported,
-                                                  size: 22),
-                                            ),
-                                          ),
-                                  ),
-                                  if ((mem.description ?? '').isNotEmpty)
-                                    Positioned(
-                                      left: 4,
-                                      right: 4,
-                                      bottom: 4,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black45,
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: Text(
-                                          mem.description!,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              height: 1.1),
-                                        ),
+                    return Semantics(
+                        label:
+                            'Recuerdo ${i + 1} de ${list.length}${(mem.description ?? '').isNotEmpty ? ', descripción: ${mem.description}' : ''}',
+                        image: true,
+                        onLongPressHint: 'Editar descripción',
+                        child: GestureDetector(
+                          onLongPress: () => _editDescription(context, mem),
+                          onTap: () => _openViewer(context, list, i),
+                          child: FutureBuilder<File>(
+                            future: _resolveMemoryFile(mem.fileName),
+                            builder: (context, snap) {
+                              final file = snap.data;
+                              return Hero(
+                                tag: mem.fileName,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: file == null
+                                            ? Container(
+                                                color: Colors.grey.shade200)
+                                            : Image.file(
+                                                file,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, __, ___) =>
+                                                    Container(
+                                                  color: Colors.grey.shade300,
+                                                  alignment: Alignment.center,
+                                                  child: const Icon(
+                                                      Icons.image_not_supported,
+                                                      size: 22),
+                                                ),
+                                              ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
+                                      if ((mem.description ?? '').isNotEmpty)
+                                        Positioned(
+                                          left: 4,
+                                          right: 4,
+                                          bottom: 4,
+                                          child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5,
+                                                      vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.55),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Text(mem.description!,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      height: 1.15))),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ));
                   },
                 ),
         );
@@ -205,8 +215,12 @@ class _FullScreenViewerState extends State<_FullScreenViewer> {
         title: const Text('Eliminar'),
         content: const Text('¿Eliminar este recuerdo permanentemente?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Eliminar')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancelar')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Eliminar')),
         ],
       ),
     ).then((confirm) {
@@ -259,34 +273,54 @@ class _FullScreenViewerState extends State<_FullScreenViewer> {
             },
           ),
           Positioned(
-            top: 40,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white, size: 30),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+              top: 40,
+              left: 16,
+              child: Semantics(
+                label: 'Cerrar visor',
+                button: true,
+                child: IconButton(
+                  constraints:
+                      const BoxConstraints(minWidth: 56, minHeight: 56),
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              )),
           Positioned(
             top: 40,
             right: 16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Material(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.circular(30),
-                  child: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white),
-                    onPressed: () => _handleEdit(context),
+                Semantics(
+                  label: 'Editar descripción del recuerdo',
+                  button: true,
+                  child: Material(
+                    color: Colors.black45,
+                    borderRadius: BorderRadius.circular(32),
+                    child: IconButton(
+                        constraints:
+                            const BoxConstraints(minWidth: 56, minHeight: 56),
+                        iconSize: 26,
+                        icon: const Icon(Icons.edit, color: Colors.white),
+                        tooltip: 'Editar',
+                        onPressed: () => _handleEdit(context)),
                   ),
                 ),
                 const SizedBox(height: 12),
-                Material(
-                  color: Colors.redAccent.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(30),
-                  child: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.white),
-                    onPressed: () => _handleDelete(context),
+                Semantics(
+                  label: 'Eliminar este recuerdo',
+                  button: true,
+                  child: Material(
+                    color: Colors.redAccent.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(32),
+                    child: IconButton(
+                        constraints:
+                            const BoxConstraints(minWidth: 56, minHeight: 56),
+                        iconSize: 26,
+                        icon: const Icon(Icons.delete_outline,
+                            color: Colors.white),
+                        tooltip: 'Eliminar',
+                        onPressed: () => _handleDelete(context)),
                   ),
                 ),
               ],
@@ -306,22 +340,27 @@ class _FullScreenViewerState extends State<_FullScreenViewer> {
                 if (desc == null || desc.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                return AnimatedOpacity(
-                  opacity: 1,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      desc,
-                      style: const TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                );
+                return Semantics(
+                    label: 'Descripción del recuerdo: $desc',
+                    child: AnimatedOpacity(
+                      opacity: 1,
+                      duration: const Duration(milliseconds: 300),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.55),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.15))),
+                        child: Text(desc,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                height: 1.25),
+                            textAlign: TextAlign.center),
+                      ),
+                    ));
               },
             ),
           ),

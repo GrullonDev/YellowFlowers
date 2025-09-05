@@ -11,7 +11,6 @@ abstract class MusicRemoteRepository {
 }
 
 class MusicRemoteRepositoryImpl implements MusicRemoteRepository {
-
   MusicRemoteRepositoryImpl({required MusicRemoteDataSource dataSource})
       : _dataSource = dataSource;
   final MusicRemoteDataSource _dataSource;

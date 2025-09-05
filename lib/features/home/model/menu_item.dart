@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class MenuItem {
-
   MenuItem({
     required this.title,
     required this.icon,

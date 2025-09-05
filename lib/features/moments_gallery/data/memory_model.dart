@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 class Memory {
-
   Memory({
     required this.fileName,
     required this.albumId,

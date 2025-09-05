@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'dart:io';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-
 import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
 import 'package:yellow_flowers/features/moments_gallery/widgets/album_card.dart';
+import 'package:yellow_flowers/theme/theme_controller.dart';
 
 class MomentsGalleryLayout extends StatefulWidget {
   const MomentsGalleryLayout({super.key});
@@ -53,13 +55,48 @@ class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
         builder: (context, child) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text(
-                'Galería de Momentos',
-                style: TextStyle(color: Colors.black87),
-              ),
-              backgroundColor: Colors.transparent,
-              centerTitle: true,
-            ),
+                title: const Text('Galería de Momentos',
+                    style: TextStyle(fontWeight: FontWeight.w700)),
+                backgroundColor: Colors.transparent,
+                centerTitle: true,
+                actions: [
+                  Builder(builder: (ctx) {
+                    final controller = ctx.watch<ThemeController>();
+                    final mode = controller.mode;
+                    IconData icon;
+                    String tip;
+                    switch (mode) {
+                      case ThemeMode.light:
+                        icon = Icons.light_mode;
+                        tip = 'Tema claro (tap para oscuro)';
+                        break;
+                      case ThemeMode.dark:
+                        icon = Icons.dark_mode;
+                        tip = 'Tema oscuro (tap para sistema)';
+                        break;
+                      case ThemeMode.system:
+                        icon = Icons.brightness_auto;
+                        tip = 'Tema del sistema (tap para claro)';
+                        break;
+                    }
+                    return Semantics(
+                      label: 'Botón cambio de tema. Modo actual: ${mode.name}',
+                      button: true,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: IconButton(
+                          constraints:
+                              const BoxConstraints(minWidth: 56, minHeight: 56),
+                          tooltip: tip,
+                          onPressed: () => ctx.read<ThemeController>().toggle(),
+                          icon: Icon(icon,
+                              size: 26,
+                              color: Theme.of(ctx).colorScheme.onSurface),
+                        ),
+                      ),
+                    );
+                  }),
+                ]),
             extendBodyBehindAppBar: true,
             body: Stack(
               children: [
@@ -84,6 +121,13 @@ class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
                   final drift =
                       math.sin((_bgController.value * 2 * math.pi) + i) * 14;
                   final isHeart = i.isEven;
+                  final dark = Theme.of(context).brightness == Brightness.dark;
+                  final heartColor = dark
+                      ? Colors.pinkAccent.shade100.withValues(alpha: 0.55)
+                      : Colors.pinkAccent;
+                  final flowerColor = dark
+                      ? const Color(0xFFFFE07D).withValues(alpha: 0.55)
+                      : const Color(0xFFFFE07D);
                   return Positioned(
                     left: dx * MediaQuery.of(context).size.width,
                     top: dy * MediaQuery.of(context).size.height / 1.4 + drift,
@@ -97,12 +141,9 @@ class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
                         angle: math.sin(_bgController.value * 2 * math.pi + i) *
                             0.25,
                         child: Icon(
-                          isHeart ? Icons.favorite : Icons.local_florist,
-                          color: isHeart
-                              ? Colors.pinkAccent
-                              : const Color(0xFFFFE07D),
-                          size: 16 + rnd.nextDouble() * 14,
-                        ),
+                            isHeart ? Icons.favorite : Icons.local_florist,
+                            color: isHeart ? heartColor : flowerColor,
+                            size: 16 + rnd.nextDouble() * 14),
                       ),
                     ),
                   );
@@ -146,10 +187,18 @@ class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
                 ),
               ],
             ),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () => model.pickAndSaveMemory(context),
-              icon: const Icon(Icons.add_a_photo),
-              label: const Text('Nuevo recuerdo'),
+            floatingActionButton: Semantics(
+              label: 'Añadir nuevo recuerdo',
+              button: true,
+              child: FloatingActionButton.extended(
+                onPressed: () => model.pickAndSaveMemory(context),
+                icon: const Icon(Icons.add_a_photo, size: 28),
+                label: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 6),
+                  child: Text('Nuevo recuerdo',
+                      style: TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
             ),
           );
         },

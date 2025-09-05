@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 class MusicListTile extends StatelessWidget {
-
   const MusicListTile({
     super.key,
     required this.song,

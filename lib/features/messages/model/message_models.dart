@@ -44,7 +44,6 @@ extension MessageCategoryX on MessageCategory {
 }
 
 class SpecialMessage {
-
   SpecialMessage({
     required this.text,
     required this.category,

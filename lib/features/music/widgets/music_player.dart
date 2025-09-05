@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 
 class MusicPlayer extends StatelessWidget {
-
   const MusicPlayer({
     super.key,
     required this.model,
