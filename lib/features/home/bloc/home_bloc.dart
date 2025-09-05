@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
-import 'package:yellow_flowers/features/home/data/model/menu_item.dart';
+import 'package:yellow_flowers/features/home/model/menu_item.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
+import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 
 class HomeBloc extends BaseModel {
   HomeBloc({required this.context});
@@ -35,16 +36,7 @@ class HomeBloc extends BaseModel {
         MenuItem(
           title: 'Mensajes Especiales',
           icon: Icons.message,
-          destination: AlertDialog(
-            title: const Text('Mensaje'),
-            content: const Text('¡Hola! Este es un mensaje de prueba.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
-          ),
+          destination: const SpecialMessagesPage(),
           description: 'Palabras que llegan al corazón ✍️',
         ),
         MenuItem(
