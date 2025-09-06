@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
 import 'package:yellow_flowers/features/moments_gallery/model/album_category.dart';
 import 'package:yellow_flowers/features/moments_gallery/data/memory_model.dart';
+import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class AlbumDetailPage extends StatelessWidget {
   const AlbumDetailPage({super.key, required this.album});
@@ -44,89 +45,92 @@ class AlbumDetailPage extends StatelessWidget {
                 ),
             ],
           ),
-          body: list.isEmpty
-              ? const Center(child: Text('Aún no hay recuerdos aquí'))
-              : GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 6,
-                    mainAxisSpacing: 6,
-                  ),
-                  itemCount: list.length,
-                  itemBuilder: (context, i) {
-                    final mem = list[i];
-                    return Semantics(
-                        label:
-                            'Recuerdo ${i + 1} de ${list.length}${(mem.description ?? '').isNotEmpty ? ', descripción: ${mem.description}' : ''}',
-                        image: true,
-                        onLongPressHint: 'Editar descripción',
-                        child: GestureDetector(
-                          onLongPress: () => _editDescription(context, mem),
-                          onTap: () => _openViewer(context, list, i),
-                          child: FutureBuilder<File>(
-                            future: _resolveMemoryFile(mem.fileName),
-                            builder: (context, snap) {
-                              final file = snap.data;
-                              return Hero(
-                                tag: mem.fileName,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: file == null
-                                            ? Container(
-                                                color: Colors.grey.shade200)
-                                            : Image.file(
-                                                file,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    Container(
-                                                  color: Colors.grey.shade300,
-                                                  alignment: Alignment.center,
-                                                  child: const Icon(
-                                                      Icons.image_not_supported,
-                                                      size: 22),
+          body: AnimatedBackground(
+            child: list.isEmpty
+                ? const Center(child: Text('Aún no hay recuerdos aquí'))
+                : GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 6,
+                      mainAxisSpacing: 6,
+                    ),
+                    itemCount: list.length,
+                    itemBuilder: (context, i) {
+                      final mem = list[i];
+                      return Semantics(
+                          label:
+                              'Recuerdo ${i + 1} de ${list.length}${(mem.description ?? '').isNotEmpty ? ', descripción: ${mem.description}' : ''}',
+                          image: true,
+                          onLongPressHint: 'Editar descripción',
+                          child: GestureDetector(
+                            onLongPress: () => _editDescription(context, mem),
+                            onTap: () => _openViewer(context, list, i),
+                            child: FutureBuilder<File>(
+                              future: _resolveMemoryFile(mem.fileName),
+                              builder: (context, snap) {
+                                final file = snap.data;
+                                return Hero(
+                                  tag: mem.fileName,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Stack(
+                                      children: [
+                                        Positioned.fill(
+                                          child: file == null
+                                              ? Container(
+                                                  color: Colors.grey.shade200)
+                                              : Image.file(
+                                                  file,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, __, ___) =>
+                                                      Container(
+                                                    color: Colors.grey.shade300,
+                                                    alignment: Alignment.center,
+                                                    child: const Icon(
+                                                        Icons.image_not_supported,
+                                                        size: 22),
+                                                  ),
                                                 ),
-                                              ),
-                                      ),
-                                      if ((mem.description ?? '').isNotEmpty)
-                                        Positioned(
-                                          left: 4,
-                                          right: 4,
-                                          bottom: 4,
-                                          child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 5,
-                                                      vertical: 3),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.55),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Text(mem.description!,
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      height: 1.15))),
                                         ),
-                                    ],
+                                        if ((mem.description ?? '').isNotEmpty)
+                                          Positioned(
+                                            left: 4,
+                                            right: 4,
+                                            bottom: 4,
+                                            child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5,
+                                                        vertical: 3),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.55),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: Text(mem.description!,
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        height: 1.15))),
+                                          ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        ));
-                  },
-                ),
+                                );
+                              },
+                            ),
+                          ));
+                    },
+                  ),
+          ),
         );
       },
     );

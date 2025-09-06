@@ -6,6 +6,7 @@ import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_screen.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower_illustration.dart';
+import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class NameEntryFlower extends StatefulWidget {
   const NameEntryFlower({super.key});
@@ -58,17 +59,11 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFFFF3B0), // amarillo pastel
-                    Color(0xFFFFC0CB), // rosa suave
-                  ],
-                ),
-              ),
+            body: AnimatedBackground(
+              topColorBegin: const Color(0xFFFFF3B0),
+              topColorEnd: const Color(0xFFFFE8A3),
+              bottomColorBegin: const Color(0xFFFFC0CB),
+              bottomColorEnd: const Color(0xFFFFB347),
               child: SafeArea(
                 child: Center(
                   child: SingleChildScrollView(

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/music/widgets/music_list.dart';
 import 'package:yellow_flowers/features/music/widgets/music_player.dart';
+import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class MusicLayout extends StatelessWidget {
   const MusicLayout({super.key});
@@ -17,11 +18,13 @@ class MusicLayout extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Música'),
           ),
-          body: model.currentSong == null
-              ? const MusicList()
-              : MusicPlayer(
-                  model: model,
-                ),
+          body: AnimatedBackground(
+            child: model.currentSong == null
+                ? const MusicList()
+                : MusicPlayer(
+                    model: model,
+                  ),
+          ),
         );
       },
     );
