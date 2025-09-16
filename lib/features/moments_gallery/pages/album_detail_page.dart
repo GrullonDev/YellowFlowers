@@ -7,6 +7,9 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
+import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
+import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/features/moments_gallery/model/album_category.dart';
 import 'package:yellow_flowers/features/moments_gallery/data/memory_model.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
@@ -166,6 +169,7 @@ void _editDescription(BuildContext context, Memory mem) async {
   );
   if (result == null) return;
   // mutate memory description (Memory is immutable => create new instance)
+  if (!context.mounted) return;
   final idx = bloc.memories.indexOf(mem);
   if (idx == -1) return;
   await bloc.updateMemoryDescription(mem, result);
@@ -175,6 +179,20 @@ void _openViewer(BuildContext context, List<Memory> list, int index) {
   final barrier = Colors.black.withValues(alpha: 0.9);
   final bloc = context.read<MomentsGalleryBloc>();
   final parentContext = context; // keep context with provider to use after pop
+  // If memory has an associated track, try to resolve and play it softly.
+  final mem = list[index];
+  if (mem.trackId != null && mem.trackId!.isNotEmpty) {
+    // resolve DI for music components
+    try {
+  final jam = di.get<JamendoApiService>();
+  final musicRepo = di.get<MusicRemoteRepository>();
+      jam.getTrackById(mem.trackId!).then((song) async {
+        if (song == null) return;
+        // play through repository to reuse the player
+        await musicRepo.playSong(song);
+      });
+    } catch (_) {}
+  }
   Navigator.of(context).push(
     PageRouteBuilder(
       opaque: false,
@@ -207,13 +225,13 @@ class _FullScreenViewerState extends State<_FullScreenViewer> {
     _controller = PageController(initialPage: widget.index);
   }
 
-  void _handleDelete(BuildContext buttonContext) {
+  Future<void> _handleDelete(BuildContext buttonContext) async {
     final parentCtx = widget.parentContext;
     final bloc = parentCtx.read<MomentsGalleryBloc>();
     final page = _controller.page?.round() ?? widget.index;
     if (page < 0 || page >= widget.list.length) return;
     final mem = widget.list[page];
-    showDialog<bool>(
+    final confirm = await showDialog<bool>(
       context: parentCtx,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar'),
@@ -227,23 +245,23 @@ class _FullScreenViewerState extends State<_FullScreenViewer> {
               child: const Text('Eliminar')),
         ],
       ),
-    ).then((confirm) {
-      if (confirm != true) return;
-      final albumId = mem.albumId;
-      final willBeEmpty = bloc.countForAlbum(albumId) == 1;
-      if (willBeEmpty) {
-        final nav = Navigator.of(buttonContext);
-        if (nav.canPop()) nav.pop();
-        Future.microtask(() => bloc.deleteMemory(mem));
-        return;
-      }
-      final idx = widget.list.indexOf(mem);
-      if (idx != -1) {
-        widget.list.removeAt(idx);
-        if (mounted) setState(() {});
-      }
-      bloc.deleteMemory(mem); // fire & forget
-    });
+    );
+  if (confirm != true) return;
+  if (!mounted || !buttonContext.mounted) return;
+    final albumId = mem.albumId;
+    final willBeEmpty = bloc.countForAlbum(albumId) == 1;
+    if (willBeEmpty) {
+      final nav = Navigator.of(buttonContext);
+      if (nav.canPop()) nav.pop();
+      Future.microtask(() => bloc.deleteMemory(mem));
+      return;
+    }
+    final idx = widget.list.indexOf(mem);
+    if (idx != -1) {
+      widget.list.removeAt(idx);
+      if (mounted) setState(() {});
+    }
+    bloc.deleteMemory(mem); // fire & forget
   }
 
   @override
