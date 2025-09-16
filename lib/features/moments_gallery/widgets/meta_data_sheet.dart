@@ -23,17 +23,20 @@ class MetadataSheet extends StatefulWidget {
 class _MetadataSheetState extends State<MetadataSheet> {
   late AlbumCategory selected;
   late TextEditingController controller;
+  late TextEditingController trackController;
 
   @override
   void initState() {
     super.initState();
     selected = widget.initial;
     controller = TextEditingController();
+    trackController = TextEditingController();
   }
 
   @override
   void dispose() {
     controller.dispose();
+    trackController.dispose();
     super.dispose();
   }
 
@@ -142,6 +145,20 @@ class _MetadataSheetState extends State<MetadataSheet> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: trackController,
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    labelText: 'ID de canción Jamendo (opcional)',
+                    hintText: 'Ej: 123456',
+                    filled: true,
+                    fillColor: scheme.surfaceContainerHighest.withValues(alpha:0.35),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -160,6 +177,9 @@ class _MetadataSheetState extends State<MetadataSheet> {
                           PendingMeta(
                             album: selected,
                             description: controller.text.trim(),
+                            trackId: trackController.text.trim().isEmpty
+                                ? null
+                                : trackController.text.trim(),
                           ),
                         ),
                         icon: const Icon(Icons.check_circle_outline),

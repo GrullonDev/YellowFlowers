@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
     storageBucket: 'yellowflowers-58d52.appspot.com',
-    iosBundleId: 'com.grullondev.yellowFlowers',
+    iosBundleId: 'com.jorgegrullon.yellowFlowers',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -77,7 +77,7 @@ class DefaultFirebaseOptions {
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
     storageBucket: 'yellowflowers-58d52.appspot.com',
-    iosBundleId: 'com.grullondev.yellowFlowers',
+    iosBundleId: 'com.jorgegrullon.yellowFlowers',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

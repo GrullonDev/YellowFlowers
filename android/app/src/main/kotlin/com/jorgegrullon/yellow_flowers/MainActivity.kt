@@ -1,4 +1,4 @@
-package com.grullondev.yellowflowers
+package com.jorgegrullon.yellowflowers
 
 import io.flutter.embedding.android.FlutterActivity
 

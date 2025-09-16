@@ -92,6 +92,23 @@ class MomentsGalleryBloc extends BaseModel {
       albumId: mem.albumId,
       createdAt: mem.createdAt,
       description: (desc == null || desc.trim().isEmpty) ? null : desc.trim(),
+      trackId: mem.trackId,
+    );
+    await _saveMemories();
+    notifyListeners();
+  }
+
+  Future<void> updateMemoryTrack(Memory mem, String? trackId) async {
+    final idx = _memories.indexWhere((m) => m.fileName == mem.fileName);
+    if (idx == -1) return;
+    _memories[idx] = Memory(
+      fileName: mem.fileName,
+      albumId: mem.albumId,
+      createdAt: mem.createdAt,
+      description: mem.description,
+      trackId: (trackId == null || trackId.trim().isEmpty)
+          ? null
+          : trackId.trim(),
     );
     await _saveMemories();
     notifyListeners();
@@ -166,6 +183,7 @@ class MomentsGalleryBloc extends BaseModel {
         description: meta.description?.trim().isEmpty == true
             ? null
             : meta.description?.trim(),
+        trackId: meta.trackId,
       ));
       await _saveMemories();
       await _saveLastAlbum(meta.album.id);
