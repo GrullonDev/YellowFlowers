@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-ThemeData buildLightTheme() {
+ThemeData buildLightTheme({Color seedColor = const Color(0xFFFFB200)}) {
   final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorSchemeSeed: const Color(0xFFFFB200));
+      colorSchemeSeed: seedColor);
   final scheme = base.colorScheme;
   return base.copyWith(
     scaffoldBackgroundColor: const Color(0xFFFFF9EC),
@@ -48,11 +48,11 @@ ThemeData buildLightTheme() {
   );
 }
 
-ThemeData buildDarkTheme() {
+ThemeData buildDarkTheme({Color seedColor = const Color(0xFFFFB200)}) {
   final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorSchemeSeed: const Color(0xFFFFB200));
+      colorSchemeSeed: seedColor);
   final scheme = base.colorScheme;
   return base.copyWith(
     scaffoldBackgroundColor: const Color(0xFF121212),
