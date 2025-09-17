@@ -12,6 +12,7 @@ Una app Flutter para crear y personalizar tarjetas de flores virtuales con anima
 - [Contribuir](#contribuir)
 - [Recursos](#recursos)
 - [Licencia y Administración](#licencia-y-administración)
+ - [Arquitectura Limpia (Migración)](#arquitectura-limpia-migración)
 
 ## Descripción
 
@@ -228,6 +229,37 @@ fvm flutter build ipa --release
 ```
 
 En macOS: abre `build/ios/ipa/` desde Finder.
+
+## Arquitectura Limpia (Migración)
+
+Se está realizando una migración gradual hacia una estructura de capas:
+
+```
+lib/
+	core/            # Result, Failures, UseCase base
+	di/              # injector.dart (nuevo contenedor CA)
+	features/
+		music/
+			data/        # models, datasources, repos impl
+			domain/      # entities, repositories abstract, usecases
+			bloc/        # (presentation) migrando luego a presentation/
+```
+
+Durante la transición coexisten dos contenedores de dependencias:
+
+1. `utils/inyenction_container.dart` (legacy)
+2. `di/injector.dart` (nuevo, Clean Architecture)
+
+`main.dart` inicializa ambos para compatibilidad temporal. El `MusicBloc` ahora acepta opcionalmente casos de uso de dominio; si no están disponibles, usa el repositorio legacy.
+
+### Pasos para extender la migración
+1. Crear entidades de dominio en `features/<feature>/domain/entities`.
+2. Definir repositorio abstracto y casos de uso.
+3. Implementar repositorio data adaptando fuentes existentes.
+4. Registrar en `di/injector.dart`.
+5. Inyectar casos de uso en el Bloc/Controller (modo híbrido) y eliminar dependencias directas a servicios externos.
+
+Guía detallada adicional en `ARCHITECTURE_MIGRATION.md`.
 
 # Recursos
 

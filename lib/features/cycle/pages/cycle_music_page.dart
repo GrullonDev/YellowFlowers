@@ -5,9 +5,15 @@ import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
 import 'package:yellow_flowers/features/cycle/widgets/cycle_phase_bar.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/get_daily_recommendation.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/play_song.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/get_songs_by_mood.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/pause_song.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/get_position_stream.dart';
 import 'package:yellow_flowers/features/music/pages/music_layout.dart';
 import 'package:yellow_flowers/utils/base_model_scaffold.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as sl;
+import 'package:yellow_flowers/utils/inyenction_container.dart' as sl; // legacy
+import 'package:yellow_flowers/di/injector.dart' as new_di;
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
 
 class CycleMusicPage extends StatelessWidget {
@@ -19,7 +25,14 @@ class CycleMusicPage extends StatelessWidget {
     final cycle = context.watch<CycleController>();
     final mood = _moodForPhase(phase, cycle);
     return BaseModelScaffold(
-      model: MusicBloc(repository: sl.get<MusicRemoteRepository>()),
+      model: MusicBloc(
+        repository: sl.get<MusicRemoteRepository>(),
+        getSongsByMoodUseCase: new_di.sl.isRegistered<GetSongsByMoodUseCase>() ? new_di.sl<GetSongsByMoodUseCase>() : null,
+        getDailyRecommendationUseCase: new_di.sl.isRegistered<GetDailyRecommendationUseCase>() ? new_di.sl<GetDailyRecommendationUseCase>() : null,
+        playSongUseCase: new_di.sl.isRegistered<PlaySongUseCase>() ? new_di.sl<PlaySongUseCase>() : null,
+        pauseSongUseCase: new_di.sl.isRegistered<PauseSongUseCase>() ? new_di.sl<PauseSongUseCase>() : null,
+        getPositionStreamUseCase: new_di.sl.isRegistered<GetPositionStreamUseCase>() ? new_di.sl<GetPositionStreamUseCase>() : null,
+      ),
       builder: (context, model) {
         // al entrar, si el mood difiere, cargar catálogo por mood de la fase
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,7 +90,32 @@ class _DailyCombinedCardState extends State<_DailyCombinedCard> {
 
   Future<void> _load() async {
     final repo = sl.get<MusicRemoteRepository>();
-    final song = await repo.getDailyRecommendation(widget.mood);
+    // Intentar vía usecase de dominio primero
+    if (new_di.sl.isRegistered<GetDailyRecommendationUseCase>()) {
+      final uc = new_di.sl<GetDailyRecommendationUseCase>();
+      final res = await uc(GetDailyRecommendationParams(widget.mood));
+      res.when(
+        success: (song) {
+          if (!mounted) return;
+          setState(() {
+            _title = song != null ? '${song.title} — ${song.artist}' : null;
+            _cover = song?.coverUrl;
+            _loading = false;
+          });
+        },
+        error: (_) async {
+          final song = await repo.getDailyRecommendation(widget.mood); // fallback legacy
+          if (!mounted) return;
+            setState(() {
+              _title = song != null ? '${song.title} — ${song.artist}' : null;
+              _cover = song?.coverUrl;
+              _loading = false;
+            });
+        },
+      );
+      return;
+    }
+    final song = await repo.getDailyRecommendation(widget.mood); // legacy path
     if (!mounted) return;
     setState(() {
       _title = song != null ? '${song.title} — ${song.artist}' : null;
@@ -136,8 +174,25 @@ class _DailyCombinedCardState extends State<_DailyCombinedCard> {
                     ? null
                     : () async {
                         final repo = sl.get<MusicRemoteRepository>();
-                        final song = await repo.getDailyRecommendation(widget.mood);
-                        if (song != null) repo.playSong(song);
+                        if (new_di.sl.isRegistered<GetDailyRecommendationUseCase>() && new_di.sl.isRegistered<PlaySongUseCase>()) {
+                          final recUC = new_di.sl<GetDailyRecommendationUseCase>();
+                          final playUC = new_di.sl<PlaySongUseCase>();
+                          final result = await recUC(GetDailyRecommendationParams(widget.mood));
+                          await result.when(
+                            success: (song) async {
+                              if (song != null) {
+                                await playUC(PlaySongParams(song));
+                              }
+                            },
+                            error: (_) async {
+                              final legacySong = await repo.getDailyRecommendation(widget.mood);
+                              if (legacySong != null) repo.playSong(legacySong);
+                            },
+                          );
+                        } else {
+                          final song = await repo.getDailyRecommendation(widget.mood);
+                          if (song != null) repo.playSong(song);
+                        }
                       },
                 child: const Icon(Icons.play_arrow_rounded),
               ),
