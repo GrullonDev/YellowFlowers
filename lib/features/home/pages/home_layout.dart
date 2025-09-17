@@ -6,6 +6,11 @@ import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/home/bloc/home_bloc.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
+import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
+import 'package:yellow_flowers/features/mood/mood_controller.dart';
+import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
 
 class HomeLayout extends StatefulWidget {
   const HomeLayout({super.key});
@@ -32,44 +37,51 @@ class _HomeLayoutState extends State<HomeLayout> {
         extendBodyBehindAppBar: true,
         body: AnimatedBackground(
           child: SafeArea(
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-              itemCount: model.menuItems.length,
-              itemBuilder: (context, index) {
-                final item = model.menuItems[index];
-                final color = Colors.pink[300]!;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Card(
-                    elevation: 6,
-                    shadowColor: Colors.black.withValues(alpha: 0.08),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: ListTile(
-                      leading: _AnimatedLeadingIcon(
-                          icon: item.icon,
-                          progress: 0.0, // Static for now, could be animated later
-                          color: color),
-                      title: Text(
-                        item.title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+              children: [
+                const _DailyMoodCard(),
+                const SizedBox(height: 12),
+                const _WellnessExercisesCard(),
+                const SizedBox(height: 12),
+                const _EmotionTrackerCard(),
+                const SizedBox(height: 16),
+                ...List.generate(model.menuItems.length, (index) {
+                  final item = model.menuItems[index];
+                  final color = Colors.pink[300]!;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Card(
+                      elevation: 6,
+                      shadowColor: Colors.black.withValues(alpha: 0.08),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: ListTile(
+                        leading: _AnimatedLeadingIcon(
+                            icon: item.icon,
+                            progress: 0.0,
+                            color: color),
+                        title: Text(
+                          item.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        subtitle: Text(item.description, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => item.destination,
+                          ),
                         ),
                       ),
-                      subtitle: Text(item.description),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => item.destination,
-                        ),
-                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                }),
+              ],
             ),
           ),
         ),
@@ -108,4 +120,189 @@ class _AnimatedLeadingIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DailyMoodCard extends StatelessWidget {
+  const _DailyMoodCard();
+  @override
+  Widget build(BuildContext context) {
+    final mood = context.watch<MoodController>().mood;
+    final wc = context.watch<WellnessController>();
+    final phrase = wc.dailyPhrase(emotion: _toEmotion(mood));
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: ListTile(
+        leading: const Text('💌', style: TextStyle(fontSize: 22)),
+        title: Text('Tu frase de hoy', maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(phrase, maxLines: 2, overflow: TextOverflow.ellipsis),
+        trailing: FilledButton(
+          onPressed: () async {
+            final repo = di.get<MusicRemoteRepository>();
+            final song = await repo.getDailyRecommendation(mood);
+            if (song != null) await repo.playSong(song);
+          },
+          child: const Icon(Icons.play_arrow_rounded),
+        ),
+      ),
+    );
+  }
+}
+
+class _WellnessExercisesCard extends StatelessWidget {
+  const _WellnessExercisesCard();
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const Text('🧘', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Bienestar: respira y afírmate hoy', maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            const SizedBox(width: 12),
+            OutlinedButton(
+              onPressed: () => _startBreathing(context),
+              child: const Text('Respirar'),
+            ),
+            const SizedBox(width: 8),
+            FilledButton(
+              onPressed: () => _speakAffirmations(context),
+              child: const Text('Afirmaciones'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmotionTrackerCard extends StatelessWidget {
+  const _EmotionTrackerCard();
+  @override
+  Widget build(BuildContext context) {
+    final wc = context.watch<WellnessController>();
+    final last7 = wc.last7Days();
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Tu ánimo', style: TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: Emotion.values.map((e) {
+                final selected = wc.emotionOf(wc.todayKey) == e;
+                return ChoiceChip(
+                  label: Text(_labelForEmotion(e)),
+                  selected: selected,
+                  onSelected: (_) => wc.setEmotionToday(e),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 24,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: List.generate(7, (i) {
+                  final emo = last7[i];
+                  return Expanded(
+                    child: Container(
+                      margin: EdgeInsets.only(right: i == 6 ? 0 : 4),
+                      decoration: BoxDecoration(
+                        color: _colorForEmotion(emo),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Emotion _toEmotion(Mood m) {
+  switch (m) {
+    case Mood.happy:
+      return Emotion.happy;
+    case Mood.relaxed:
+      return Emotion.relaxed;
+    case Mood.romantic:
+      return Emotion.romantic;
+    case Mood.motivated:
+      return Emotion.motivated;
+    case Mood.nostalgic:
+      return Emotion.nostalgic;
+  }
+}
+
+String _labelForEmotion(Emotion e) {
+  switch (e) {
+    case Emotion.happy:
+      return 'Feliz';
+    case Emotion.relaxed:
+      return 'Tranquila';
+    case Emotion.romantic:
+      return 'Romántica';
+    case Emotion.motivated:
+      return 'Motivada';
+    case Emotion.nostalgic:
+      return 'Nostálgica';
+  }
+}
+
+Color _colorForEmotion(Emotion? e) {
+  switch (e) {
+    case Emotion.happy:
+      return const Color(0xFFFFE082);
+    case Emotion.relaxed:
+      return const Color(0xFFB2EBF2);
+    case Emotion.romantic:
+      return const Color(0xFFFFC1D9);
+    case Emotion.motivated:
+      return const Color(0xFFFFCC80);
+    case Emotion.nostalgic:
+      return const Color(0xFFB39DDB);
+    default:
+      return Colors.grey.shade200;
+  }
+}
+
+Future<void> _startBreathing(BuildContext context) async {
+  // MVP: mostrar un dialogo con ritmo simple 4-4-4
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Respiración 4-4-4'),
+      content: const Text('Inhala 4s · Sostén 4s · Exhala 4s. Repite 5 veces.'),
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Listo'))],
+    ),
+  );
+}
+
+Future<void> _speakAffirmations(BuildContext context) async {
+  // MVP: mostramos afirmaciones; si ya usas TTS en SpecialMessagesBloc podríamos reutilizarlo.
+  const text = 'Soy suficiente. Hoy avanzo con calma y confianza.';
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Afirmación'),
+      content: const Text(text),
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrar'))],
+    ),
+  );
 }

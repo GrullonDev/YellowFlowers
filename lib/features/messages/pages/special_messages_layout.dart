@@ -10,6 +10,7 @@ import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
 import 'package:yellow_flowers/features/experience/pages/immersive_experience_page.dart';
+import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 
 class SpecialMessagesLayout extends StatelessWidget {
   const SpecialMessagesLayout({super.key});
@@ -23,6 +24,15 @@ class SpecialMessagesLayout extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Mensajes Especiales'),
             actions: [
+              IconButton(
+                tooltip: 'Ciclo y Música',
+                icon: const Icon(Icons.auto_awesome_rounded),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CycleMusicPage()),
+                  );
+                },
+              ),
               IconButton(
                 tooltip: 'Modo inmersivo',
                 icon: const Icon(Icons.play_circle_fill_rounded),
