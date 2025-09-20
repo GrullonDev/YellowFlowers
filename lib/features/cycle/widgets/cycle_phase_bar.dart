@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
-import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/di/injector.dart' as di;
 
 class CyclePhaseBar extends StatelessWidget {
   const CyclePhaseBar({super.key});
@@ -111,17 +111,25 @@ Mood _moodForPhase(CyclePhase p) {
 }
 
 Future<void> _suggestMusic(BuildContext context, CyclePhase phase) async {
-  final repo = di.get<MusicRemoteRepository>();
+  final bloc = di.sl<MusicBloc>();
   final mood = _moodForPhase(phase);
-  final song = await repo.getDailyRecommendation(mood);
+  // Trigger selection which internally will load songs / recommendation.
+  bloc.selectMood(mood);
+  // Allow async fetch inside bloc to complete (could be improved with a state listener).
+  await Future.delayed(const Duration(milliseconds: 150));
+  final recommendation = bloc.dailyRecommendation;
   if (!context.mounted) return;
-  if (song == null) {
+  if (recommendation == null) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('No hay sugerencias disponibles ahora.')),
     );
     return;
   }
-  await repo.playSong(song);
+  await bloc.playSong(recommendation);
+  if (!context.mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Reproduciendo: ${recommendation.title}')),
+  );
 }
 
 Future<void> _openConfig(BuildContext context) async {

@@ -8,9 +8,10 @@ import 'package:yellow_flowers/features/home/bloc/home_bloc.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
-import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
+// import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart'; // ya no usado en frase diaria
+import 'package:yellow_flowers/di/injector.dart' as di;
+import 'package:yellow_flowers/core/tts/tts_service.dart';
 
 class HomeLayout extends StatefulWidget {
   const HomeLayout({super.key});
@@ -122,30 +123,66 @@ class _AnimatedLeadingIcon extends StatelessWidget {
   }
 }
 
-class _DailyMoodCard extends StatelessWidget {
+class _DailyMoodCard extends StatefulWidget {
   const _DailyMoodCard();
+  @override
+  State<_DailyMoodCard> createState() => _DailyMoodCardState();
+}
+
+class _DailyMoodCardState extends State<_DailyMoodCard> {
+  String _lastPhraseKey = '';
+
+  TtsService get _tts => di.sl<TtsService>();
+
   @override
   Widget build(BuildContext context) {
     final mood = context.watch<MoodController>().mood;
     final wc = context.watch<WellnessController>();
     final phrase = wc.dailyPhrase(emotion: _toEmotion(mood));
+    // Si la frase cambió, detener TTS automáticamente
+    if (_lastPhraseKey != phrase) {
+      _lastPhraseKey = phrase;
+      _tts.stop();
+    }
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         leading: const Text('💌', style: TextStyle(fontSize: 22)),
-        title: Text('Tu frase de hoy', maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: const Text('Tu frase de hoy', maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(phrase, maxLines: 2, overflow: TextOverflow.ellipsis),
-        trailing: FilledButton(
-          onPressed: () async {
-            final repo = di.get<MusicRemoteRepository>();
-            final song = await repo.getDailyRecommendation(mood);
-            if (song != null) await repo.playSong(song);
+        trailing: ValueListenableBuilder<TtsState>(
+          valueListenable: _tts.stateNotifier,
+          builder: (context, state, _) {
+            final isSpeaking = state == TtsState.speaking;
+            final isInit = state == TtsState.initializing;
+            return FilledButton(
+              onPressed: isInit ? null : () => _toggleTts(phrase),
+              child: isInit
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(isSpeaking ? Icons.stop_rounded : Icons.volume_up_rounded),
+            );
           },
-          child: const Icon(Icons.play_arrow_rounded),
         ),
       ),
     );
+  }
+
+  Future<void> _toggleTts(String phrase) async {
+    if (_tts.state == TtsState.speaking) {
+      await _tts.stop();
+    } else {
+      await _tts.speak(phrase);
+    }
+  }
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
   }
 }
 
