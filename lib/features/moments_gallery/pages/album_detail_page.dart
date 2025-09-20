@@ -7,9 +7,9 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
+import 'package:yellow_flowers/di/injector.dart' as di;
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
-import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/moments_gallery/model/album_category.dart';
 import 'package:yellow_flowers/features/moments_gallery/data/memory_model.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
@@ -182,14 +182,12 @@ void _openViewer(BuildContext context, List<Memory> list, int index) {
   // If memory has an associated track, try to resolve and play it softly.
   final mem = list[index];
   if (mem.trackId != null && mem.trackId!.isNotEmpty) {
-    // resolve DI for music components
     try {
-  final jam = di.get<JamendoApiService>();
-  final musicRepo = di.get<MusicRemoteRepository>();
+      final jam = di.sl<JamendoApiService>();
+      final bloc = di.sl<MusicBloc>();
       jam.getTrackById(mem.trackId!).then((song) async {
         if (song == null) return;
-        // play through repository to reuse the player
-        await musicRepo.playSong(song);
+        await bloc.playSong(song);
       });
     } catch (_) {}
   }

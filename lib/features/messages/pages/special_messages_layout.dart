@@ -6,9 +6,9 @@ import 'package:yellow_flowers/features/messages/bloc/special_messages_bloc.dart
 import 'package:yellow_flowers/features/messages/model/message_models.dart';
 import 'package:yellow_flowers/features/messages/widgets/message_card.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
-import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/di/injector.dart' as di;
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/experience/pages/immersive_experience_page.dart';
 import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 
@@ -223,8 +223,11 @@ class _ContextRecommendationBar extends StatelessWidget {
 Future<void> _showMusicSuggestion(
     BuildContext context, MessageCategory category, String? sourceText) async {
   final mood = _moodForCategory(category);
-  final repo = di.get<MusicRemoteRepository>();
-  final song = await repo.getDailyRecommendation(mood);
+  final bloc = di.sl<MusicBloc>();
+  bloc.selectMood(mood);
+  // Espera breve para que el bloc obtenga recomendación (mejorable con listener a futuro)
+  await Future.delayed(const Duration(milliseconds: 150));
+  final song = bloc.dailyRecommendation;
   if (song == null) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -271,7 +274,7 @@ Future<void> _showMusicSuggestion(
                 const SizedBox(width: 12),
                 FilledButton.icon(
                   onPressed: () async {
-                    await repo.playSong(song);
+                    await bloc.playSong(song);
                     if (ctx.mounted) Navigator.pop(ctx);
                   },
                   icon: const Icon(Icons.play_arrow_rounded),
@@ -284,11 +287,8 @@ Future<void> _showMusicSuggestion(
               children: [
                 OutlinedButton.icon(
                   onPressed: () {
-                    // Abre el visor de recuerdos directamente con música sonando.
-                    repo.playSong(song);
+                    bloc.playSong(song);
                     Navigator.pop(ctx);
-                    // Navega a la galería; si no hay atajo directo, usa Home->Galería manual.
-                    // Como simplificación, empujo la página inmersiva reutilizando el mismo mood.
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => ImmersiveExperiencePage(
@@ -304,8 +304,6 @@ Future<void> _showMusicSuggestion(
                 const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: () {
-                    // Guardar como favorito con su canción: aquí marcamos el mensaje como favorito si venía de la lista.
-                    // En esta hoja no conocemos el índice; mostramos confirmación genérica.
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Guardado como favorito con su canción')),
                     );
