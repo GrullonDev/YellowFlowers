@@ -13,6 +13,31 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // --- Signing properties (optional) ---
+    // If you create a file at android/key.properties (NOT committed) with:
+    // storePassword=XXXXX
+    // keyPassword=XXXXX
+    // keyAlias=upload
+    // storeFile=../app/upload-keystore.jks
+    // then a proper release signing config will be applied automatically.
+    def keystoreProperties = new Properties()
+    def keystoreFile = rootProject.file("key.properties")
+    if (keystoreFile.exists()) {
+        keystoreFile.withInputStream { stream -> keystoreProperties.load(stream) }
+    }
+
+    // Define signingConfigs (release only if key properties present)
+    signingConfigs {
+        if (keystoreFile.exists() && keystoreProperties['storeFile']) {
+            release {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
     // --- Automated versioning for APKs ---
     // Priority order:
     // 1) -PversionCode (Gradle property): ./gradlew assembleRelease -PversionCode=123
@@ -76,9 +101,8 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            // Use release signing if defined, otherwise fall back to debug to avoid blocking local builds.
+            signingConfig signingConfigs.findByName('release') ?: signingConfigs.debug
             // Name the APK with version info to ease Firebase/App Distribution uploads
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->

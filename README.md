@@ -215,6 +215,60 @@ fvm flutter build appbundle --release
 
 En Windows: explora la carpeta `build\app\outputs\flutter-apk\` en el Explorador.
 
+### Firma (Signing) y Mismatch de SHA1
+
+Si Play Console muestra un error de huella digital (SHA1) distinta a la esperada:
+
+1. Verifica qué SHA1 espera Play Console: en la sección "App Integrity" o en la página de firma de la aplicación.
+2. Obtén el SHA1 del bundle que generaste (debug u otra keystore) ejecutando:
+
+```bash
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android | grep SHA1
+```
+
+3. Debes generar un keystore de subida (upload keystore) persistente y usarlo siempre para firmar localmente (si usas Play App Signing). Ejemplo:
+
+```bash
+keytool -genkeypair -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+4. Crea `android/key.properties` (NO lo subas al repo):
+
+```
+storePassword=TU_PASSWORD
+keyPassword=TU_PASSWORD
+keyAlias=upload
+storeFile=../app/upload-keystore.jks
+```
+
+5. Mueve `upload-keystore.jks` a `android/app/`.
+6. Vuelve a compilar:
+
+```bash
+fvm flutter clean
+fvm flutter pub get
+fvm flutter build appbundle --release
+```
+
+7. Extrae el SHA1 de ese keystore:
+
+```bash
+keytool -list -v -keystore android/app/upload-keystore.jks -alias upload | grep SHA1
+```
+
+8. Si ya habilitaste Play App Signing y subiste el primer AAB con otro keystore:
+	- Usa la opción de subir una "upload key" diferente (Google te dará un formulario para cambiar la clave de subida) o
+	- Si aún es temprano y no hay usuarios, crea una app nueva usando desde el inicio la keystore deseada.
+
+Nota: No confundas el SHA1 del certificado de firma de Play (Google genera uno interno) con el de tu upload key. El error mostrado normalmente compara el certificado esperado (upload) con el usado.
+
+Para depuración de la firma puedes inspeccionar el AAB:
+
+```bash
+unzip -p build/app/outputs/bundle/release/app-release.aab META-INF/CERT.RSA | keytool -printcert -v -rfc | grep SHA1
+```
+
+
 ## iOS IPA/Bundle
 
 - Configurar certificados en Xcode
