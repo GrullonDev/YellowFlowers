@@ -1,5 +1,5 @@
 import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 abstract class MusicRemoteRepository {

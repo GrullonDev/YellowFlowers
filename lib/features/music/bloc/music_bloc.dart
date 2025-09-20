@@ -1,7 +1,7 @@
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/music/domain/usecases/get_songs_by_mood.dart';
 import 'package:yellow_flowers/features/music/domain/usecases/get_daily_recommendation.dart';
 import 'package:yellow_flowers/features/music/domain/usecases/play_song.dart';
