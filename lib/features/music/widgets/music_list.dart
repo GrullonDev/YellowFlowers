@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/music/widgets/music_list_tile.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 
 class MusicList extends StatefulWidget {
   const MusicList({super.key});

@@ -4,9 +4,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:yellow_flowers/features/music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/utils/constants.dart';
-
-enum Mood { happy, relaxed, romantic, motivated, nostalgic }
 
 class JamendoApiService {
   JamendoApiService({http.Client? client}) : _client = client ?? http.Client();

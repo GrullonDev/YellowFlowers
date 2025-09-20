@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
 import 'package:yellow_flowers/features/moments_gallery/data/memory_model.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as di;
-import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/di/injector.dart' as di;
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -29,10 +29,12 @@ class _ImmersiveExperiencePageState extends State<ImmersiveExperiencePage> {
 
   Future<void> _autoplay() async {
     try {
-      final repo = di.get<MusicRemoteRepository>();
-      final song = await repo.getDailyRecommendation(widget.mood);
+      final bloc = di.sl<MusicBloc>();
+      bloc.selectMood(widget.mood);
+      await Future.delayed(const Duration(milliseconds: 150));
+      final song = bloc.dailyRecommendation;
       if (song != null) {
-        await repo.playSong(song);
+        await bloc.playSong(song);
       }
     } catch (_) {}
   }

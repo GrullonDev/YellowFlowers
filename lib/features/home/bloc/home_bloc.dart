@@ -5,6 +5,7 @@ import 'package:yellow_flowers/features/home/model/menu_item.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
+import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 
 class HomeBloc extends BaseModel {
@@ -36,6 +37,12 @@ class HomeBloc extends BaseModel {
           icon: Icons.music_note,
           destination: const MusicPage(),
           description: 'Melodías para acompañar tu momento 🎵',
+        ),
+        MenuItem(
+          title: 'Ciclo y Música',
+          icon: Icons.auto_awesome_rounded,
+          destination: const CycleMusicPage(),
+          description: 'Recomendaciones amigables para cada fase 💗',
         ),
         /* MenuItem(
           title: 'Tarjetas Virtuales',

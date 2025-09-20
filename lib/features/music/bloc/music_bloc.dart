@@ -1,15 +1,40 @@
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/get_songs_by_mood.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/get_daily_recommendation.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/play_song.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/pause_song.dart';
+import 'package:yellow_flowers/features/music/domain/usecases/get_position_stream.dart';
+import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart' as domain;
+import 'package:yellow_flowers/core/result.dart';
+import 'package:yellow_flowers/core/usecase.dart';
 
 class MusicBloc extends BaseModel {
-  MusicBloc({required MusicRemoteRepository repository})
-      : _repository = repository {
+  MusicBloc({
+    required MusicRemoteRepository repository,
+    GetSongsByMoodUseCase? getSongsByMoodUseCase,
+    GetDailyRecommendationUseCase? getDailyRecommendationUseCase,
+    PlaySongUseCase? playSongUseCase,
+    PauseSongUseCase? pauseSongUseCase,
+    GetPositionStreamUseCase? getPositionStreamUseCase,
+  })  : _repository = repository,
+        _getSongsByMood = getSongsByMoodUseCase,
+        _getDailyRecommendation = getDailyRecommendationUseCase,
+        _playSongUC = playSongUseCase,
+        _pauseSongUC = pauseSongUseCase,
+        _getPositionStreamUC = getPositionStreamUseCase {
     _init();
   }
 
   final MusicRemoteRepository _repository;
+  final GetSongsByMoodUseCase? _getSongsByMood;
+  final GetDailyRecommendationUseCase? _getDailyRecommendation;
+  final PlaySongUseCase? _playSongUC;
+  final PauseSongUseCase? _pauseSongUC;
+  final GetPositionStreamUseCase? _getPositionStreamUC;
+  // final GetCurrentPositionUseCase? _getCurrentPositionUC; // reserved for future incremental refactor
 
   List<Song> _songs = [];
   Song? _currentSong;
@@ -76,8 +101,54 @@ class MusicBloc extends BaseModel {
     notifyListeners();
     try {
       // Initial load by mood instead of genre
-      _songs = await _repository.getSongsByMood(_selectedMood);
-      _dailyRecommendation = await _repository.getDailyRecommendation(_selectedMood);
+      if (_getSongsByMood != null) {
+  final res = await _getSongsByMood.call(GetSongsByMoodParams(_selectedMood));
+        res.when(
+          success: (data) {
+            _songs = data
+                .map((e) => Song(
+                      id: e.id,
+                      title: e.title,
+                      artist: e.artist,
+                      audioUrl: e.audioUrl,
+                      coverUrl: e.coverUrl,
+                      duration: e.duration,
+                      genre: e.genre,
+                    ))
+                .toList();
+          },
+          error: (f) {
+            _songs = [];
+            _errorMessage = f.message;
+          },
+        );
+      } else {
+        _songs = await _repository.getSongsByMood(_selectedMood);
+      }
+      if (_getDailyRecommendation != null) {
+  final rec = await _getDailyRecommendation.call(GetDailyRecommendationParams(_selectedMood));
+        rec.when(
+          success: (song) {
+            _dailyRecommendation = song == null
+                ? null
+                : Song(
+                    id: song.id,
+                    title: song.title,
+                    artist: song.artist,
+                    audioUrl: song.audioUrl,
+                    coverUrl: song.coverUrl,
+                    duration: song.duration,
+                    genre: song.genre,
+                  );
+          },
+          error: (f) {
+            _dailyRecommendation = null;
+            _errorMessage = f.message;
+          },
+        );
+      } else {
+        _dailyRecommendation = await _repository.getDailyRecommendation(_selectedMood);
+      }
       _errorMessage = null;
     } catch (e) {
       _songs = [];
@@ -88,11 +159,18 @@ class MusicBloc extends BaseModel {
       notifyListeners();
     }
     try {
-      final positionStream = await _repository.getPositionStream();
-      positionStream.listen((position) {
-        _position = position;
-        notifyListeners();
-      });
+    final positionStream = _getPositionStreamUC != null
+      ? (await _getPositionStreamUC(const NoParams())).when(
+              success: (s) => s,
+              error: (_) => null,
+            )
+          : await _repository.getPositionStream();
+      if (positionStream != null) {
+        positionStream.listen((position) {
+          _position = position;
+          notifyListeners();
+        });
+      }
     } catch (_) {
       // ignore position stream errors
     }
@@ -100,13 +178,34 @@ class MusicBloc extends BaseModel {
 
   Future<void> playSong(Song song) async {
     _currentSong = song;
-    await _repository.playSong(song);
+    if (_playSongUC != null) {
+      final res = await _playSongUC.call(PlaySongParams(domain.SongEntity(
+        id: song.id,
+        title: song.title,
+        artist: song.artist,
+        audioUrl: song.audioUrl,
+        coverUrl: song.coverUrl,
+        duration: song.duration,
+        genre: song.genre,
+      )));
+      if (res is Error) {
+        _errorMessage = res.failure.message;
+        notifyListeners();
+        return;
+      }
+    } else {
+      await _repository.playSong(song);
+    }
     _isPlaying = true;
     notifyListeners();
   }
 
   Future<void> pauseSong() async {
-    await _repository.pauseSong();
+    if (_pauseSongUC != null) {
+  await _pauseSongUC.call(const NoParams());
+    } else {
+      await _repository.pauseSong();
+    }
     _isPlaying = false;
     notifyListeners();
   }
@@ -139,9 +238,55 @@ class MusicBloc extends BaseModel {
     // Reset genre filter to All when changing mood to avoid over-filtering
     _selectedGenre = 'All';
     try {
-      _songs = await _repository.getSongsByMood(mood);
-      _dailyRecommendation = await _repository.getDailyRecommendation(mood);
-      _errorMessage = null;
+      if (_getSongsByMood != null) {
+  final res = await _getSongsByMood.call(GetSongsByMoodParams(mood));
+        res.when(
+          success: (data) {
+            _songs = data
+                .map((e) => Song(
+                      id: e.id,
+                      title: e.title,
+                      artist: e.artist,
+                      audioUrl: e.audioUrl,
+                      coverUrl: e.coverUrl,
+                      duration: e.duration,
+                      genre: e.genre,
+                    ))
+                .toList();
+          },
+          error: (f) {
+            _songs = [];
+            _errorMessage = f.message;
+          },
+        );
+      } else {
+        _songs = await _repository.getSongsByMood(mood);
+      }
+      if (_getDailyRecommendation != null) {
+  final rec = await _getDailyRecommendation.call(GetDailyRecommendationParams(mood));
+        rec.when(
+          success: (song) {
+            _dailyRecommendation = song == null
+                ? null
+                : Song(
+                    id: song.id,
+                    title: song.title,
+                    artist: song.artist,
+                    audioUrl: song.audioUrl,
+                    coverUrl: song.coverUrl,
+                    duration: song.duration,
+                    genre: song.genre,
+                  );
+          },
+          error: (f) {
+            _dailyRecommendation = null;
+            _errorMessage = f.message;
+          },
+        );
+      } else {
+        _dailyRecommendation = await _repository.getDailyRecommendation(mood);
+      }
+      _errorMessage ??= null;
     } catch (e) {
       _songs = [];
       _dailyRecommendation = null;

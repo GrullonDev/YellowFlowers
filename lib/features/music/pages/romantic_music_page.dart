@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
-import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/features/music/pages/music_layout.dart';
 import 'package:yellow_flowers/utils/base_model_scaffold.dart';
-import 'package:yellow_flowers/utils/inyenction_container.dart' as sl;
+import 'package:yellow_flowers/di/injector.dart' as di;
 
 class MusicPage extends StatelessWidget {
   const MusicPage({super.key});
@@ -12,9 +11,7 @@ class MusicPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseModelScaffold(
-      model: MusicBloc(
-        repository: sl.get<MusicRemoteRepository>(),
-      ),
+      model: di.sl<MusicBloc>(),
       builder: (context, _) => const MusicLayout(),
     );
   }
