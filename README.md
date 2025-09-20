@@ -261,6 +261,24 @@ Durante la transición coexisten dos contenedores de dependencias:
 
 Guía detallada adicional en `ARCHITECTURE_MIGRATION.md`.
 
+### Reproducción de Frase Diaria (TTS)
+La tarjeta "Tu frase de hoy" ahora usa un servicio `TtsService` (flutter_tts) para leer la frase en voz alta.
+
+Botón:
+- Icono altavoz: inicia la locución.
+- Icono stop: detiene la reproducción.
+
+Mejoras futuras sugeridas:
+- Mostrar progreso real (escuchar callbacks de progreso de `flutter_tts`).
+- Cachear voces locales / permitir cambiar velocidad.
+- Parar automáticamente si el usuario cambia de mood o navega fuera.
+
+#### Si no se escucha la voz
+- iOS modo silencio (switch físico) o Focus activado: la categoría se setea a playback, pero en algunos dispositivos con iOS < 15 requiere subir volumen de multimedia.
+- Volumen del sistema en 0.
+- Idioma no soportado: se intenta `es-ES`, fallback a `es-419` o `es-MX`. Revisar lista con `getLanguages` si persiste.
+- Primera inicialización tardía: el botón muestra spinner hasta estar listo; si tarda demasiado, matar y relanzar la app.
+
 # Recursos
 
 Algunos recursos para ayudarte a comenzar si este es tu primer proyecto Flutter:
