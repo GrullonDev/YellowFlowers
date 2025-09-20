@@ -1,6 +1,6 @@
 import 'package:yellow_flowers/core/result.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart';
 import 'package:yellow_flowers/features/music/domain/repositories/music_repository.dart';

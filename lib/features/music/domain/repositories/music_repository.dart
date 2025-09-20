@@ -1,5 +1,5 @@
 import 'package:yellow_flowers/core/result.dart';
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import '../entities/song_entity.dart';
 
 abstract class MusicRepository {
