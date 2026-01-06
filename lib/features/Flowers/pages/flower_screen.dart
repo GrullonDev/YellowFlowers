@@ -13,6 +13,7 @@ import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower_themed.dart';
 import 'package:yellow_flowers/features/flowers/widgets/story_card.dart';
+import 'package:yellow_flowers/utils/app_theme.dart';
 import 'package:yellow_flowers/utils/constants.dart';
 
 class FlowerScreen extends StatefulWidget {
@@ -284,7 +285,8 @@ class _FlowerScreenState extends State<FlowerScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: Colors.black87),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -437,11 +439,12 @@ class _FlowerScreenState extends State<FlowerScreen>
                               ),
                               const SizedBox(width: 8),
                               IconButton(
-                                tooltip: 'Guardar',
+                                tooltip: 'Plantar en mi Galería',
                                 onPressed: _saveStoryCard,
                                 icon: const Icon(
-                                  Icons.download_rounded,
-                                  color: Colors.pinkAccent,
+                                  Icons.yard_rounded,
+                                  color: AppTheme.leafGreen,
+                                  size: 30,
                                 ),
                               ),
                             ],

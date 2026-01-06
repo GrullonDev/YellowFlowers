@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower_illustration.dart';
+import 'package:yellow_flowers/utils/app_theme.dart';
 
 class NameEntryFlower extends StatefulWidget {
   const NameEntryFlower({super.key});
@@ -20,7 +22,6 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
   late Animation<double> _scale;
   FlowerTheme _theme = FlowerTheme.daisy;
   Mood _mood = Mood.joy;
-  bool _fancyName = false;
   FlowerAnimationStyle? _animationStyle; // null => usa el sugerido por tema
 
   @override
@@ -53,18 +54,19 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
               backgroundColor: Colors.transparent,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: AppTheme.textDark),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),
             body: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFFFFF3B0), // amarillo pastel
-                    Color(0xFFFFC0CB), // rosa suave
+                    AppTheme.backgroundCream,
+                    AppTheme.accentPink.withValues(alpha: 0.3),
                   ],
                 ),
               ),
@@ -89,251 +91,192 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                         ),
                         const SizedBox(height: 24),
                         // Título amigable
-                        const Text(
+                        Text(
                           'Bienvenida',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                          style: Theme.of(context).textTheme.displayLarge,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Escribe tu nombre para comenzar',
+                        Text(
+                          'Cultivemos algo hermoso juntas',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                        const SizedBox(height: 28),
-                        // Campo de texto estilizado
-                        TextField(
-                          controller: model.nameController,
-                          textInputAction: TextInputAction.done,
-                          cursorColor: const Color(0xFFFF69B4),
-                          style: const TextStyle(color: Colors.black87),
-                          decoration: InputDecoration(
-                            hintText: 'Escribe tu nombre 💛',
-                            hintStyle: TextStyle(
-                              color: Colors.black.withValues(alpha: 0.4),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white.withValues(alpha: 0.85),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Colors.black.withValues(alpha: 0.08),
+                        const SizedBox(height: 32),
+
+                        // Tarjeta de Entrada
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    AppTheme.textDark.withValues(alpha: 0.05),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFFF69B4),
-                                width: 2,
-                              ),
-                            ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        // Personalización: tema de flor
-                        const Text(
-                          'Tema:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Row(
-                          spacing: 8,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: const Text('🌼 Margarita'),
-                              selected: _theme == FlowerTheme.daisy,
-                              onSelected: (_) =>
-                                  setState(() => _theme = FlowerTheme.daisy),
-                            ),
-                            ChoiceChip(
-                              label: const Text('🌻 Girasol'),
-                              selected: _theme == FlowerTheme.sunflower,
-                              onSelected: (_) => setState(
-                                  () => _theme = FlowerTheme.sunflower),
-                            ),
-                            ChoiceChip(
-                              label: const Text('🌸 Rosa'),
-                              selected: _theme == FlowerTheme.rose,
-                              onSelected: (_) =>
-                                  setState(() => _theme = FlowerTheme.rose),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Animación dinámica de flores de fondo
-                        const Text(
-                          'Animación de flores:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Row(
-                          spacing: 8,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: const Text('🌬️ Balanceo'),
-                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
-                                  FlowerAnimationStyle.sway,
-                              onSelected: (_) => setState(
-                                  () => _animationStyle = FlowerAnimationStyle.sway),
-                            ),
-                            ChoiceChip(
-                              label: const Text('🌀 Giro'),
-                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
-                                  FlowerAnimationStyle.spin,
-                              onSelected: (_) => setState(
-                                  () => _animationStyle = FlowerAnimationStyle.spin),
-                            ),
-                            ChoiceChip(
-                              label: const Text('💓 Latido'),
-                              selected: (_animationStyle ?? _theme.defaultAnimation) ==
-                                  FlowerAnimationStyle.pulse,
-                              onSelected: (_) => setState(
-                                  () => _animationStyle = FlowerAnimationStyle.pulse),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Personalización: ánimo (gradiente)
-                        const Text(
-                          'Ánimo:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Row(
-                          spacing: 8,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: const Text('💛 Alegría'),
-                              selected: _mood == Mood.joy,
-                              onSelected: (_) =>
-                                  setState(() => _mood = Mood.joy),
-                            ),
-                            ChoiceChip(
-                              label: const Text('🟣 Calma'),
-                              selected: _mood == Mood.calm,
-                              onSelected: (_) =>
-                                  setState(() => _mood = Mood.calm),
-                            ),
-                            ChoiceChip(
-                              label: const Text('💗 Pasión'),
-                              selected: _mood == Mood.passion,
-                              onSelected: (_) =>
-                                  setState(() => _mood = Mood.passion),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Tipografía especial para el nombre
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text(
-                            'Nombre en tipografía elegante (cursiva)',
-                            style: TextStyle(
-                              color: Colors.black87,
-                            ),
-                          ),
-                          value: _fancyName,
-                          onChanged: (v) => setState(() => _fancyName = v),
-                        ),
-                        const SizedBox(height: 12),
-                        // Botón principal con microinteracción
-                        AnimatedBuilder(
-                          animation: _scale,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: _scale.value,
-                              child: child,
-                            );
-                          },
-                          child: GestureDetector(
-                            onTapDown: (_) => _pressController.forward(),
-                            onTapCancel: () => _pressController.reverse(),
-                            onTapUp: (_) {
-                              // No await to avoid async gap before using context
-                              _pressController.reverse();
-                              final name = model.nameController.text.trim();
-                              if (name.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Por favor, escribe tu nombre.')),
-                                );
-                                return;
-                              }
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HeroControllerScope(
-                                    controller: MaterialApp
-                                        .createMaterialHeroController(),
-                                    child: FlowerScreen(
-                                      recipientName: name,
-                                      theme: _theme,
-                                      mood: _mood,
-                                      fancyName: _fancyName,
-                    animationStyle:
-                      _animationStyle ?? _theme.defaultAnimation,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Campo de texto estilizado
+                              TextField(
+                                controller: model.nameController,
+                                textInputAction: TextInputAction.done,
+                                cursorColor: AppTheme.accentPink,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                                decoration: InputDecoration(
+                                  labelText: 'Tu Nombre',
+                                  labelStyle: TextStyle(
+                                      color: AppTheme.textDark
+                                          .withValues(alpha: 0.6)),
+                                  hintText: '¿Cómo te llamas? ✨',
+                                  hintStyle: TextStyle(
+                                    color: AppTheme.textDark
+                                        .withValues(alpha: 0.4),
+                                  ),
+                                  filled: true,
+                                  fillColor: AppTheme.backgroundCream,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: const BorderSide(
+                                      color: AppTheme.accentPink,
+                                      width: 2,
                                     ),
                                   ),
+                                  prefixIcon: const Icon(
+                                      Icons.person_outline_rounded,
+                                      color: AppTheme.sunnyGold),
                                 ),
-                              );
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(18),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFFFD400), // amarillo brillante
-                                    Color(0xFFFF69B4), // rosa fuerte
-                                  ],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFFFF69B4)
-                                        .withValues(alpha: 0.35),
-                                    blurRadius: 18,
-                                    offset: const Offset(0, 8),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Personalización: tema de flor
+                              Text(
+                                'Elige tu Flor:',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(fontSize: 18),
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  _FeatureChip(
+                                    label: 'Margarita 🌼',
+                                    selected: _theme == FlowerTheme.daisy,
+                                    onSelected: () => setState(
+                                        () => _theme = FlowerTheme.daisy),
+                                  ),
+                                  _FeatureChip(
+                                    label: 'Girasol 🌻',
+                                    selected: _theme == FlowerTheme.sunflower,
+                                    onSelected: () => setState(
+                                        () => _theme = FlowerTheme.sunflower),
+                                  ),
+                                  _FeatureChip(
+                                    label: 'Rosa 🌸',
+                                    selected: _theme == FlowerTheme.rose,
+                                    onSelected: () => setState(
+                                        () => _theme = FlowerTheme.rose),
                                   ),
                                 ],
                               ),
-                              child: const Center(
-                                child: Text(
-                                  'Continuar',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 18,
-                                    color: Colors.white,
+                              const SizedBox(height: 24),
+
+                              // Personalización: ánimo
+                              Text(
+                                '¿Qué energía deseas hoy?',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(fontSize: 18),
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  _FeatureChip(
+                                    label: 'Alegría 💛',
+                                    selected: _mood == Mood.joy,
+                                    onSelected: () =>
+                                        setState(() => _mood = Mood.joy),
                                   ),
+                                  _FeatureChip(
+                                    label: 'Calma 🟣',
+                                    selected: _mood == Mood.calm,
+                                    onSelected: () =>
+                                        setState(() => _mood = Mood.calm),
+                                  ),
+                                  _FeatureChip(
+                                    label: 'Amor 💗',
+                                    selected: _mood == Mood.passion,
+                                    onSelected: () =>
+                                        setState(() => _mood = Mood.passion),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Botón principal
+                              AnimatedBuilder(
+                                animation: _scale,
+                                builder: (context, child) => Transform.scale(
+                                  scale: _scale.value,
+                                  child: child,
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _pressController.forward().then(
+                                        (_) => _pressController.reverse());
+                                    final name =
+                                        model.nameController.text.trim();
+                                    if (name.isEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              '¡Por favor, dinos tu nombre! 🌸'),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            HeroControllerScope(
+                                          controller: MaterialApp
+                                              .createMaterialHeroController(),
+                                          child: FlowerScreen(
+                                            recipientName: name,
+                                            theme: _theme,
+                                            mood: _mood,
+                                            fancyName:
+                                                true, // Always fancy by default now
+                                            animationStyle: _animationStyle ??
+                                                _theme.defaultAnimation,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('Comenzar Experiencia'),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ],
@@ -344,6 +287,55 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _FeatureChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onSelected;
+
+  const _FeatureChip({
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onSelected,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? AppTheme.leafGreen : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected
+                ? AppTheme.leafGreen
+                : AppTheme.textDark.withValues(alpha: 0.1),
+            width: 1,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.leafGreen.withValues(alpha: 0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.outfit(
+            color: selected ? Colors.white : AppTheme.textDark,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
       ),
     );
   }
