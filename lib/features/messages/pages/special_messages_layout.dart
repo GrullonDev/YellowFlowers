@@ -4,7 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:yellow_flowers/features/messages/bloc/special_messages_bloc.dart';
 import 'package:yellow_flowers/features/messages/model/message_models.dart';
 import 'package:yellow_flowers/features/messages/widgets/message_card.dart';
-import 'package:yellow_flowers/utils/app_theme.dart';
+import 'package:yellow_flowers/widgets/animated_background.dart';
+import 'package:yellow_flowers/di/injector.dart' as di;
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
+import 'package:yellow_flowers/features/experience/pages/immersive_experience_page.dart';
+import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 
 class SpecialMessagesLayout extends StatefulWidget {
   const SpecialMessagesLayout({super.key});
@@ -29,278 +34,370 @@ class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> {
   @override
   Widget build(BuildContext context) {
     return Consumer<SpecialMessagesBloc>(
-      builder: (context, model, _) {
-        final messages = _selectedIndex == 0 ? model.messages : model.favorites;
-
-        return Scaffold(
-          backgroundColor: const Color(0xFFFDFBF7), // Warm paper background
-          body: CustomScrollView(
-            slivers: [
-              // 1. Custom Handwriting Header
-              SliverAppBar(
-                expandedHeight: 120,
-                backgroundColor: const Color(0xFFFDFBF7),
-                elevation: 0,
-                floating: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: Text(
-                    "Palabras del Corazón",
-                    style: GoogleFonts.playball(
-                      color: AppTheme.textDark,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  background: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFFFFFDE7),
-                          Color(0xFFFDFBF7),
-                        ],
+      builder: (context, model, _) => DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Mensajes Especiales'),
+            actions: [
+              IconButton(
+                tooltip: 'Ciclo y Música',
+                icon: const Icon(Icons.auto_awesome_rounded),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CycleMusicPage()),
+                  );
+                },
+              ),
+              IconButton(
+                tooltip: 'Modo inmersivo',
+                icon: const Icon(Icons.play_circle_fill_rounded),
+                onPressed: () {
+                  final bloc = context.read<SpecialMessagesBloc>();
+                  final mood = _moodForCategory(bloc.selected);
+                  final firstText = bloc.messages.isNotEmpty
+                      ? bloc.messages.first.text
+                      : 'Un momento especial para ti';
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ImmersiveExperiencePage(
+                        initialText: firstText,
+                        mood: mood,
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-
-              // 2. Custom Tabs
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildTabButton("Explorar", 0),
-                      const SizedBox(width: 16),
-                      _buildTabButton("Mis Favoritos", 1),
-                    ],
-                  ),
-                ),
-              ),
-
-              // 3. Category Filter (Only for Explore)
-              if (_selectedIndex == 0)
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 50,
-                    child: ListView.separated(
+            ],
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Mensajes'),
+                Tab(text: 'Favoritos'),
+              ],
+            ),
+          ),
+          body: AnimatedBackground(
+            child: TabBarView(
+              children: [
+                Column(
+                  children: [
+                    SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: MessageCategory.values.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10),
-                      itemBuilder: (context, i) {
-                        final cat = MessageCategory.values[i];
-                        final isSelected = cat == model.selected;
-                        return ChoiceChip(
-                          label: Text(
-                            "${cat.emoji} ${cat.label}",
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black87,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
+                      padding:
+                          const EdgeInsets.only(left: 16, right: 16, top: 8),
+                      child: Row(
+                        children: MessageCategory.values.map((c) {
+                          final selected = c == model.selected;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(c.label),
+                              selected: selected,
+                              onSelected: (_) => model.setCategory(c),
                             ),
-                          ),
-                          selected: isSelected,
-                          onSelected: (_) => model.setCategory(cat),
-                          backgroundColor: Colors.white,
-                          selectedColor: AppTheme.sunnyGold,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(
-                              color: isSelected
-                                  ? Colors.transparent
-                                  : Colors.grey.shade300,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-              // 4. Input Area (Only for Explore - technically users might append anywhere but let's keep it here)
-              if (_selectedIndex == 0)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                          );
+                        }).toList(),
                       ),
+                    ),
+                    _ContextRecommendationBar(),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
+                          SizedBox(
+                            width: 140,
+                            child: TextField(
+                              onChanged: model.setName,
+                              decoration: const InputDecoration(
+                                labelText: 'Nombre',
+                                hintText: 'Ej: Ana',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
                               controller: model.controller,
                               decoration: const InputDecoration(
-                                hintText: 'Escribe tu propio mensaje... ✍️',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 16),
+                                hintText:
+                                    'Escribe un mensaje… usa {nombre} si quieres',
+                                border: OutlineInputBorder(),
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.send_rounded,
-                                color: AppTheme.sunnyGold),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
                             onPressed: () {
-                              if (model.controller.text.isNotEmpty) {
-                                model.addMessage(model.controller.text);
-                                model.controller.clear();
-                              }
+                              model.addMessage(model.controller.text);
+                              model.controller.clear();
                             },
+                            child: const Icon(Icons.send),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-              // 5. Grid of Sticky Notes
-              SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio:
-                        0.85, // More vertical for sticky note feel
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final msg = messages[index];
-                      // Determine color deterministically based on index/hash
-                      final color = _noteColors[index % _noteColors.length];
-
-                      return Dismissible(
-                        key: ValueKey(
-                            'msg_${msg.text}_${msg.createdAt.millisecondsSinceEpoch}'),
-                        // Only allow deleting from main list if necessary, or favoriting
-                        // For now, let's just make it Swipe-to-delete only if it's user generated?
-                        // The original code allowed delete. Let's keep it but styling background.
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.redAccent.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(Icons.delete_sweep,
-                              color: Colors.white, size: 30),
-                        ),
-                        onDismissed: (_) {
-                          if (_selectedIndex == 0) {
-                            model.removeMessage(msg);
-                          } else {
-                            // removing from favorites logic is different in original code?
-                            // Original code: model.removeMessage(msg) which removes from 'messages' list.
-                            // If we are in favorites view, we probably just want to unfavorite?
-                            // Let's just assume delete works for both for now or handle unfavorite.
-                            // To be safe and consistent with previous behavior:
-                            model.toggleFavorite(model.messages.indexOf(msg));
-                            // Wait, msg in favorites is a copy or reference?
-                            // The original code mapped favorites from the main list.
-                          }
+                    Expanded(
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: model.messages.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, i) {
+                          final msg = model.messages[i];
+                          return Dismissible(
+                            key: ValueKey(
+                                'msg_${msg.category.name}_${msg.createdAt.millisecondsSinceEpoch}'),
+                            background: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 16),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            direction: DismissDirection.endToStart,
+                            onDismissed: (_) => model.removeMessage(msg),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                MessageCard(
+                                  text: '${msg.text} ${msg.category.emoji}',
+                                  isFavorite: msg.isFavorite,
+                                  onFavorite: () => model.toggleFavorite(i),
+                                  onSpeak: () => model.speak(i),
+                                ),
+                                const SizedBox(height: 6),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton.icon(
+                                    icon: const Text('🎶'),
+                                    label: const Text('Acompañar con música'),
+                                    onPressed: () => _showMusicSuggestion(
+                                        context, msg.category, msg.text),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
                         },
-                        child: MessageCard(
-                          text: '${msg.text} ${msg.category.emoji}',
-                          isFavorite: msg
-                              .isFavorite, // Logic might need adjustment for favorites list
-                          color: color,
-                          onFavorite: () {
-                            if (_selectedIndex == 0) {
-                              model.toggleFavorite(index);
-                            } else {
-                              // Find index in main list
-                              final mainIndex = model.messages.indexOf(msg);
-                              if (mainIndex != -1)
-                                model.toggleFavorite(mainIndex);
-                            }
-                          },
-                          onSpeak: () => model.speakMessage(msg),
-                        ),
-                      );
-                    },
-                    childCount: messages.length,
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-
-              const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
-            ],
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // Scroll to top or add new?
-              // For now maybe simple "Inspire Me" feature?
-              // Or just hide it. Original didn't have FAB on main screen.
-              // Let's add a random message generator button?
-              // model.addMessage("Eres increíble ✨"); like a shuffle?
-              // Let's keep it clean, NO FAB for now.
-            },
-            backgroundColor: AppTheme.accentPink,
-            child: const Icon(Icons.auto_awesome, color: Colors.white),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTabButton(String label, int index) {
-    final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.leafGreen : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: AppTheme.leafGreen.withValues(alpha: 0.4),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              )
-            else
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.black54,
-            fontSize: 16,
+                ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: model.favorites.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, i) {
+                    final fav = model.favorites[i];
+                    return MessageCard(
+                      text: '${fav.text} ${fav.category.emoji}',
+                      isFavorite: true,
+                      onSpeak: () => model.speakMessage(fav),
+                      onFavorite: () {
+                        final idx = model.messages.indexWhere((m) =>
+                            m.text == fav.text && m.category == fav.category);
+                        if (idx != -1) model.toggleFavorite(idx);
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+class _ContextRecommendationBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.watch<SpecialMessagesBloc>();
+    final mood = _moodForCategory(bloc.selected);
+    final text = _contextualText(mood);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: const Text('💡', style: TextStyle(fontSize: 20)),
+          title: Text(text),
+          trailing: FilledButton(
+            onPressed: () => _showMusicSuggestion(context, bloc.selected, null),
+            child: const Text('Escuchar'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _showMusicSuggestion(
+    BuildContext context, MessageCategory category, String? sourceText) async {
+  final mood = _moodForCategory(category);
+  final bloc = di.sl<MusicBloc>();
+  bloc.selectMood(mood);
+  // Espera breve para que el bloc obtenga recomendación (mejorable con listener a futuro)
+  await Future.delayed(const Duration(milliseconds: 150));
+  final song = bloc.dailyRecommendation;
+  if (song == null) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay sugerencias disponibles ahora.')),
+      );
+    }
+    return;
+  }
+  if (!context.mounted) return;
+  showModalBottomSheet(
+    context: context,
+    showDragHandle: true,
+    shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+    builder: (ctx) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_sheetTitleForMood(mood),
+                style: Theme.of(ctx).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (song.coverUrl.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(song.coverUrl,
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+                  )
+                else
+                  const SizedBox(width: 64, height: 64),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '${song.title} — ${song.artist}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                FilledButton.icon(
+                  onPressed: () async {
+                    await bloc.playSong(song);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Reproducir'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () {
+                    bloc.playSong(song);
+                    Navigator.pop(ctx);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ImmersiveExperiencePage(
+                          initialText: sourceText ?? 'Un recuerdo para ti',
+                          mood: mood,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Ver recuerdo sugerido'),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Guardado como favorito con su canción')),
+                    );
+                  },
+                  icon: const Icon(Icons.favorite_border),
+                  label: const Text('Guardar como favorito'),
+                ),
+              ],
+            ),
+            if (sourceText != null && sourceText.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Mensaje:',
+                style: Theme.of(ctx)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: Colors.black54),
+              ),
+              Text(
+                sourceText,
+                style: Theme.of(ctx).textTheme.bodyMedium,
+              ),
+            ]
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Mood _moodForCategory(MessageCategory c) {
+  switch (c) {
+    case MessageCategory.love:
+      return Mood.romantic;
+    case MessageCategory.friendship:
+      return Mood.happy;
+    case MessageCategory.selfEsteem:
+      return Mood.motivated;
+    case MessageCategory.family:
+      return Mood.nostalgic;
+    case MessageCategory.occasions:
+      return Mood.happy;
+    case MessageCategory.community:
+      return Mood.relaxed;
+  }
+}
+
+String _contextualText(Mood mood) {
+  switch (mood) {
+    case Mood.motivated:
+      return 'Hoy que te sientes motivada, esta canción te dará energía 🚀';
+    case Mood.nostalgic:
+      return 'Como te sientes nostálgica, revive un recuerdo acompañado de esta canción 🎶';
+    case Mood.romantic:
+      return 'Para este momento romántico, deja que la música hable por ti 💖';
+    case Mood.happy:
+      return 'Con ese ánimo alegre, sube el volumen y disfruta 💛';
+    case Mood.relaxed:
+      return 'Respira profundo y relájate con esta melodía 🌿';
+  }
+}
+
+String _sheetTitleForMood(Mood mood) {
+  switch (mood) {
+    case Mood.motivated:
+      return 'Energía para este momento ✨';
+    case Mood.nostalgic:
+      return 'Una canción para recordar 🌙';
+    case Mood.romantic:
+      return 'Acompaña tu mensaje con amor 💖';
+    case Mood.happy:
+      return 'Música para sonreír 💛';
+    case Mood.relaxed:
+      return 'Un respiro musical 🌿';
   }
 }

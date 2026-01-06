@@ -12,6 +12,7 @@ Una app Flutter para crear y personalizar tarjetas de flores virtuales con anima
 - [Contribuir](#contribuir)
 - [Recursos](#recursos)
 - [Licencia y Administración](#licencia-y-administración)
+ - [Arquitectura Limpia (Migración)](#arquitectura-limpia-migración)
 
 ## Descripción
 
@@ -56,6 +57,29 @@ Sigue estos pasos para clonar el repositorio e instalar las dependencias necesar
 
 ```bash
 git clone https://github.com/GrullonDev/YellowFlowers.git
+
+### Versionado automático de APK (Android)
+
+Se configuró `android/app/build.gradle` para calcular `versionCode` automáticamente al compilar:
+
+Prioridad del `versionCode`:
+- Propiedad de Gradle: `-PversionCode=123`
+- Variables de entorno CI: `BUILD_NUMBER`, `GITHUB_RUN_NUMBER` o `CI_PIPELINE_IID`
+- Cantidad de commits: `git rev-list --count HEAD`
+- Marca de tiempo: `yyyyMMddHH`
+
+El `versionName` se mantiene con el valor de `pubspec.yaml` y se concatena `+versionCode` para trazabilidad.
+
+Comandos útiles:
+
+- Mostrar versión resuelta:
+	- `./gradlew :app:printVersion`
+- Construir APK release con versión automática:
+	- `flutter build apk --release`
+- Forzar un `versionCode` desde CI/local:
+	- `./gradlew :app:assembleRelease -PversionCode=42`
+
+El nombre del APK incluye versión: `yellowflowers-release-v<name>(<code>).apk`, útil para subir a Firebase App Distribution.
 cd YellowFlowers
 ```
 
@@ -205,6 +229,55 @@ fvm flutter build ipa --release
 ```
 
 En macOS: abre `build/ios/ipa/` desde Finder.
+
+## Arquitectura Limpia (Migración)
+
+Se está realizando una migración gradual hacia una estructura de capas:
+
+```
+lib/
+	core/            # Result, Failures, UseCase base
+	di/              # injector.dart (nuevo contenedor CA)
+	features/
+		music/
+			data/        # models, datasources, repos impl
+			domain/      # entities, repositories abstract, usecases
+			bloc/        # (presentation) migrando luego a presentation/
+```
+
+Durante la transición coexisten dos contenedores de dependencias:
+
+1. `utils/inyenction_container.dart` (legacy)
+2. `di/injector.dart` (nuevo, Clean Architecture)
+
+`main.dart` inicializa ambos para compatibilidad temporal. El `MusicBloc` ahora acepta opcionalmente casos de uso de dominio; si no están disponibles, usa el repositorio legacy.
+
+### Pasos para extender la migración
+1. Crear entidades de dominio en `features/<feature>/domain/entities`.
+2. Definir repositorio abstracto y casos de uso.
+3. Implementar repositorio data adaptando fuentes existentes.
+4. Registrar en `di/injector.dart`.
+5. Inyectar casos de uso en el Bloc/Controller (modo híbrido) y eliminar dependencias directas a servicios externos.
+
+Guía detallada adicional en `ARCHITECTURE_MIGRATION.md`.
+
+### Reproducción de Frase Diaria (TTS)
+La tarjeta "Tu frase de hoy" ahora usa un servicio `TtsService` (flutter_tts) para leer la frase en voz alta.
+
+Botón:
+- Icono altavoz: inicia la locución.
+- Icono stop: detiene la reproducción.
+
+Mejoras futuras sugeridas:
+- Mostrar progreso real (escuchar callbacks de progreso de `flutter_tts`).
+- Cachear voces locales / permitir cambiar velocidad.
+- Parar automáticamente si el usuario cambia de mood o navega fuera.
+
+#### Si no se escucha la voz
+- iOS modo silencio (switch físico) o Focus activado: la categoría se setea a playback, pero en algunos dispositivos con iOS < 15 requiere subir volumen de multimedia.
+- Volumen del sistema en 0.
+- Idioma no soportado: se intenta `es-ES`, fallback a `es-419` o `es-MX`. Revisar lista con `getLanguages` si persiste.
+- Primera inicialización tardía: el botón muestra spinner hasta estar listo; si tarda demasiado, matar y relanzar la app.
 
 # Recursos
 

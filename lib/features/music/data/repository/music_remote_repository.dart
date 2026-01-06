@@ -1,8 +1,11 @@
 import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
+import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 
 abstract class MusicRemoteRepository {
   Future<List<Song>> getSongs(String genre);
+  Future<List<Song>> getSongsByMood(Mood mood);
+  Future<Song?> getDailyRecommendation(Mood mood);
   Future<void> playSong(Song song);
   Future<void> pauseSong();
   Future<void> stopSong();
@@ -11,14 +14,23 @@ abstract class MusicRemoteRepository {
 }
 
 class MusicRemoteRepositoryImpl implements MusicRemoteRepository {
-  final MusicRemoteDataSource _dataSource;
-
   MusicRemoteRepositoryImpl({required MusicRemoteDataSource dataSource})
       : _dataSource = dataSource;
+  final MusicRemoteDataSource _dataSource;
 
   @override
   Future<List<Song>> getSongs(String genre) async {
     return _dataSource.getSongs(genre);
+  }
+
+  @override
+  Future<List<Song>> getSongsByMood(Mood mood) async {
+    return _dataSource.getSongsByMood(mood);
+  }
+
+  @override
+  Future<Song?> getDailyRecommendation(Mood mood) async {
+    return _dataSource.getDailyRecommendation(mood);
   }
 
   @override

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
 import 'package:yellow_flowers/features/home/model/menu_item.dart';
-import 'package:yellow_flowers/features/music/pages/music_page.dart';
-import 'package:yellow_flowers/utils/base_model.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
+import 'package:yellow_flowers/features/music/pages/music_page.dart';
+import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
+import 'package:yellow_flowers/utils/base_model.dart';
 
 class HomeBloc extends BaseModel {
   HomeBloc({required this.context});
@@ -38,6 +39,12 @@ class HomeBloc extends BaseModel {
           description: 'Melodías para acompañar tu momento 🎵',
         ),
         MenuItem(
+          title: 'Ciclo y Música',
+          icon: Icons.auto_awesome_rounded,
+          destination: const CycleMusicPage(),
+          description: 'Recomendaciones amigables para cada fase 💗',
+        ),
+        /* MenuItem(
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
           destination: AlertDialog(
@@ -51,7 +58,7 @@ class HomeBloc extends BaseModel {
             ],
           ),
           description: 'Diseña y comparte una tarjeta en segundos 🎁',
-        ),
+        ), */
       ];
 
   void showMessage() {

@@ -11,7 +11,7 @@ class MomentsGalleryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MomentsGalleryBloc(),
+      create: (_) => MomentsGalleryBloc()..init(),
       child: const MomentsGalleryLayout(),
     );
   }

@@ -44,17 +44,16 @@ extension MessageCategoryX on MessageCategory {
 }
 
 class SpecialMessage {
-  final String text;
-  final MessageCategory category;
-  final DateTime createdAt;
-  final bool isFavorite;
-
   SpecialMessage({
     required this.text,
     required this.category,
     DateTime? createdAt,
     this.isFavorite = false,
   }) : createdAt = createdAt ?? DateTime.now();
+  final String text;
+  final MessageCategory category;
+  final DateTime createdAt;
+  final bool isFavorite;
 
   SpecialMessage copyWith({
     String? text,

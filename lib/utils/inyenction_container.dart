@@ -5,6 +5,7 @@ import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
+import 'package:yellow_flowers/core/tts/tts_service.dart';
 
 // Global GetIt instance for dependency injection
 final get = GetIt.instance;
@@ -28,6 +29,10 @@ void _initializeServices() {
 
   //Register Jamendo Api Service.
   get.registerLazySingleton(() => JamendoApiService());
+  // Register TTS service (guarded to avoid duplicate registration & survive hot reload type changes)
+  if (!get.isRegistered<TtsService>()) {
+    get.registerLazySingleton(() => TtsService());
+  }
 
   // Register MusicRemoteDataSource
   get.registerLazySingleton<MusicRemoteDataSource>(

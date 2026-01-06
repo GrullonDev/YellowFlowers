@@ -12,9 +12,9 @@ enum Mood {
 
 /// Animation style for background flowers.
 enum FlowerAnimationStyle {
-  sway,   // suave balanceo lateral
-  spin,   // giro continuo (ideal para girasol)
-  pulse,  // latido/zoom sutil (ideal para rosa)
+  sway, // suave balanceo lateral
+  spin, // giro continuo (ideal para girasol)
+  pulse, // latido/zoom sutil (ideal para rosa)
 }
 
 extension FlowerThemeDefaults on FlowerTheme {
