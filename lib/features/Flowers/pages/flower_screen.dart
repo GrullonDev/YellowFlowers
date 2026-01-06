@@ -397,13 +397,13 @@ class _FlowerScreenState extends State<FlowerScreen>
                                       : GoogleFonts.poppins())
                                   .copyWith(
                                 color: Colors.black87,
-                                fontSize: 22,
+                                fontSize: 26, // Increased from 22
                                 fontWeight: FontWeight.w600,
                                 height: 1.35,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -522,16 +522,22 @@ class _FlowerScreenState extends State<FlowerScreen>
                     return Positioned(
                       left: baseX + swayX,
                       top: y,
-                      child: Transform.rotate(
-                        angle: angle,
-                        child: Transform.scale(
-                          scale: scale,
-                          child: SizedBox(
-                            width: screenWidth / 11,
-                            height: screenHeight / 2.3,
-                            child: widget.theme == FlowerTheme.daisy
-                                ? const Flor()
-                                : FlowerThemed(theme: widget.theme),
+                      child: GestureDetector(
+                        onTap: () {
+                          _sparkleBurstController.forward(from: 0);
+                          // Future: Play sound here
+                        },
+                        child: Transform.rotate(
+                          angle: angle,
+                          child: Transform.scale(
+                            scale: scale,
+                            child: SizedBox(
+                              width: screenWidth / 11,
+                              height: screenHeight / 2.3,
+                              child: widget.theme == FlowerTheme.daisy
+                                  ? const Flor()
+                                  : FlowerThemed(theme: widget.theme),
+                            ),
                           ),
                         ),
                       ),
