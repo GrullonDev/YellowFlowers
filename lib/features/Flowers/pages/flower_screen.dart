@@ -3,7 +3,11 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:gal/gal.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
@@ -93,9 +97,15 @@ class _FlowerScreenState extends State<FlowerScreen>
   ];
   late String _currentMessage;
 
+  // Audio
+  late final AudioPlayer _audioPlayer;
+
   @override
   void initState() {
     super.initState();
+
+    _audioPlayer = AudioPlayer();
+    _initAudio();
 
     _flowerControllers = List.generate(
       _flowerCount,
@@ -168,8 +178,30 @@ class _FlowerScreenState extends State<FlowerScreen>
     });
   }
 
+  Future<void> _initAudio() async {
+    try {
+      // Configuración de audio
+      await _audioPlayer.setLoopMode(LoopMode.one);
+      // Intentar cargar asset de música si existe, sino silenciar
+      /* 
+      // Comentado para evitar error 'UnrecognizedInputFormatException' dado que el archivo no existe aún.
+      // El usuario puede seleccionar su propia música.
+      try {
+        await _audioPlayer.setAsset('assets/music/gentle_piano.mp3');
+        _audioPlayer.setVolume(0.3);
+        _audioPlayer.play();
+      } catch (e) {
+        debugPrint("Música no encontrada (esperado si no hay asset): $e");
+      }
+      */
+    } catch (e) {
+      debugPrint("Error inicializando audio: $e");
+    }
+  }
+
   @override
   void dispose() {
+    _audioPlayer.dispose();
     for (final c in _flowerControllers) {
       c.dispose();
     }
@@ -259,11 +291,29 @@ class _FlowerScreenState extends State<FlowerScreen>
           .replaceAll('.', '-');
       final file = File('${folder.path}/story_$ts.png');
       await file.writeAsBytes(pngBytes, flush: true);
+
+      // Save to Gallery
+      try {
+        await Gal.putImage(file.path);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('¡Tarjeta guardada en tu Galería de fotos! 📸'),
+              backgroundColor: AppTheme.leafGreen,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('Error saving to gallery: $e');
+        // Fallback or just show file path if gallery fails
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Guardado en archivos: ${file.path}')),
+          );
+        }
+      }
+
       if (mounted) setState(() => _exportActive = false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tarjeta guardada en: ${file.path}')),
-      );
     } catch (e) {
       if (mounted) setState(() => _exportActive = false);
       if (!mounted) return;
@@ -403,7 +453,7 @@ class _FlowerScreenState extends State<FlowerScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -439,7 +489,7 @@ class _FlowerScreenState extends State<FlowerScreen>
                               ),
                               const SizedBox(width: 8),
                               IconButton(
-                                tooltip: 'Plantar en mi Galería',
+                                tooltip: 'Plantar en mi Jardín',
                                 onPressed: _saveStoryCard,
                                 icon: const Icon(
                                   Icons.yard_rounded,
@@ -454,6 +504,12 @@ class _FlowerScreenState extends State<FlowerScreen>
                     ),
                   ),
                 ),
+              ),
+              // Music Player Control
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10,
+                right: 16,
+                child: _MusicPlayerButton(player: _audioPlayer),
               ),
               ...List.generate(
                 _sparkleCount,
@@ -680,4 +736,149 @@ class _BloomPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _BloomPainter oldDelegate) =>
       oldDelegate.progress != progress || oldDelegate.color != color;
+}
+
+class _MusicPlayerButton extends StatefulWidget {
+  final AudioPlayer player;
+  const _MusicPlayerButton({required this.player});
+
+  @override
+  State<_MusicPlayerButton> createState() => _MusicPlayerButtonState();
+}
+
+class _MusicPlayerButtonState extends State<_MusicPlayerButton> {
+  bool _isPlaying = false;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: () {
+            // Check if player has source, if not, prompt to pick
+            if (widget.player.duration == null && _isPlaying) {
+              _showAudioOptions(context);
+              return;
+            }
+            if (_isPlaying) {
+              widget.player.pause();
+            } else {
+              widget.player.play();
+            }
+          },
+          onLongPress: () => _showAudioOptions(context),
+          child: StreamBuilder<PlayerState>(
+            stream: widget.player.playerStateStream,
+            builder: (context, snapshot) {
+              final state = snapshot.data;
+              final playing = state?.playing ?? false;
+              _isPlaying = playing; // Sync local state
+
+              return Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  playing ? Icons.music_note_rounded : Icons.music_off_rounded,
+                  color: AppTheme.textDark,
+                  size: 24,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showAudioOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Ambientación Musical 🎵",
+              style: GoogleFonts.outfit(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.audio_file_rounded,
+                  color: AppTheme.sunnyGold),
+              title: const Text("Elegir archivo de mi celular"),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickAudioFile();
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading:
+                  const Icon(Icons.open_in_new_rounded, color: Colors.green),
+              title: const Text("Abrir Spotify"),
+              onTap: () {
+                Navigator.pop(ctx);
+                _openExternalApp("spotify://");
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.play_circle_filled_rounded,
+                  color: Colors.red),
+              title: const Text("Abrir YouTube Music"),
+              onTap: () {
+                Navigator.pop(ctx);
+                _openExternalApp("youtubemusic://");
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAudioFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+      );
+      if (result != null && result.files.single.path != null) {
+        await widget.player.setFilePath(result.files.single.path!);
+        widget.player.play();
+      }
+    } catch (e) {
+      debugPrint("Error picking file: $e");
+    }
+  }
+
+  Future<void> _openExternalApp(String schema) async {
+    final Uri url = Uri.parse(schema);
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        // Fallback to store or web
+        debugPrint("Could not launch $schema");
+      }
+    } catch (e) {
+      debugPrint("Error launching app: $e");
+    }
+  }
 }
