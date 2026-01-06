@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:gal/gal.dart';
+import 'package:yellow_flowers/features/moments_gallery/pages/album_detail_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/model/album_category.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 
@@ -58,9 +60,11 @@ class MomentsGalleryBloc extends BaseModel {
   ];
 
   void onTapAlbum(BuildContext context, AlbumCategory album) {
-    // Placeholder while wiring the rest of the flow.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Abrir álbum: ${album.label} ${album.emoji}')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AlbumDetailPage(album: album),
+      ),
     );
   }
 
@@ -95,6 +99,53 @@ class MomentsGalleryBloc extends BaseModel {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('No se pudo guardar el recuerdo: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> pickAndSaveToAlbum(
+      BuildContext context, AlbumCategory album) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked == null) return;
+
+      final appDir = await getApplicationDocumentsDirectory();
+      // Internal storage for app persistence
+      final albumDir = Directory(p.join(appDir.path, 'memories', album.id));
+      if (!await albumDir.exists()) {
+        await albumDir.create(recursive: true);
+      }
+
+      final ts = DateTime.now().millisecondsSinceEpoch;
+      final ext = p.extension(picked.name).toLowerCase();
+      final fileName = '${album.id}_$ts$ext';
+      final dest = File(p.join(albumDir.path, fileName));
+      await picked.saveTo(dest.path);
+
+      // Save to NATIVE Gallery with intelligent album creation
+      try {
+        // "YellowFlowers - Amor"
+        final nativeAlbumName = "YellowFlowers - ${album.label}";
+        await Gal.putImage(dest.path, album: nativeAlbumName);
+      } catch (e) {
+        debugPrint("Error saving to native gallery album: $e");
+        // Fallback or ignore if permission denied, mainly want to try.
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Foto guardada en álbum "${album.label}" 📸'),
+            backgroundColor: album.colors.last,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar: $e')),
         );
       }
     }

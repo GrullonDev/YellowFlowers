@@ -49,6 +49,8 @@ class MomentsGalleryLayout extends StatelessWidget {
                       colors: album.colors,
                       rotation: rotation,
                       onTap: () => model.onTapAlbum(context, album),
+                      onAddPhoto: () =>
+                          model.pickAndSaveToAlbum(context, album),
                     );
                   },
                   childCount: model.albums.length,
