@@ -836,7 +836,7 @@ class _MusicPlayerButtonState extends State<_MusicPlayerButton> {
               title: const Text("Abrir Spotify"),
               onTap: () {
                 Navigator.pop(ctx);
-                _openExternalApp("spotify://");
+                _openExternalApp("spotify://", "https://open.spotify.com");
               },
             ),
             ListTile(
@@ -845,7 +845,8 @@ class _MusicPlayerButtonState extends State<_MusicPlayerButton> {
               title: const Text("Abrir YouTube Music"),
               onTap: () {
                 Navigator.pop(ctx);
-                _openExternalApp("youtubemusic://");
+                _openExternalApp(
+                    "youtubemusic://", "https://music.youtube.com");
               },
             ),
           ],
@@ -868,17 +869,40 @@ class _MusicPlayerButtonState extends State<_MusicPlayerButton> {
     }
   }
 
-  Future<void> _openExternalApp(String schema) async {
-    final Uri url = Uri.parse(schema);
+  Future<void> _openExternalApp(String schema, String webUrl) async {
+    final Uri schemaUri = Uri.parse(schema);
+    final Uri webUri = Uri.parse(webUrl);
+
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url);
-      } else {
-        // Fallback to store or web
-        debugPrint("Could not launch $schema");
+      // 1. Intentar abrir la APP nativa (verificamos si se puede abrir)
+      bool launchedApp = false;
+      try {
+        if (await canLaunchUrl(schemaUri)) {
+          launchedApp =
+              await launchUrl(schemaUri, mode: LaunchMode.externalApplication);
+        }
+      } catch (e) {
+        debugPrint("Error checking/launching app schema: $e");
+      }
+
+      if (!launchedApp) {
+        // 2. Si falla la app nativa, abrir la WEB en el navegador
+        // Nota: No usamos canLaunchUrl aquí para evitar falsos negativos en algunos dispositivos.
+        // Intentamos lanzar directamente.
+        debugPrint("Intentando fallback web: $webUrl");
+        if (!await launchUrl(webUri, mode: LaunchMode.externalApplication)) {
+          throw 'Could not launch $webUrl';
+        }
       }
     } catch (e) {
-      debugPrint("Error launching app: $e");
+      debugPrint("Error launching fallback web: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo abrir el enlace 😓'),
+          ),
+        );
+      }
     }
   }
 }

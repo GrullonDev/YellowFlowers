@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Paleta de Colores "Jardín Cálido"
@@ -27,33 +26,39 @@ class AppTheme {
         brightness: Brightness.light,
       ),
 
-      // Tipografía
+      // Tipografía (Fallback a fuentes del sistema por problemas de red)
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.playball(
+        displayLarge: const TextStyle(
+          fontFamily: 'Georgia', // Serif elegante como Playball
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: textDark,
         ),
-        displayMedium: GoogleFonts.playball(
+        displayMedium: const TextStyle(
+          fontFamily: 'Georgia',
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: textDark,
         ),
-        headlineLarge: GoogleFonts.outfit(
+        headlineLarge: const TextStyle(
+          fontFamily: 'Verdana', // Sans-serif moderno como Outfit
           fontSize: 24,
           fontWeight: FontWeight.w700,
           color: textDark,
         ),
-        headlineMedium: GoogleFonts.outfit(
+        headlineMedium: const TextStyle(
+          fontFamily: 'Verdana',
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: textDark,
         ),
-        bodyLarge: GoogleFonts.outfit(
+        bodyLarge: const TextStyle(
+          fontFamily: 'Verdana',
           fontSize: 16,
           color: textDark,
         ),
-        bodyMedium: GoogleFonts.outfit(
+        bodyMedium: TextStyle(
+          fontFamily: 'Verdana',
           fontSize: 14,
           color: textDark.withValues(alpha: 0.8),
         ),
@@ -81,7 +86,8 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          textStyle: GoogleFonts.outfit(
+          textStyle: const TextStyle(
+            fontFamily: 'Verdana',
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -89,12 +95,13 @@ class AppTheme {
       ),
 
       // Estilo de AppBar
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: textDark),
-        titleTextStyle: GoogleFonts.playball(
+        iconTheme: IconThemeData(color: textDark),
+        titleTextStyle: TextStyle(
+          fontFamily: 'Georgia',
           fontSize: 26,
           color: textDark,
         ),
