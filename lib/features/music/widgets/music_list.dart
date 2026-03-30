@@ -99,12 +99,10 @@ class _MusicListState extends State<MusicList> {
                 ),
               ),
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Número de columnas en la cuadrícula
-                  childAspectRatio: 0.8, // Relación de aspecto de los elementos
-                ),
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
                 itemCount: model.songs.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final song = model.songs[index];
                   return MusicListTile(

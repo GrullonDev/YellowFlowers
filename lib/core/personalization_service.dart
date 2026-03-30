@@ -4,7 +4,6 @@ class PersonalizationService {
   final SharedPreferences _prefs;
   
   static const String _keyLastMood = 'last_selected_mood';
-  static const String _keyUserPreferences = 'user_preferences';
 
   PersonalizationService(this._prefs);
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
@@ -14,26 +15,30 @@ class CycleMusicPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final phase = context.watch<CycleController>().currentPhase;
     final cycle = context.watch<CycleController>();
-    final mood = _moodForPhase(phase, cycle);
+    final mood = _moodForPhase(cycle.currentPhase, cycle);
+
     return BaseModelScaffold(
       model: di.sl<MusicBloc>(),
       builder: (context, model) {
-        // al entrar, si el mood difiere, cargar catálogo por mood de la fase
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (model.selectedMood != mood) {
-            model.selectMood(mood);
-          }
+          if (model.selectedMood != mood) model.selectMood(mood);
         });
         return Scaffold(
-          appBar: AppBar(title: const Text('Ciclo y Música')),
+          appBar: AppBar(
+            title: Text(
+              'Ciclo y Música',
+              style: GoogleFonts.pacifico(fontSize: 20),
+            ),
+          ),
           body: Column(
             children: [
               const CyclePhaseBar(),
               const SizedBox(height: 8),
               _DailyCombinedCard(mood: mood),
-              Expanded(child: MusicLayout()),
+              const SizedBox(height: 4),
+              // MusicBody reutiliza el mismo MusicBloc del BaseModelScaffold
+              Expanded(child: MusicBody(model: model)),
             ],
           ),
         );
@@ -49,59 +54,23 @@ Mood _moodForPhase(CyclePhase p, CycleController cycle) {
     case CyclePhase.fertile:
       return cycle.fertilePreferEnergetic ? Mood.motivated : Mood.romantic;
     case CyclePhase.period:
-      return Mood.relaxed; // calmante; si prefieres motivada: Mood.motivated
+      return Mood.relaxed;
     case CyclePhase.other:
       return Mood.relaxed;
   }
 }
 
-class _DailyCombinedCard extends StatefulWidget {
+class _DailyCombinedCard extends StatelessWidget {
   const _DailyCombinedCard({required this.mood});
   final Mood mood;
 
   @override
-  State<_DailyCombinedCard> createState() => _DailyCombinedCardState();
-}
-
-class _DailyCombinedCardState extends State<_DailyCombinedCard> {
-  String? _title;
-  String? _cover;
-  var _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    // Use the same MusicBloc provided higher (by DI) to access its dailyRecommendation when ready.
-    // We'll listen once after its initial load cycle.
-    final bloc = di.sl<MusicBloc>();
-    // If bloc already loaded a recommendation for current mood, use it; else wait for next frame after mood selection.
-    if (bloc.dailyRecommendation != null && bloc.selectedMood == widget.mood) {
-      setState(() {
-        _title = '${bloc.dailyRecommendation!.title} — ${bloc.dailyRecommendation!.artist}';
-        _cover = bloc.dailyRecommendation!.coverUrl;
-        _loading = false;
-      });
-    } else {
-      // Wait a short microtask for bloc to fetch.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final dr = bloc.dailyRecommendation;
-        setState(() {
-          _title = dr != null ? '${dr.title} — ${dr.artist}' : null;
-          _cover = dr?.coverUrl;
-          _loading = false;
-        });
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final phrase = _phraseForMood(widget.mood);
+    // Usa el mismo MusicBloc provisto por BaseModelScaffold en el contexto
+    final bloc = context.watch<MusicBloc>();
+    final song = bloc.dailyRecommendation;
+    final phrase = _phraseForMood(mood);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Card(
@@ -111,12 +80,18 @@ class _DailyCombinedCardState extends State<_DailyCombinedCard> {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
+              // Cover
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: _cover != null && _cover!.isNotEmpty
-                    ? Image.network(_cover!, width: 72, height: 72, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(width: 72, height: 72, color: Colors.black12))
-                    : Container(width: 72, height: 72, color: Colors.black12),
+                child: song?.coverUrl.isNotEmpty == true
+                    ? Image.network(
+                        song!.coverUrl,
+                        width: 72,
+                        height: 72,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _placeholder(),
+                      )
+                    : _placeholder(),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -127,33 +102,41 @@ class _DailyCombinedCardState extends State<_DailyCombinedCard> {
                       'Hoy: $phrase',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      style: GoogleFonts.lato(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
-                    if (_loading)
-                      const LinearProgressIndicator(minHeight: 2)
-                    else if (_title != null)
+                    if (bloc.isLoading)
+                      const SizedBox(
+                          height: 2,
+                          child: LinearProgressIndicator(minHeight: 2))
+                    else if (song != null)
                       Text(
-                        _title!,
+                        '${song.title} — ${song.artist}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.lato(fontSize: 13),
                       )
                     else
-                      const Text('No hay sugerencias ahora'),
+                      Text(
+                        'No hay sugerencias ahora',
+                        style: GoogleFonts.lato(
+                            fontSize: 13, color: Colors.black54),
+                      ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
               FilledButton(
-                onPressed: _loading
+                onPressed: (bloc.isLoading || song == null)
                     ? null
-                    : () async {
-                        final bloc = di.sl<MusicBloc>();
-                        final dr = bloc.dailyRecommendation;
-                        if (dr != null) {
-                          await bloc.playSong(dr);
-                        }
-                      },
+                    : () => bloc.playSong(song),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFE91E8C),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(44, 44),
+                  padding: EdgeInsets.zero,
+                  shape: const CircleBorder(),
+                ),
                 child: const Icon(Icons.play_arrow_rounded),
               ),
             ],
@@ -162,6 +145,17 @@ class _DailyCombinedCardState extends State<_DailyCombinedCard> {
       ),
     );
   }
+
+  Widget _placeholder() => Container(
+        width: 72,
+        height: 72,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8BBD0),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.music_note_rounded,
+            color: Color(0xFFE91E8C), size: 28),
+      );
 }
 
 String _phraseForMood(Mood mood) {

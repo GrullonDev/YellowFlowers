@@ -305,4 +305,32 @@ class MusicBloc extends BaseModel {
     _currentSong = song;
     notifyListeners();
   }
+
+  Future<void> seekTo(Duration position) async {
+    try {
+      await _repository.seekTo(position);
+    } catch (_) {}
+  }
+
+  Future<void> skipNext() async {
+    if (_songs.isEmpty) return;
+    if (_currentSong == null) {
+      await playSong(_songs.first);
+      return;
+    }
+    final idx = _songs.indexWhere((s) => s.id == _currentSong!.id);
+    final next = idx >= 0 && idx < _songs.length - 1 ? _songs[idx + 1] : _songs.first;
+    await playSong(next);
+  }
+
+  Future<void> skipPrevious() async {
+    if (_songs.isEmpty) return;
+    if (_currentSong == null) {
+      await playSong(_songs.last);
+      return;
+    }
+    final idx = _songs.indexWhere((s) => s.id == _currentSong!.id);
+    final prev = idx > 0 ? _songs[idx - 1] : _songs.last;
+    await playSong(prev);
+  }
 }

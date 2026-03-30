@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -699,35 +698,6 @@ class _EmotionTrackerCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─── Animated Leading Icon ────────────────────────────────────────────────────
-
-class _AnimatedLeadingIcon extends StatelessWidget {
-  final IconData icon;
-  final double progress;
-  final Color color;
-
-  const _AnimatedLeadingIcon({
-    required this.icon,
-    required this.progress,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Curves.easeInOut.transform(progress.clamp(0.0, 1.0));
-    final isMusic = icon == Icons.music_note || icon == Icons.music_note_outlined;
-    final sway = math.sin(t * 2 * math.pi) * 0.08;
-    final lift = math.sin(t * 2 * math.pi) * (isMusic ? 2.0 : 1.0);
-    return Transform.translate(
-      offset: Offset(0, -lift),
-      child: Transform.rotate(
-        angle: sway,
-        child: Icon(icon, color: color, size: 28),
       ),
     );
   }

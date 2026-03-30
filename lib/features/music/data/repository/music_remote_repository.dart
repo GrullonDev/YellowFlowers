@@ -11,6 +11,7 @@ abstract class MusicRemoteRepository {
   Future<void> stopSong();
   Future<Duration> getCurrentPosition();
   Future<Stream<Duration>> getPositionStream();
+  Future<void> seekTo(Duration position);
 }
 
 class MusicRemoteRepositoryImpl implements MusicRemoteRepository {
@@ -56,5 +57,10 @@ class MusicRemoteRepositoryImpl implements MusicRemoteRepository {
   @override
   Future<Stream<Duration>> getPositionStream() async {
     return _dataSource.getPositionStream();
+  }
+
+  @override
+  Future<void> seekTo(Duration position) async {
+    await _dataSource.seekTo(position);
   }
 }

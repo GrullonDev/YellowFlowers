@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:yellow_flowers/features/messages/bloc/special_messages_bloc.dart';
 import 'package:yellow_flowers/features/messages/model/message_models.dart';
@@ -19,17 +18,6 @@ class SpecialMessagesLayout extends StatefulWidget {
 }
 
 class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> {
-  int _selectedIndex = 0; // 0 = Mensajes, 1 = Favoritos
-
-  // Pastel colors for sticky notes
-  final List<Color> _noteColors = const [
-    Color(0xFFFFF9C4), // Yellow
-    Color(0xFFE1BEE7), // Purple
-    Color(0xFFC8E6C9), // Green
-    Color(0xFFB3E5FC), // Blue
-    Color(0xFFFFCCBC), // Orange
-    Color(0xFFF0F4C3), // Lime
-  ];
 
   @override
   Widget build(BuildContext context) {
