@@ -7,10 +7,6 @@ import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 
 class OnboardingPage {
-  final String title;
-  final String description;
-  final String lottieAsset;
-  final Color color;
 
   OnboardingPage({
     required this.title,
@@ -18,11 +14,15 @@ class OnboardingPage {
     required this.lottieAsset,
     required this.color,
   });
+  final String title;
+  final String description;
+  final String lottieAsset;
+  final Color color;
 }
 
 class StorytellingOnboarding extends StatefulWidget {
-  final VoidCallback? onComplete;
   const StorytellingOnboarding({super.key, this.onComplete});
+  final VoidCallback? onComplete;
 
   @override
   State<StorytellingOnboarding> createState() => _StorytellingOnboardingState();
@@ -35,14 +35,16 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
   final List<OnboardingPage> _pages = [
     OnboardingPage(
       title: 'Expresa lo que sientes',
-      description: 'Convierte tus emociones en un jardín digital lleno de vida.',
+      description:
+          'Convierte tus emociones en un jardín digital lleno de vida.',
       lottieAsset: 'assets/lottie/flower_bloom.json',
       color: PremiumDesign.pastelPink,
     ),
     OnboardingPage(
       title: 'Crea momentos únicos',
       description: 'Diseña flores personalizadas para cada ocasión especial.',
-      lottieAsset: 'assets/lottie/flower_bloom.json', // Using same for now as we only have one
+      lottieAsset:
+          'assets/lottie/flower_bloom.json', // Using same for now as we only have one
       color: PremiumDesign.softLavender,
     ),
     OnboardingPage(
@@ -68,7 +70,6 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
               return _OnboardingContentView(page: page);
             },
           ),
-          
           Positioned(
             bottom: PremiumDesign.s48,
             left: PremiumDesign.s32,
@@ -96,7 +97,9 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
           height: 8,
           width: active ? 24 : 8,
           decoration: BoxDecoration(
-            color: active ? PremiumDesign.radiantGold : Colors.grey.withValues(alpha: 0.3),
+            color: active
+                ? PremiumDesign.radiantGold
+                : Colors.grey.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
         );
@@ -142,10 +145,12 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
           children: [
             Text(
               isLast ? 'Empezar' : 'Siguiente',
-              style: PremiumDesign.sansLabel.copyWith(color: Colors.white, fontSize: 16),
+              style: PremiumDesign.sansLabel
+                  .copyWith(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(width: PremiumDesign.s8),
-            const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+            const Icon(Icons.arrow_forward_rounded,
+                color: Colors.white, size: 20),
           ],
         ),
       ),
@@ -154,8 +159,8 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
 }
 
 class _OnboardingContentView extends StatelessWidget {
-  final OnboardingPage page;
   const _OnboardingContentView({required this.page});
+  final OnboardingPage page;
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +194,11 @@ class _OnboardingContentView extends StatelessWidget {
               page.description,
               textAlign: TextAlign.center,
               style: PremiumDesign.sansBody.copyWith(
-                color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.color
+                    ?.withValues(alpha: 0.7),
                 height: 1.6,
               ),
             ),
@@ -199,4 +208,3 @@ class _OnboardingContentView extends StatelessWidget {
     );
   }
 }
-

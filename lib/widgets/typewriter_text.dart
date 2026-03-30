@@ -2,10 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class TypewriterText extends StatefulWidget {
-  final String text;
-  final TextStyle style;
-  final TextAlign textAlign;
-  final Duration duration;
 
   const TypewriterText({
     super.key,
@@ -14,6 +10,10 @@ class TypewriterText extends StatefulWidget {
     this.textAlign = TextAlign.center,
     this.duration = const Duration(milliseconds: 50),
   });
+  final String text;
+  final TextStyle style;
+  final TextAlign textAlign;
+  final Duration duration;
 
   @override
   State<TypewriterText> createState() => _TypewriterTextState();

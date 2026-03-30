@@ -30,7 +30,7 @@ class Memory {
         'createdAt': createdAt.millisecondsSinceEpoch,
         if (description != null && description!.isNotEmpty)
           'description': description,
-    if (trackId != null && trackId!.isNotEmpty) 'trackId': trackId,
+        if (trackId != null && trackId!.isNotEmpty) 'trackId': trackId,
       };
 
   static String encodeList(List<Memory> list) =>

@@ -111,7 +111,7 @@ class _MetadataSheetState extends State<MetadataSheet> {
                             fontWeight: FontWeight.w600,
                             color: a.id == selected.id
                                 ? scheme.onPrimary
-                                : scheme.onSurface.withValues(alpha:0.85),
+                                : scheme.onSurface.withValues(alpha: 0.85),
                           ),
                         ),
                         selected: a.id == selected.id,
@@ -139,7 +139,8 @@ class _MetadataSheetState extends State<MetadataSheet> {
                   decoration: InputDecoration(
                     labelText: 'Descripción (opcional)',
                     filled: true,
-                    fillColor: scheme.surfaceContainerHighest.withValues(alpha:0.35),
+                    fillColor:
+                        scheme.surfaceContainerHighest.withValues(alpha: 0.35),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -153,7 +154,8 @@ class _MetadataSheetState extends State<MetadataSheet> {
                     labelText: 'ID de canción Jamendo (opcional)',
                     hintText: 'Ej: 123456',
                     filled: true,
-                    fillColor: scheme.surfaceContainerHighest.withValues(alpha:0.35),
+                    fillColor:
+                        scheme.surfaceContainerHighest.withValues(alpha: 0.35),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

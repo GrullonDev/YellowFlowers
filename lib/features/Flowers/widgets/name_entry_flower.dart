@@ -92,7 +92,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                           style: Theme.of(context).textTheme.displayLarge,
                         ),
                         const SizedBox(height: 8),
-                        Text(
+                        const Text(
                           'Cultivemos algo hermoso juntas',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -347,15 +347,15 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
 }
 
 class _FeatureChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onSelected;
 
   const _FeatureChip({
     required this.label,
     required this.selected,
     required this.onSelected,
   });
+  final String label;
+  final bool selected;
+  final VoidCallback onSelected;
 
   @override
   Widget build(BuildContext context) {

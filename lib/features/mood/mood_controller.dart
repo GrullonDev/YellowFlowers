@@ -5,11 +5,11 @@ import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 
 /// Global mood state used to personalize background palette, messages and music
 class MoodController extends ChangeNotifier {
-  static const _prefKey = 'global_mood';
 
   MoodController() {
     _load();
   }
+  static const _prefKey = 'global_mood';
 
   Mood _mood = Mood.relaxed; // default
   Mood get mood => _mood;
@@ -34,7 +34,8 @@ class MoodController extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefKey, m.name);
-      await prefs.setInt('last_mood_timestamp', DateTime.now().millisecondsSinceEpoch);
+      await prefs.setInt(
+          'last_mood_timestamp', DateTime.now().millisecondsSinceEpoch);
     } catch (_) {}
   }
 

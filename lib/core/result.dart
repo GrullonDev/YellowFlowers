@@ -1,7 +1,9 @@
 sealed class Result<T> {
   const Result();
 
-  R when<R>({required R Function(T data) success, required R Function(Failure failure) error}) {
+  R when<R>(
+      {required R Function(T data) success,
+      required R Function(Failure failure) error}) {
     final self = this;
     if (self is Success<T>) return success(self.data);
     return error((self as Error<T>).failure);
@@ -11,7 +13,8 @@ sealed class Result<T> {
   bool get isError => this is Error<T>;
 
   T? get dataOrNull => this is Success<T> ? (this as Success<T>).data : null;
-  Failure? get failureOrNull => this is Error<T> ? (this as Error<T>).failure : null;
+  Failure? get failureOrNull =>
+      this is Error<T> ? (this as Error<T>).failure : null;
 }
 
 class Success<T> extends Result<T> {
@@ -25,22 +28,20 @@ class Error<T> extends Result<T> {
 }
 
 abstract class Failure {
+  const Failure(this.message, {this.cause, this.stackTrace});
   final String message;
   final Object? cause;
   final StackTrace? stackTrace;
-  const Failure(this.message, {this.cause, this.stackTrace});
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure(String message, {Object? cause, StackTrace? stackTrace})
-      : super(message, cause: cause, stackTrace: stackTrace);
+  const NetworkFailure(super.message, {super.cause, super.stackTrace});
 }
 
 class NotFoundFailure extends Failure {
-  const NotFoundFailure(String message) : super(message);
+  const NotFoundFailure(super.message);
 }
 
 class UnknownFailure extends Failure {
-  const UnknownFailure(String message, {Object? cause, StackTrace? stackTrace})
-      : super(message, cause: cause, stackTrace: stackTrace);
+  const UnknownFailure(super.message, {super.cause, super.stackTrace});
 }

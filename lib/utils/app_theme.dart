@@ -24,7 +24,7 @@ class AppTheme {
         brightness: Brightness.light,
       ),
     );
-    
+
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         displayLarge: PremiumDesign.serifHeading,
@@ -73,7 +73,8 @@ class AppTheme {
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         displayLarge: PremiumDesign.serifHeading.copyWith(color: Colors.white),
-        displayMedium: PremiumDesign.serifSubHeading.copyWith(color: Colors.white70),
+        displayMedium:
+            PremiumDesign.serifSubHeading.copyWith(color: Colors.white70),
         bodyLarge: PremiumDesign.sansBody.copyWith(color: Colors.white),
         bodyMedium: PremiumDesign.sansLabel.copyWith(color: Colors.white60),
       ),
@@ -99,4 +100,3 @@ class AppTheme {
     );
   }
 }
-

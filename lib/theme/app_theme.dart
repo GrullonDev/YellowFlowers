@@ -38,15 +38,18 @@ ThemeData buildLightTheme({Color seedColor = PremiumDesign.radiantGold}) {
           color: scheme.onPrimary,
           letterSpacing: 0.5,
         ),
-        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        shape:
+            RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: scheme.primary,
-        side: BorderSide(color: scheme.primary.withValues(alpha: 0.4), width: 1.2),
-        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        side: BorderSide(
+            color: scheme.primary.withValues(alpha: 0.4), width: 1.2),
+        shape:
+            RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
         textStyle: PremiumDesign.sansLabel.copyWith(
           color: scheme.primary,
           letterSpacing: 0.5,
@@ -63,7 +66,8 @@ ThemeData buildLightTheme({Color seedColor = PremiumDesign.radiantGold}) {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: scheme.primary.withValues(alpha: 0.5), width: 1.5),
+        borderSide: BorderSide(
+            color: scheme.primary.withValues(alpha: 0.5), width: 1.5),
       ),
       labelStyle: PremiumDesign.sansLabel.copyWith(
         color: scheme.onSurface.withValues(alpha: 0.6),
@@ -89,9 +93,11 @@ ThemeData buildDarkTheme({Color seedColor = PremiumDesign.radiantGold}) {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorSchemeSeed: seedColor,
-    textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme).copyWith(
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme)
+        .copyWith(
       displayLarge: PremiumDesign.serifHeading.copyWith(color: Colors.white),
-      displayMedium: PremiumDesign.serifSubHeading.copyWith(color: Colors.white),
+      displayMedium:
+          PremiumDesign.serifSubHeading.copyWith(color: Colors.white),
       bodyLarge: PremiumDesign.sansBody.copyWith(color: Colors.white70),
       labelLarge: PremiumDesign.sansLabel.copyWith(color: Colors.white60),
     ),
@@ -112,17 +118,21 @@ ThemeData buildDarkTheme({Color seedColor = PremiumDesign.radiantGold}) {
         backgroundColor: PremiumDesign.radiantGold,
         foregroundColor: Colors.black,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        shape:
+            RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       ).copyWith(
-        shadowColor: WidgetStateProperty.all(PremiumDesign.radiantGold.withValues(alpha: 0.3)),
+        shadowColor: WidgetStateProperty.all(
+            PremiumDesign.radiantGold.withValues(alpha: 0.3)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: PremiumDesign.radiantGold,
-        side: BorderSide(color: PremiumDesign.radiantGold.withValues(alpha: 0.5)),
-        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        side:
+            BorderSide(color: PremiumDesign.radiantGold.withValues(alpha: 0.5)),
+        shape:
+            RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       ),
     ),
@@ -136,5 +146,3 @@ ThemeData buildDarkTheme({Color seedColor = PremiumDesign.radiantGold}) {
     ),
   );
 }
-
-

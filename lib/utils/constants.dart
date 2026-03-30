@@ -7,6 +7,6 @@ const String kQrCodeUrl = 'https://jorgegrullondev.com/';
 /// Prefer providing it via --dart-define=JAMENDO_CLIENT_ID=xxxx at build/run time.
 /// Falls back to a placeholder if not provided.
 const String kJamendoClientId = String.fromEnvironment(
-	'JAMENDO_CLIENT_ID',
-	defaultValue: '5f4b0a1e',
+  'JAMENDO_CLIENT_ID',
+  defaultValue: '5f4b0a1e',
 );

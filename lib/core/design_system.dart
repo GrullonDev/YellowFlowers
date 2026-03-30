@@ -11,13 +11,13 @@ class PremiumDesign {
   static const Color softText = Color(0xFF3E2723);
   static const Color leafGreen = Color(0xFFA5D6A7);
   static const Color secondaryText = Color(0xFF795548);
-  
+
   // Dark Mode
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkCard = Color(0xFF242424);
   static const Color darkDivider = Color(0xFF2C2C2C);
-  
+
   // --- Spacing (Consistente 8 / 12 / 16 / 24 / 32) ---
   static const double s8 = 8.0;
   static const double s12 = 12.0;
@@ -56,7 +56,7 @@ class PremiumDesign {
   static const Duration slow = Duration(milliseconds: 1200);
   static const Duration medium = Duration(milliseconds: 600);
   static const Duration fast = Duration(milliseconds: 300);
-  
+
   // --- Shapes ---
   static BorderRadius premiumRadius = BorderRadius.circular(24);
   static List<BoxShadow> softShadow = [
@@ -85,5 +85,3 @@ class PremiumDesign {
     ),
   ];
 }
-
-

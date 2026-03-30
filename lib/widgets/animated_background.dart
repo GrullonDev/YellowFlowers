@@ -49,8 +49,10 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final Color topColor = widget.topColorBegin ?? (isDark ? const Color(0xFF1A1A1A) : const Color(0xFFFFF9E5));
-    final Color bottomColor = widget.bottomColorBegin ?? (isDark ? const Color(0xFF121212) : const Color(0xFFFFF0F5));
+    final Color topColor = widget.topColorBegin ??
+        (isDark ? const Color(0xFF1A1A1A) : const Color(0xFFFFF9E5));
+    final Color bottomColor = widget.bottomColorBegin ??
+        (isDark ? const Color(0xFF121212) : const Color(0xFFFFF0F5));
 
     return AnimatedBuilder(
       animation: _bgController,
@@ -70,12 +72,13 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
             final dx = rnd.nextDouble();
             final dy = rnd.nextDouble();
             final speed = 0.5 + rnd.nextDouble();
-            final drift = math.sin((_bgController.value * 2 * math.pi * speed) + i) * 15;
-            
+            final drift =
+                math.sin((_bgController.value * 2 * math.pi * speed) + i) * 15;
+
             final opacity = (widget.decorationOpacity +
                     0.05 * math.sin(_bgController.value * math.pi + i).abs())
                 .clamp(0.0, 1.0);
-            
+
             return Positioned(
               left: dx * MediaQuery.of(context).size.width,
               top: dy * MediaQuery.of(context).size.height + drift,
@@ -93,9 +96,9 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
 
   Widget _decorElement(int i, math.Random rnd, bool isDark) {
     final size = 20.0 + rnd.nextDouble() * 20;
-    final color = isDark 
-      ? Colors.white.withValues(alpha: 0.2) 
-      : Colors.amber.withValues(alpha: 0.3);
+    final color = isDark
+        ? Colors.white.withValues(alpha: 0.2)
+        : Colors.amber.withValues(alpha: 0.3);
 
     switch (i % 4) {
       case 0:

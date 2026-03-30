@@ -218,8 +218,7 @@ class _MoodCard extends StatelessWidget {
                 ),
               ),
               if (isSelected)
-                Icon(Icons.check_circle_rounded,
-                    color: borderColor, size: 22)
+                Icon(Icons.check_circle_rounded, color: borderColor, size: 22)
               else
                 const Icon(Icons.chevron_right_rounded,
                     color: Color(0xFF8D6E63), size: 22),
@@ -242,19 +241,19 @@ class _Palette {
 _Palette _paletteForMood(Mood mood) {
   switch (mood) {
     case Mood.happy:
-      return const _Palette(
-          Color(0xFFFFF7C2), Color(0xFFFFE8A3), Color(0xFFFFD3B6), Color(0xFFFFB347));
+      return const _Palette(Color(0xFFFFF7C2), Color(0xFFFFE8A3),
+          Color(0xFFFFD3B6), Color(0xFFFFB347));
     case Mood.nostalgic:
-      return const _Palette(
-          Color(0xFFD1C4E9), Color(0xFFB39DDB), Color(0xFF9575CD), Color(0xFF7E57C2));
+      return const _Palette(Color(0xFFD1C4E9), Color(0xFFB39DDB),
+          Color(0xFF9575CD), Color(0xFF7E57C2));
     case Mood.romantic:
-      return const _Palette(
-          Color(0xFFFFE4EC), Color(0xFFFFC1D9), Color(0xFFFF9EC4), Color(0xFFFF79B0));
+      return const _Palette(Color(0xFFFFE4EC), Color(0xFFFFC1D9),
+          Color(0xFFFF9EC4), Color(0xFFFF79B0));
     case Mood.motivated:
-      return const _Palette(
-          Color(0xFFFFF3E0), Color(0xFFFFE0B2), Color(0xFFFFCC80), Color(0xFFFFB74D));
+      return const _Palette(Color(0xFFFFF3E0), Color(0xFFFFE0B2),
+          Color(0xFFFFCC80), Color(0xFFFFB74D));
     case Mood.relaxed:
-      return const _Palette(
-          Color(0xFFE0F7FA), Color(0xFFB2EBF2), Color(0xFF80DEEA), Color(0xFF4DD0E1));
+      return const _Palette(Color(0xFFE0F7FA), Color(0xFFB2EBF2),
+          Color(0xFF80DEEA), Color(0xFF4DD0E1));
   }
 }

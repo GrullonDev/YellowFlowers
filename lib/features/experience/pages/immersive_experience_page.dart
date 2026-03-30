@@ -12,12 +12,14 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class ImmersiveExperiencePage extends StatefulWidget {
-  const ImmersiveExperiencePage({super.key, required this.initialText, required this.mood});
+  const ImmersiveExperiencePage(
+      {super.key, required this.initialText, required this.mood});
   final String initialText;
   final Mood mood;
 
   @override
-  State<ImmersiveExperiencePage> createState() => _ImmersiveExperiencePageState();
+  State<ImmersiveExperiencePage> createState() =>
+      _ImmersiveExperiencePageState();
 }
 
 class _ImmersiveExperiencePageState extends State<ImmersiveExperiencePage> {
@@ -95,11 +97,12 @@ class _MessageGlass extends StatelessWidget {
 class _MemoriesCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-  final bloc = context.read<MomentsGalleryBloc?>();
+    final bloc = context.read<MomentsGalleryBloc?>();
     final memories = (bloc?.memories ?? const <Memory>[]);
     if (memories.isEmpty) {
       return const Center(
-        child: Icon(Icons.photo_library_outlined, color: Colors.white54, size: 64),
+        child:
+            Icon(Icons.photo_library_outlined, color: Colors.white54, size: 64),
       );
     }
     return PageView.builder(

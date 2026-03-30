@@ -201,7 +201,8 @@ class _FullPlayer extends StatelessWidget {
                   tooltip: 'Volver a la lista',
                   onPressed: () {
                     model.pauseSong();
-                    model.selectSong(model.currentSong!); // keep selected but stop
+                    model.selectSong(
+                        model.currentSong!); // keep selected but stop
                     // Navigate back is handled by layout
                   },
                 ),
@@ -219,11 +220,14 @@ class _FullPlayer extends StatelessWidget {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: const Color(0xFFE91E8C),
-                    inactiveTrackColor: const Color(0xFFE91E8C).withValues(alpha: 0.2),
+                    inactiveTrackColor:
+                        const Color(0xFFE91E8C).withValues(alpha: 0.2),
                     thumbColor: const Color(0xFFE91E8C),
-                    overlayColor: const Color(0xFFE91E8C).withValues(alpha: 0.15),
+                    overlayColor:
+                        const Color(0xFFE91E8C).withValues(alpha: 0.15),
                     trackHeight: 4,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 7),
                   ),
                   child: Slider(
                     value: progress,

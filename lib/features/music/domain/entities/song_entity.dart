@@ -1,11 +1,4 @@
 class SongEntity {
-  final String id;
-  final String title;
-  final String artist;
-  final String audioUrl;
-  final String coverUrl;
-  final Duration duration;
-  final String genre;
 
   const SongEntity({
     required this.id,
@@ -16,4 +9,11 @@ class SongEntity {
     required this.duration,
     required this.genre,
   });
+  final String id;
+  final String title;
+  final String artist;
+  final String audioUrl;
+  final String coverUrl;
+  final Duration duration;
+  final String genre;
 }

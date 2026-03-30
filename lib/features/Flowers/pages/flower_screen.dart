@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -204,7 +203,7 @@ class _FlowerScreenState extends State<FlowerScreen>
       }
       */
     } catch (e) {
-      debugPrint("Error inicializando audio: $e");
+      debugPrint('Error inicializando audio: $e');
     }
   }
 
@@ -550,7 +549,7 @@ class _FlowerScreenState extends State<FlowerScreen>
                     final entranceY = (1.0 - tEntrance) * 100;
                     final entranceBlur = (1.0 - tEntrance) * 10;
                     final entranceOpacity =
-                        Interval(0.2, 1.0, curve: Curves.easeOut)
+                        const Interval(0.2, 1.0, curve: Curves.easeOut)
                             .transform(tEntrance);
                     final entranceScale = 0.8 + 0.2 * tEntrance;
 
@@ -703,8 +702,6 @@ class _PetalSeed {
 }
 
 class _SoftParticlesPainter extends CustomPainter {
-  final Animation<double> animation;
-  final List<_Particle> particles;
 
   _SoftParticlesPainter({required this.animation})
       : particles = List.generate(15, (i) {
@@ -718,18 +715,22 @@ class _SoftParticlesPainter extends CustomPainter {
           );
         }),
         super(repaint: animation);
+  final Animation<double> animation;
+  final List<_Particle> particles;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30);
-    
+    final paint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30);
+
     for (final p in particles) {
       final yOffset = (animation.value * p.speed * size.height) % size.height;
       final xOffset = math.sin(animation.value * 2 * math.pi * p.speed) * 20;
-      
+
       paint.color = Colors.white.withValues(alpha: p.opacity);
       canvas.drawCircle(
-        Offset(p.x * size.width + xOffset, (p.y * size.height + yOffset) % size.height),
+        Offset(p.x * size.width + xOffset,
+            (p.y * size.height + yOffset) % size.height),
         p.size,
         paint,
       );
@@ -741,7 +742,6 @@ class _SoftParticlesPainter extends CustomPainter {
 }
 
 class _Particle {
-  final double x, y, speed, size, opacity;
   _Particle({
     required this.x,
     required this.y,
@@ -749,20 +749,19 @@ class _Particle {
     required this.size,
     required this.opacity,
   });
+  final double x, y, speed, size, opacity;
 }
 
-
-
 class _PremiumInteractionButton extends StatefulWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback onPressed;
 
   const _PremiumInteractionButton({
     required this.icon,
     required this.color,
     required this.onPressed,
   });
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
 
   @override
   State<_PremiumInteractionButton> createState() =>

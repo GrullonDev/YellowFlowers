@@ -5,13 +5,14 @@ import '../entities/song_entity.dart';
 import '../repositories/music_repository.dart';
 
 class GetSongsByMoodParams {
-  final Mood mood;
   const GetSongsByMoodParams(this.mood);
+  final Mood mood;
 }
 
-class GetSongsByMoodUseCase implements UseCase<List<SongEntity>, GetSongsByMoodParams> {
-  final MusicRepository repository;
+class GetSongsByMoodUseCase
+    implements UseCase<List<SongEntity>, GetSongsByMoodParams> {
   GetSongsByMoodUseCase(this.repository);
+  final MusicRepository repository;
 
   @override
   Future<Result<List<SongEntity>>> call(GetSongsByMoodParams params) {

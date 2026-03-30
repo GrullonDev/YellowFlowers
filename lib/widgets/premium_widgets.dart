@@ -34,12 +34,6 @@ class PremiumLoading extends StatelessWidget {
 }
 
 class GlassCard extends StatelessWidget {
-  final Widget child;
-  final double blur;
-  final double opacity;
-  final Color? color;
-  final EdgeInsetsGeometry? padding;
-  final BorderRadius? borderRadius;
 
   const GlassCard({
     super.key,
@@ -50,6 +44,12 @@ class GlassCard extends StatelessWidget {
     this.padding,
     this.borderRadius,
   });
+  final Widget child;
+  final double blur;
+  final double opacity;
+  final Color? color;
+  final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -75,9 +75,6 @@ class GlassCard extends StatelessWidget {
 }
 
 class PremiumModal extends StatelessWidget {
-  final String title;
-  final Widget content;
-  final List<Widget>? actions;
 
   const PremiumModal({
     super.key,
@@ -85,14 +82,19 @@ class PremiumModal extends StatelessWidget {
     required this.content,
     this.actions,
   });
+  final String title;
+  final Widget content;
+  final List<Widget>? actions;
 
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        backgroundColor:
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+        shape:
+            RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
         title: Text(
           title,
           style: PremiumDesign.serifSubHeading.copyWith(fontSize: 22),

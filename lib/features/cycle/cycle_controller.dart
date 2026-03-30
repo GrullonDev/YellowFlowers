@@ -4,13 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum CyclePhase { period, premenstrual, fertile, other }
 
 class CycleController extends ChangeNotifier {
-  static const _kLastPeriodKey = 'cycle_last_period';
-  static const _kCycleLengthKey = 'cycle_length_days';
-  static const _kFertileEnergeticKey = 'cycle_fertile_energetic';
 
   CycleController() {
     _load();
   }
+  static const _kLastPeriodKey = 'cycle_last_period';
+  static const _kCycleLengthKey = 'cycle_length_days';
+  static const _kFertileEnergeticKey = 'cycle_fertile_energetic';
 
   DateTime? _lastPeriodStart; // primer día del último periodo
   int _cycleLength = 28; // por defecto estándar
@@ -27,7 +27,7 @@ class CycleController extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_kLastPeriodKey);
       final len = prefs.getInt(_kCycleLengthKey);
-  _fertilePreferEnergetic = prefs.getBool(_kFertileEnergeticKey) ?? false;
+      _fertilePreferEnergetic = prefs.getBool(_kFertileEnergeticKey) ?? false;
       if (raw != null) {
         _lastPeriodStart = DateTime.tryParse(raw);
       }
@@ -43,7 +43,8 @@ class CycleController extends ChangeNotifier {
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kLastPeriodKey, _lastPeriodStart!.toIso8601String());
+      await prefs.setString(
+          _kLastPeriodKey, _lastPeriodStart!.toIso8601String());
     } catch (_) {}
   }
 

@@ -4,13 +4,13 @@ import '../entities/song_entity.dart';
 import '../repositories/music_repository.dart';
 
 class PlaySongParams {
-  final SongEntity song;
   const PlaySongParams(this.song);
+  final SongEntity song;
 }
 
 class PlaySongUseCase implements UseCase<void, PlaySongParams> {
-  final MusicRepository repository;
   PlaySongUseCase(this.repository);
+  final MusicRepository repository;
 
   @override
   Future<Result<void>> call(PlaySongParams params) {

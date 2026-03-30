@@ -24,7 +24,7 @@ Future<void> initDependencies() async {
   // External
   sl.registerLazySingleton<http.Client>(() => http.Client());
   sl.registerLazySingleton<AudioPlayer>(() => AudioPlayer());
-  
+
   final prefs = await SharedPreferences.getInstance();
   sl.registerSingleton<SharedPreferences>(prefs);
   sl.registerSingleton<PersonalizationService>(PersonalizationService(prefs));

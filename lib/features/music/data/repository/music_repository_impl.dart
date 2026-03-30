@@ -6,8 +6,8 @@ import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart';
 import 'package:yellow_flowers/features/music/domain/repositories/music_repository.dart';
 
 class MusicRepositoryImpl implements MusicRepository {
-  final MusicRemoteRepository remote;
   MusicRepositoryImpl({required this.remote});
+  final MusicRemoteRepository remote;
 
   SongEntity _map(Song s) => SongEntity(
         id: s.id,
@@ -19,7 +19,8 @@ class MusicRepositoryImpl implements MusicRepository {
         genre: s.genre,
       );
 
-  Future<Result<List<SongEntity>>> _guardList(Future<List<Song>> Function() block) async {
+  Future<Result<List<SongEntity>>> _guardList(
+      Future<List<Song>> Function() block) async {
     try {
       final list = await block();
       return Success(list.map(_map).toList());
@@ -47,27 +48,31 @@ class MusicRepositoryImpl implements MusicRepository {
   }
 
   @override
-  Future<Result<List<SongEntity>>> getSongs(String genre) => _guardList(() => remote.getSongs(genre));
+  Future<Result<List<SongEntity>>> getSongs(String genre) =>
+      _guardList(() => remote.getSongs(genre));
 
   @override
-  Future<Result<List<SongEntity>>> getSongsByMood(Mood mood) => _guardList(() => remote.getSongsByMood(mood));
+  Future<Result<List<SongEntity>>> getSongsByMood(Mood mood) =>
+      _guardList(() => remote.getSongsByMood(mood));
 
   @override
-  Future<Result<SongEntity?>> getDailyRecommendation(Mood mood) => _guardSong(() => remote.getDailyRecommendation(mood));
+  Future<Result<SongEntity?>> getDailyRecommendation(Mood mood) =>
+      _guardSong(() => remote.getDailyRecommendation(mood));
 
   @override
   Future<Result<void>> pauseSong() => _guardVoid(() => remote.pauseSong());
 
   @override
-  Future<Result<void>> playSong(SongEntity song) => _guardVoid(() => remote.playSong(Song(
-        id: song.id,
-        title: song.title,
-        artist: song.artist,
-        audioUrl: song.audioUrl,
-        coverUrl: song.coverUrl,
-        duration: song.duration,
-        genre: song.genre,
-      )));
+  Future<Result<void>> playSong(SongEntity song) =>
+      _guardVoid(() => remote.playSong(Song(
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            audioUrl: song.audioUrl,
+            coverUrl: song.coverUrl,
+            duration: song.duration,
+            genre: song.genre,
+          )));
 
   @override
   Future<Result<void>> stopSong() => _guardVoid(() => remote.stopSong());

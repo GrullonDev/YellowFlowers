@@ -18,7 +18,6 @@ class SpecialMessagesLayout extends StatefulWidget {
 }
 
 class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> {
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SpecialMessagesBloc>(

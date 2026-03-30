@@ -4,14 +4,15 @@ import 'package:just_audio/just_audio.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 
 class PremiumMusicPlayer extends StatefulWidget {
-  final AudioPlayer player;
   const PremiumMusicPlayer({super.key, required this.player});
+  final AudioPlayer player;
 
   @override
   State<PremiumMusicPlayer> createState() => _PremiumMusicPlayerState();
 }
 
-class _PremiumMusicPlayerState extends State<PremiumMusicPlayer> with SingleTickerProviderStateMixin {
+class _PremiumMusicPlayerState extends State<PremiumMusicPlayer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _waveController;
 
   @override
@@ -50,7 +51,8 @@ class _PremiumMusicPlayerState extends State<PremiumMusicPlayer> with SingleTick
             color: Colors.white.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(32),
             boxShadow: PremiumDesign.softShadow,
-            border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+            border: Border.all(
+                color: Colors.white.withValues(alpha: 0.5), width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -76,11 +78,13 @@ class _PremiumMusicPlayerState extends State<PremiumMusicPlayer> with SingleTick
   }
 
   Widget _buildPlayButton(bool playing, ProcessingState? processingState) {
-    if (processingState == ProcessingState.buffering || processingState == ProcessingState.loading) {
+    if (processingState == ProcessingState.buffering ||
+        processingState == ProcessingState.loading) {
       return const SizedBox(
         width: 32,
         height: 32,
-        child: CircularProgressIndicator(strokeWidth: 2, color: PremiumDesign.radiantGold),
+        child: CircularProgressIndicator(
+            strokeWidth: 2, color: PremiumDesign.radiantGold),
       );
     }
 
@@ -110,15 +114,15 @@ class _PremiumMusicPlayerState extends State<PremiumMusicPlayer> with SingleTick
 }
 
 class _WaveformPainter extends CustomPainter {
-  final Animation<double> animation;
-  final Color color;
-  final bool isAnimating;
 
   _WaveformPainter({
     required this.animation,
     required this.color,
     required this.isAnimating,
   }) : super(repaint: animation);
+  final Animation<double> animation;
+  final Color color;
+  final bool isAnimating;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -131,12 +135,13 @@ class _WaveformPainter extends CustomPainter {
     final double spacing = size.width / barCount;
 
     for (int i = 0; i < barCount; i++) {
-      double heightFactor = 0.2 + 0.8 * math.sin((animation.value * 2 * math.pi) + (i * 0.5)).abs();
+      double heightFactor = 0.2 +
+          0.8 * math.sin((animation.value * 2 * math.pi) + (i * 0.5)).abs();
       if (!isAnimating) heightFactor = 0.2;
-      
+
       final barHeight = size.height * heightFactor;
       final x = i * spacing + (spacing / 2);
-      
+
       canvas.drawLine(
         Offset(x, (size.height - barHeight) / 2),
         Offset(x, (size.height + barHeight) / 2),

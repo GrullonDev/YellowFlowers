@@ -10,7 +10,8 @@ class TtsService {
   }
 
   final FlutterTts _tts;
-  final ValueNotifier<TtsState> stateNotifier = ValueNotifier(TtsState.initializing);
+  final ValueNotifier<TtsState> stateNotifier =
+      ValueNotifier(TtsState.initializing);
   TtsState get state => stateNotifier.value;
 
   Future<void> _init() async {

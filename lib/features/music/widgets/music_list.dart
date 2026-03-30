@@ -14,7 +14,6 @@ class MusicList extends StatefulWidget {
 }
 
 class _MusicListState extends State<MusicList> {
-
   @override
   Widget build(BuildContext context) {
     return Consumer<MusicBloc>(
@@ -159,11 +158,31 @@ class _MoodChipsOnly extends StatelessWidget {
         spacing: 8,
         runSpacing: 8,
         children: [
-          _MoodChip(label: 'Tranquila', mood: Mood.relaxed, selected: model.selectedMood == Mood.relaxed, onSelected: () => model.selectMood(Mood.relaxed)),
-          _MoodChip(label: 'Romántica', mood: Mood.romantic, selected: model.selectedMood == Mood.romantic, onSelected: () => model.selectMood(Mood.romantic)),
-          _MoodChip(label: 'Motivada', mood: Mood.motivated, selected: model.selectedMood == Mood.motivated, onSelected: () => model.selectMood(Mood.motivated)),
-          _MoodChip(label: 'Nostálgica', mood: Mood.nostalgic, selected: model.selectedMood == Mood.nostalgic, onSelected: () => model.selectMood(Mood.nostalgic)),
-          _MoodChip(label: 'Feliz', mood: Mood.happy, selected: model.selectedMood == Mood.happy, onSelected: () => model.selectMood(Mood.happy)),
+          _MoodChip(
+              label: 'Tranquila',
+              mood: Mood.relaxed,
+              selected: model.selectedMood == Mood.relaxed,
+              onSelected: () => model.selectMood(Mood.relaxed)),
+          _MoodChip(
+              label: 'Romántica',
+              mood: Mood.romantic,
+              selected: model.selectedMood == Mood.romantic,
+              onSelected: () => model.selectMood(Mood.romantic)),
+          _MoodChip(
+              label: 'Motivada',
+              mood: Mood.motivated,
+              selected: model.selectedMood == Mood.motivated,
+              onSelected: () => model.selectMood(Mood.motivated)),
+          _MoodChip(
+              label: 'Nostálgica',
+              mood: Mood.nostalgic,
+              selected: model.selectedMood == Mood.nostalgic,
+              onSelected: () => model.selectMood(Mood.nostalgic)),
+          _MoodChip(
+              label: 'Feliz',
+              mood: Mood.happy,
+              selected: model.selectedMood == Mood.happy,
+              onSelected: () => model.selectMood(Mood.happy)),
         ],
       ),
     );

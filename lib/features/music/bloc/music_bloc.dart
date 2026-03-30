@@ -7,7 +7,8 @@ import 'package:yellow_flowers/features/music/domain/usecases/get_daily_recommen
 import 'package:yellow_flowers/features/music/domain/usecases/play_song.dart';
 import 'package:yellow_flowers/features/music/domain/usecases/pause_song.dart';
 import 'package:yellow_flowers/features/music/domain/usecases/get_position_stream.dart';
-import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart' as domain;
+import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart'
+    as domain;
 import 'package:yellow_flowers/core/result.dart';
 import 'package:yellow_flowers/core/usecase.dart';
 
@@ -86,6 +87,7 @@ class MusicBloc extends BaseModel {
         .where((song) => (song.genre).toLowerCase().contains(g))
         .toList();
   }
+
   Song? get currentSong => _currentSong;
   bool get isPlaying => _isPlaying;
   Duration get position => _position;
@@ -102,7 +104,8 @@ class MusicBloc extends BaseModel {
     try {
       // Initial load by mood instead of genre
       if (_getSongsByMood != null) {
-  final res = await _getSongsByMood.call(GetSongsByMoodParams(_selectedMood));
+        final res =
+            await _getSongsByMood.call(GetSongsByMoodParams(_selectedMood));
         res.when(
           success: (data) {
             _songs = data
@@ -126,7 +129,8 @@ class MusicBloc extends BaseModel {
         _songs = await _repository.getSongsByMood(_selectedMood);
       }
       if (_getDailyRecommendation != null) {
-  final rec = await _getDailyRecommendation.call(GetDailyRecommendationParams(_selectedMood));
+        final rec = await _getDailyRecommendation
+            .call(GetDailyRecommendationParams(_selectedMood));
         rec.when(
           success: (song) {
             _dailyRecommendation = song == null
@@ -147,7 +151,8 @@ class MusicBloc extends BaseModel {
           },
         );
       } else {
-        _dailyRecommendation = await _repository.getDailyRecommendation(_selectedMood);
+        _dailyRecommendation =
+            await _repository.getDailyRecommendation(_selectedMood);
       }
       _errorMessage = null;
     } catch (e) {
@@ -159,8 +164,8 @@ class MusicBloc extends BaseModel {
       notifyListeners();
     }
     try {
-    final positionStream = _getPositionStreamUC != null
-      ? (await _getPositionStreamUC(const NoParams())).when(
+      final positionStream = _getPositionStreamUC != null
+          ? (await _getPositionStreamUC(const NoParams())).when(
               success: (s) => s,
               error: (_) => null,
             )
@@ -202,7 +207,7 @@ class MusicBloc extends BaseModel {
 
   Future<void> pauseSong() async {
     if (_pauseSongUC != null) {
-  await _pauseSongUC.call(const NoParams());
+      await _pauseSongUC.call(const NoParams());
     } else {
       await _repository.pauseSong();
     }
@@ -239,7 +244,7 @@ class MusicBloc extends BaseModel {
     _selectedGenre = 'All';
     try {
       if (_getSongsByMood != null) {
-  final res = await _getSongsByMood.call(GetSongsByMoodParams(mood));
+        final res = await _getSongsByMood.call(GetSongsByMoodParams(mood));
         res.when(
           success: (data) {
             _songs = data
@@ -263,7 +268,8 @@ class MusicBloc extends BaseModel {
         _songs = await _repository.getSongsByMood(mood);
       }
       if (_getDailyRecommendation != null) {
-  final rec = await _getDailyRecommendation.call(GetDailyRecommendationParams(mood));
+        final rec = await _getDailyRecommendation
+            .call(GetDailyRecommendationParams(mood));
         rec.when(
           success: (song) {
             _dailyRecommendation = song == null
@@ -319,7 +325,8 @@ class MusicBloc extends BaseModel {
       return;
     }
     final idx = _songs.indexWhere((s) => s.id == _currentSong!.id);
-    final next = idx >= 0 && idx < _songs.length - 1 ? _songs[idx + 1] : _songs.first;
+    final next =
+        idx >= 0 && idx < _songs.length - 1 ? _songs[idx + 1] : _songs.first;
     await playSong(next);
   }
 

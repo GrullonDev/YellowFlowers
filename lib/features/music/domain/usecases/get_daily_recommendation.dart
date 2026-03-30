@@ -5,13 +5,14 @@ import '../entities/song_entity.dart';
 import '../repositories/music_repository.dart';
 
 class GetDailyRecommendationParams {
-  final Mood mood;
   const GetDailyRecommendationParams(this.mood);
+  final Mood mood;
 }
 
-class GetDailyRecommendationUseCase implements UseCase<SongEntity?, GetDailyRecommendationParams> {
-  final MusicRepository repository;
+class GetDailyRecommendationUseCase
+    implements UseCase<SongEntity?, GetDailyRecommendationParams> {
   GetDailyRecommendationUseCase(this.repository);
+  final MusicRepository repository;
 
   @override
   Future<Result<SongEntity?>> call(GetDailyRecommendationParams params) {

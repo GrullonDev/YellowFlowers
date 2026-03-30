@@ -98,7 +98,9 @@ class _HeroHeader extends StatelessWidget {
 
     return GlassCard(
       padding: const EdgeInsets.all(PremiumDesign.s24),
-      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.4),
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.05)
+          : Colors.white.withValues(alpha: 0.4),
       child: Row(
         children: [
           Expanded(
@@ -106,7 +108,9 @@ class _HeroHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isFlowerDay ? '¡Día de las\nFlores! 🌻' : '¡Hola, hermosa! 🌻',
+                  isFlowerDay
+                      ? '¡Día de las\nFlores! 🌻'
+                      : '¡Hola, hermosa! 🌻',
                   style: GoogleFonts.pacifico(
                     fontSize: 24,
                     color: Theme.of(context).textTheme.displayLarge?.color,
@@ -120,7 +124,11 @@ class _HeroHeader extends StatelessWidget {
                       : 'Cada día es una flor nueva',
                   style: PremiumDesign.sansBody.copyWith(
                     fontSize: 14,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.6),
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.color
+                        ?.withValues(alpha: 0.6),
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -134,7 +142,6 @@ class _HeroHeader extends StatelessWidget {
     );
   }
 }
-
 
 class _FloatingFlowerStack extends StatefulWidget {
   const _FloatingFlowerStack();
@@ -181,12 +188,14 @@ class _FloatingFlowerStackState extends State<_FloatingFlowerStack>
                 Positioned(
                   top: 0,
                   right: 0,
-                  child: Text('🌸', style: TextStyle(fontSize: 22 + _anim.value * 2)),
+                  child: Text('🌸',
+                      style: TextStyle(fontSize: 22 + _anim.value * 2)),
                 ),
                 Positioned(
                   bottom: 0,
                   left: 0,
-                  child: Text('🌺', style: TextStyle(fontSize: 20 + _anim.value * 2)),
+                  child: Text('🌺',
+                      style: TextStyle(fontSize: 20 + _anim.value * 2)),
                 ),
                 Text('🌻', style: TextStyle(fontSize: 36 + _anim.value * 4)),
               ],
@@ -266,10 +275,6 @@ class _SmartSuggestionCard extends StatelessWidget {
 // ─── Menu Card ───────────────────────────────────────────────────────────────
 
 class _MenuCard extends StatelessWidget {
-  final dynamic item;
-  final LinearGradient gradient;
-  final Color iconColor;
-  final int index;
 
   const _MenuCard({
     required this.item,
@@ -277,6 +282,10 @@ class _MenuCard extends StatelessWidget {
     required this.iconColor,
     required this.index,
   });
+  final dynamic item;
+  final LinearGradient gradient;
+  final Color iconColor;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -393,9 +402,9 @@ _CardStyle _cardStyleForIndex(int index) {
 }
 
 class _CardStyle {
+  const _CardStyle({required this.gradient, required this.iconColor});
   final LinearGradient gradient;
   final Color iconColor;
-  const _CardStyle({required this.gradient, required this.iconColor});
 }
 
 // ─── Daily Mood Card ─────────────────────────────────────────────────────────
@@ -577,9 +586,9 @@ class _WellnessExercisesCard extends StatelessWidget {
 }
 
 class _GreenOutlineButton extends StatelessWidget {
+  const _GreenOutlineButton({required this.label, required this.onPressed});
   final String label;
   final VoidCallback onPressed;
-  const _GreenOutlineButton({required this.label, required this.onPressed});
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
@@ -598,9 +607,9 @@ class _GreenOutlineButton extends StatelessWidget {
 }
 
 class _GreenFilledButton extends StatelessWidget {
+  const _GreenFilledButton({required this.label, required this.onPressed});
   final String label;
   final VoidCallback onPressed;
-  const _GreenFilledButton({required this.label, required this.onPressed});
   @override
   Widget build(BuildContext context) {
     return FilledButton(
@@ -757,11 +766,11 @@ Future<void> _startBreathing(BuildContext context) async {
     context: context,
     builder: (ctx) => AlertDialog(
       title: const Text('Respiración 4-4-4 🌬️'),
-      content: const Text('Inhala 4s · Sostén 4s · Exhala 4s.\nRepite 5 veces y siente la calma.'),
+      content: const Text(
+          'Inhala 4s · Sostén 4s · Exhala 4s.\nRepite 5 veces y siente la calma.'),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Listo 🌸'))
+            onPressed: () => Navigator.pop(ctx), child: const Text('Listo 🌸'))
       ],
     ),
   );
@@ -782,7 +791,8 @@ Future<void> _speakAffirmations(BuildContext context) async {
           style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(ctx), child: const Text('Gracias 💛'))
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Gracias 💛'))
       ],
     ),
   );
