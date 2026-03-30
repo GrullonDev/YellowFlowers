@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +11,7 @@ import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class HomeLayout extends StatefulWidget {
   const HomeLayout({super.key});
@@ -174,51 +174,9 @@ class _GradientScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Fondo degradado suave: crema → rosa pálido
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFFFBF0), // crema cálida
-                Color(0xFFFFF5F8), // blanco rosado
-                Color(0xFFFFFBF0), // crema al fondo
-              ],
-              stops: [0.0, 0.5, 1.0],
-            ),
-          ),
-        ),
-        // Círculo decorativo suave top-right
-        Positioned(
-          top: -80,
-          right: -60,
-          child: Container(
-            width: 220,
-            height: 220,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFFFE4EC).withValues(alpha: 0.45),
-            ),
-          ),
-        ),
-        // Círculo decorativo suave bottom-left
-        Positioned(
-          bottom: 120,
-          left: -70,
-          child: Container(
-            width: 180,
-            height: 180,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFFFFF9C4).withValues(alpha: 0.6),
-            ),
-          ),
-        ),
-        child,
-      ],
+    return AnimatedBackground(
+      decorationCount: 15,
+      child: child,
     );
   }
 }
@@ -367,7 +325,11 @@ class _FeaturedGem extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: PremiumDesign.premiumRadius,
-            boxShadow: PremiumDesign.premiumShadow,
+            boxShadow: [
+              ...PremiumDesign.premiumShadow,
+              if (DateTime.now().hour >= 18 || DateTime.now().hour < 6)
+                ...PremiumDesign.goldGlow,
+            ],
           ),
           clipBehavior: Clip.antiAlias,
           child: Stack(
@@ -530,18 +492,7 @@ class _HeroBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFF7DC), // dorado suave
-            Color(0xFFFFF0F5), // rosa pálido
-            Color(0xFFF8E8FF), // lavanda muy suave
-          ],
-          stops: [0.0, 0.55, 1.0],
-        ),
-      ),
+      color: Colors.transparent,
       child: child,
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:yellow_flowers/core/design_system.dart';
 
 class AnimatedBackground extends StatefulWidget {
   const AnimatedBackground({
@@ -44,15 +45,23 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     super.dispose();
   }
 
+  List<Color> _getTimeBasedColors(bool isDark) {
+    if (isDark) return PremiumDesign.nightColors;
+    
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) return PremiumDesign.morningColors;
+    if (hour >= 12 && hour < 18) return PremiumDesign.afternoonColors;
+    return PremiumDesign.nightColors;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final timeColors = _getTimeBasedColors(isDark);
 
-    final Color topColor = widget.topColorBegin ??
-        (isDark ? const Color(0xFF1A1A1A) : const Color(0xFFFFF9E5));
-    final Color bottomColor = widget.bottomColorBegin ??
-        (isDark ? const Color(0xFF121212) : const Color(0xFFFFF0F5));
+    final Color topColor = widget.topColorBegin ?? timeColors.first;
+    final Color bottomColor = widget.bottomColorBegin ?? timeColors.last;
 
     return AnimatedBuilder(
       animation: _bgController,
@@ -84,7 +93,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
               top: dy * MediaQuery.of(context).size.height + drift,
               child: Opacity(
                 opacity: opacity,
-                child: _decorElement(i, rnd, isDark),
+                child: _decorElement(i, rnd, isDark || timeColors == PremiumDesign.nightColors),
               ),
             );
           }),
@@ -94,11 +103,11 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     );
   }
 
-  Widget _decorElement(int i, math.Random rnd, bool isDark) {
+  Widget _decorElement(int i, math.Random rnd, bool isGloomy) {
     final size = 20.0 + rnd.nextDouble() * 20;
-    final color = isDark
-        ? Colors.white.withValues(alpha: 0.2)
-        : Colors.amber.withValues(alpha: 0.3);
+    final color = isGloomy
+        ? Colors.white.withValues(alpha: 0.3)
+        : PremiumDesign.radiantGold.withValues(alpha: 0.4);
 
     switch (i % 4) {
       case 0:

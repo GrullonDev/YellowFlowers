@@ -5,6 +5,7 @@ import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
 import 'package:yellow_flowers/features/home/pages/home_page.dart';
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
+import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
 import 'package:yellow_flowers/theme/app_theme.dart';
 import 'package:yellow_flowers/theme/theme_controller.dart';
 
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MoodController()),
         ChangeNotifierProvider(create: (_) => WellnessController()),
         ChangeNotifierProvider(create: (_) => CycleController()),
+        ChangeNotifierProvider(create: (_) => FlowerBloc()),
       ],
       child: Consumer<ThemeController>(
         builder: (context, themeCtrl, _) => MaterialApp(

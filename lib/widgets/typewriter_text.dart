@@ -42,11 +42,12 @@ class _TypewriterTextState extends State<TypewriterText> {
 
   void _startTypewriter() {
     _timer?.cancel();
+    final chars = widget.text.characters;
     _timer = Timer.periodic(widget.duration, (timer) {
-      if (_currentIndex < widget.text.length) {
+      if (_currentIndex < chars.length) {
         setState(() {
-          _displayedText += widget.text[_currentIndex];
           _currentIndex++;
+          _displayedText = chars.take(_currentIndex).toString();
         });
       } else {
         _timer?.cancel();

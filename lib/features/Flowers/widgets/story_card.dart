@@ -7,8 +7,9 @@ import 'package:flutter/rendering.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:yellow_flowers/features/flowers/models/default_messages.dart';
 
-enum StoryCardStyle { romantic, minimal, elegant, vintage }
+enum StoryCardStyle { romantic, minimal, elegant, vintage, premium }
 
 class StoryCard extends StatelessWidget {
   StoryCard({
@@ -16,7 +17,7 @@ class StoryCard extends StatelessWidget {
     required this.name,
     required this.message,
     required this.qrUrl,
-    this.style = StoryCardStyle.romantic,
+    this.style = StoryCardStyle.premium,
     this.topColor = const Color(0xFFFFF7C2),
     this.bottomColor = const Color(0xFFFFB3C6),
     this.fancyName = false,
@@ -38,25 +39,38 @@ class StoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final finalMessage = (message.trim().isEmpty) ? DefaultMessages.getRandom() : message;
+
     return RepaintBoundary(
       key: boundaryKey,
       child: Container(
         width: width,
         height: height,
-        color: _getBgColor(),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              topColor,
+              bottomColor.withAlpha(200),
+              bottomColor,
+            ],
+            stops: const [0.0, 0.75, 1.0],
+          ),
+        ),
         child: Stack(
           children: [
-            if (style == StoryCardStyle.vintage)
-              Positioned.fill(child: _VintageTexture()),
-
             // Texture Layer
             Positioned.fill(
               child: CustomPaint(
                 painter: _GrainPainter(
-                  opacity: style == StoryCardStyle.vintage ? 0.08 : 0.03,
+                  opacity: style == StoryCardStyle.vintage ? 0.08 : 0.04,
                 ),
               ),
             ),
+
+            // Subtle Premium Bubbles (Glassmorphism)
+            ..._buildPremiumBubbles(),
 
             // Content
             Padding(
@@ -64,8 +78,9 @@ class StoryCard extends StatelessWidget {
               child: Column(
                 children: [
                   _buildHeader(),
-                  const SizedBox(height: 60),
-                  Expanded(child: _buildBody()),
+                  const Spacer(flex: 1),
+                  _buildBody(finalMessage),
+                  const Spacer(flex: 2),
                   _buildFooter(),
                 ],
               ),
@@ -74,15 +89,19 @@ class StoryCard extends StatelessWidget {
             // Watermark
             Positioned(
               bottom: 40,
-              right: 40,
-              child: Opacity(
-                opacity: 0.5,
-                child: Text(
-                  'by Yellow Flowers 🌻',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: _getTextColor().withValues(alpha: 0.6),
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Opacity(
+                  opacity: 0.4,
+                  child: Text(
+                    'flores amarillas • tu jardín emocional',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 4.0,
+                      color: const Color(0xFF3E2723).withAlpha(120),
+                    ),
                   ),
                 ),
               ),
@@ -93,196 +112,142 @@ class StoryCard extends StatelessWidget {
     );
   }
 
-  Color _getBgColor() {
-    switch (style) {
-      case StoryCardStyle.minimal:
-        return Colors.white;
-      case StoryCardStyle.vintage:
-        return const Color(0xFFF2E8D5);
-      case StoryCardStyle.elegant:
-        return const Color(0xFFFAFAFA);
-      default:
-        return topColor.withValues(alpha: 0.1);
-    }
-  }
-
-  Color _getTextColor() {
-    switch (style) {
-      case StoryCardStyle.vintage:
-        return const Color(0xFF4E342E);
-      case StoryCardStyle.elegant:
-        return const Color(0xFF2C3E50);
-      default:
-        return const Color(0xFF3E2723);
-    }
+  List<Widget> _buildPremiumBubbles() {
+    return [
+      Positioned(
+        top: -100, left: -100,
+        child: _BlurBubble(size: 400, color: Colors.white.withAlpha(80)),
+      ),
+      Positioned(
+        bottom: 200, right: -150,
+        child: _BlurBubble(size: 500, color: bottomColor.withAlpha(40)),
+      ),
+    ];
   }
 
   Widget _buildHeader() {
     return Column(
       children: [
-        if (style == StoryCardStyle.elegant)
-          Container(
-            width: 80,
-            height: 2,
-            color: const Color(0xFFD4AF37),
-            margin: const EdgeInsets.only(bottom: 20),
-          ),
+        const SizedBox(height: 20),
         Text(
-          style == StoryCardStyle.minimal ? '🌻' : '✨🌻✨',
-          style: TextStyle(fontSize: style == StoryCardStyle.minimal ? 48 : 36),
+          '✨🌻✨',
+          style: TextStyle(fontSize: 42, color: const Color(0xFF3E2723).withAlpha(180)),
         ),
       ],
     );
   }
 
-  Widget _buildBody() {
-    final textColor = _getTextColor();
-    final messageStyle = _getMessageStyle(textColor);
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
-            decoration: _getBoxDecoration(),
-            child: Column(
-              children: [
-                Text(
-                  name,
-                  textAlign: TextAlign.center,
-                  style: _getNameStyle(textColor),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: messageStyle,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration? _getBoxDecoration() {
-    if (style == StoryCardStyle.minimal) return null;
-    if (style == StoryCardStyle.romantic) {
-      return BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(40),
+  Widget _buildBody(String messageToDisplay) {
+    final textColor = const Color(0xFF3E2723);
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 80),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(180),
+        borderRadius: BorderRadius.circular(60),
+        border: Border.all(color: Colors.white.withAlpha(150), width: 2),
         boxShadow: [
           BoxShadow(
-            color: bottomColor.withValues(alpha: 0.15),
-            blurRadius: 40,
+            color: Colors.black.withAlpha(15),
+            blurRadius: 50,
             offset: const Offset(0, 20),
           ),
         ],
-      );
-    }
-    if (style == StoryCardStyle.elegant) {
-      return BoxDecoration(
-        border: Border.all(color: const Color(0xFFD4AF37), width: 3),
-      );
-    }
-    return null;
-  }
-
-  TextStyle _getNameStyle(Color color) {
-    switch (style) {
-      case StoryCardStyle.minimal:
-        return GoogleFonts.inter(
-            fontSize: 42, fontWeight: FontWeight.w300, color: color);
-      case StoryCardStyle.elegant:
-        return GoogleFonts.bodoniModa(
-            fontSize: 56, fontWeight: FontWeight.bold, color: color);
-      case StoryCardStyle.vintage:
-        return GoogleFonts.playfairDisplay(
-            fontSize: 52, fontWeight: FontWeight.w800, color: color);
-      default:
-        return GoogleFonts.playfairDisplay(
-            fontSize: 64,
-            fontWeight: FontWeight.bold,
-            fontStyle: FontStyle.italic,
-            color: color);
-    }
-  }
-
-  TextStyle _getMessageStyle(Color color) {
-    switch (style) {
-      case StoryCardStyle.minimal:
-        return GoogleFonts.inter(
-            fontSize: 32,
-            fontWeight: FontWeight.w400,
-            color: color,
-            height: 1.5);
-      case StoryCardStyle.elegant:
-        return GoogleFonts.montserrat(
-            fontSize: 34,
-            fontWeight: FontWeight.w300,
-            color: color,
-            height: 1.6,
-            letterSpacing: 1.2);
-      case StoryCardStyle.vintage:
-        return GoogleFonts.merriweather(
-            fontSize: 36,
-            fontWeight: FontWeight.w400,
-            color: color,
-            height: 1.6);
-      default:
-        return GoogleFonts.plusJakartaSans(
-            fontSize: 40,
-            fontWeight: FontWeight.w500,
-            color: color,
-            height: 1.4);
-    }
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(60),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Para $name 💛',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 68,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                  height: 1.1,
+                ),
+              ),
+              const SizedBox(height: 48),
+              Text(
+                messageToDisplay,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 42,
+                  fontWeight: FontWeight.w600,
+                  fontStyle: FontStyle.italic,
+                  color: textColor.withAlpha(200),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 60),
+              Container(
+                width: 120,
+                height: 3,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.transparent, textColor.withAlpha(60), Colors.transparent],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildFooter() {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 20,
+                color: Colors.black.withAlpha(15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
           child: SizedBox(
-            width: 200,
-            height: 200,
+            width: 180,
+            height: 180,
             child: PrettyQrView.data(
               data: qrUrl,
               decoration: const PrettyQrDecoration(
-                shape: PrettyQrSmoothSymbol(),
+                shape: PrettyQrSmoothSymbol(color: Color(0xFF3E2723)),
+                image: PrettyQrDecorationImage(
+                  image: NetworkImage('https://cdn-icons-png.flaticon.com/512/1047/1047711.png'),
+                  scale: 0.3,
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 32),
         Text(
           'Escanea para florecer',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: _getTextColor().withValues(alpha: 0.7),
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 2.0,
+            color: const Color(0xFF3E2723).withAlpha(120),
           ),
         ),
       ],
     );
   }
 
-  static Future<Uint8List?> exportPng(GlobalKey boundaryKey,
-      {double pixelRatio = 3.0}) async {
-    final boundary = boundaryKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
+  static Future<Uint8List?> exportPng(GlobalKey boundaryKey, {double pixelRatio = 3.0}) async {
+    final boundary = boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (boundary == null) return null;
     final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -290,26 +255,27 @@ class StoryCard extends StatelessWidget {
   }
 }
 
-class _VintageTexture extends StatelessWidget {
+class _BlurBubble extends StatelessWidget {
+  const _BlurBubble({required this.size, required this.color});
+  final double size;
+  final Color color;
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0.1,
-      child: Image.network(
-        'https://www.transparenttextures.com/patterns/paper-fibers.png',
-        repeat: ImageRepeat.repeat,
-      ),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
 
 class _GrainPainter extends CustomPainter {
-  _GrainPainter({this.opacity = 0.03});
+  _GrainPainter({this.opacity = 0.04});
   final double opacity;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withValues(alpha: opacity);
+    final paint = Paint()..color = Colors.black.withAlpha((opacity * 255).toInt());
     final rnd = math.Random(42);
     for (int i = 0; i < 6000; i++) {
       final x = rnd.nextDouble() * size.width;

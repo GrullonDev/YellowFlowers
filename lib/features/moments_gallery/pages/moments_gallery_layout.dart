@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
 import 'package:yellow_flowers/features/moments_gallery/widgets/album_card.dart';
 import 'package:yellow_flowers/theme/theme_controller.dart';
@@ -17,100 +17,148 @@ class MomentsGalleryLayout extends StatefulWidget {
   State<MomentsGalleryLayout> createState() => _MomentsGalleryLayoutState();
 }
 
-class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout> {
+class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1000));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<MomentsGalleryBloc>(
       builder: (context, model, _) => Scaffold(
-        appBar: AppBar(
-            title: const Text('Galería de Momentos',
-                style: TextStyle(fontWeight: FontWeight.w700)),
-            backgroundColor: Colors.transparent,
-            centerTitle: true,
-            actions: [
-              Builder(builder: (ctx) {
-                final controller = ctx.watch<ThemeController>();
-                final mode = controller.mode;
-                IconData icon;
-                String tip;
-                switch (mode) {
-                  case ThemeMode.light:
-                    icon = Icons.light_mode;
-                    tip = 'Tema claro (tap para oscuro)';
-                    break;
-                  case ThemeMode.dark:
-                    icon = Icons.dark_mode;
-                    tip = 'Tema oscuro (tap para sistema)';
-                    break;
-                  case ThemeMode.system:
-                    icon = Icons.brightness_auto;
-                    tip = 'Tema del sistema (tap para claro)';
-                    break;
-                }
-                return Semantics(
-                  label: 'Botón cambio de tema. Modo actual: ${mode.name}',
-                  button: true,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: IconButton(
-                      constraints:
-                          const BoxConstraints(minWidth: 56, minHeight: 56),
-                      tooltip: tip,
-                      onPressed: () => ctx.read<ThemeController>().toggle(),
-                      icon: Icon(icon,
-                          size: 26, color: Theme.of(ctx).colorScheme.onSurface),
-                    ),
-                  ),
-                );
-              }),
-            ]),
         extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'Galería de Momentos',
+            style: GoogleFonts.playfairDisplay(
+              fontWeight: FontWeight.w800,
+              color: PremiumDesign.softText,
+            ),
+          ),
+          centerTitle: true,
+          actions: [
+            _buildThemeButton(context),
+            const SizedBox(width: 8),
+          ],
+        ),
         body: AnimatedBackground(
-          decorationCount: 10,
+          decorationCount: 6,
           child: SafeArea(
             child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+              padding: const EdgeInsets.all(PremiumDesign.s24),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.92,
+                mainAxisSpacing: PremiumDesign.s20,
+                crossAxisSpacing: PremiumDesign.s20,
+                childAspectRatio: 0.85,
               ),
               itemCount: model.albums.length,
               itemBuilder: (context, i) {
                 final album = model.albums[i];
                 final recent =
-                    model.recentMemoriesForAlbum(album.id, limit: 3).toList();
+                    model.recentMemoriesForAlbum(album.id, limit: 1).toList();
                 final count = model.countForAlbum(album.id);
-                // Build absolute paths
-                return FutureBuilder<Iterable<String>>(
-                  future: _resolveThumbPaths(recent.map((m) => m.fileName)),
-                  builder: (context, snap) {
-                    final paths = snap.data?.toList() ?? const [];
-                    return AlbumCard(
-                      title: '${album.emoji} ${album.label}',
-                      icon: album.icon,
-                      colors: album.colors,
-                      onTap: () => model.onTapAlbum(context, album),
-                      count: count,
-                      previewPaths: paths,
-                    );
-                  },
+
+                final animation = CurvedAnimation(
+                  parent: _controller,
+                  curve: Interval((i * 0.1).clamp(0.0, 1.0), 1.0,
+                      curve: Curves.easeOut),
+                );
+
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                            begin: const Offset(0, 0.1), end: Offset.zero)
+                        .animate(animation),
+                    child: FutureBuilder<Iterable<String>>(
+                      future: _resolveThumbPaths(recent.map((m) => m.fileName)),
+                      builder: (context, snap) {
+                        final paths = snap.data?.toList() ?? const [];
+                        return AlbumCard(
+                          title: album.label,
+                          icon: album.icon,
+                          colors: album.colors,
+                          onTap: () => model.onTapAlbum(context, album),
+                          count: count,
+                          previewPaths: paths,
+                        );
+                      },
+                    ),
+                  ),
                 );
               },
             ),
           ),
         ),
-        floatingActionButton: Semantics(
-          label: 'Añadir nuevo recuerdo',
-          button: true,
-          child: FloatingActionButton.extended(
-            onPressed: () => model.pickAndSaveMemory(context),
-            icon: const Icon(Icons.add_a_photo, size: 28),
-            label: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6),
-              child: Text('Nuevo recuerdo',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+        floatingActionButton: _PremiumFAB(
+          onPressed: () => model.pickAndSaveMemory(context),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeButton(BuildContext context) {
+    final controller = context.watch<ThemeController>();
+    return IconButton(
+      icon: Icon(
+        controller.mode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode,
+        color: PremiumDesign.softText,
+      ),
+      onPressed: () => controller.toggle(),
+    );
+  }
+}
+
+class _PremiumFAB extends StatelessWidget {
+  const _PremiumFAB({required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: PremiumDesign.premiumShadow,
+        gradient: const LinearGradient(
+          colors: [PremiumDesign.softText, Color(0xFF1A1A1A)],
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Añadir',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

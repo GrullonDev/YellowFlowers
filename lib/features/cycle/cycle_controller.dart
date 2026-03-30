@@ -22,6 +22,32 @@ class CycleController extends ChangeNotifier {
 
   CyclePhase get currentPhase => _computePhase(DateTime.now());
 
+  String get currentPhaseLabel {
+    switch (currentPhase) {
+      case CyclePhase.period:
+        return 'Fase Menstrual';
+      case CyclePhase.fertile:
+        return 'Fase Fértil';
+      case CyclePhase.premenstrual:
+        return 'Fase Lútea / Premenstrual';
+      case CyclePhase.other:
+        return 'Ciclo en Curso';
+    }
+  }
+
+  String? get recommendation {
+    switch (currentPhase) {
+      case CyclePhase.period:
+        return 'Es momento de cuidar de ti. Una melodía suave ayudará a calmar tu mente y cuerpo.';
+      case CyclePhase.fertile:
+        return 'Tu energía está en su punto máximo. ¡Aprovéchala con ritmos vibrantes y alegres!';
+      case CyclePhase.premenstrual:
+        return 'Busca el equilibrio. Sonidos relajantes te ayudarán a navegar estos días con calma.';
+      case CyclePhase.other:
+        return 'Sigue el ritmo de tu corazón. Elige la música que mejor conecte con tu sentir hoy.';
+    }
+  }
+
   Future<void> _load() async {
     try {
       final prefs = await SharedPreferences.getInstance();

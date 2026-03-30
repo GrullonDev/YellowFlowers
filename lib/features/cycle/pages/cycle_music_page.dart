@@ -1,97 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
-
-import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
-import 'package:yellow_flowers/features/cycle/widgets/cycle_phase_bar.dart';
-import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
-import 'package:yellow_flowers/features/music/pages/music_layout.dart';
-import 'package:yellow_flowers/utils/base_model_scaffold.dart';
+import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
-import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
+import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
+import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/widgets/music_list.dart';
+import 'package:yellow_flowers/features/music/widgets/premium_music_player.dart';
+import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class CycleMusicPage extends StatelessWidget {
   const CycleMusicPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cycle = context.watch<CycleController>();
-    final mood = _moodForPhase(cycle.currentPhase, cycle);
-
-    return BaseModelScaffold(
-      model: di.sl<MusicBloc>(),
-      builder: (context, model) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (model.selectedMood != mood) model.selectMood(mood);
-        });
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              'Ciclo y Música',
-              style: GoogleFonts.pacifico(fontSize: 20),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: di.sl<MusicBloc>()),
+        ChangeNotifierProvider.value(value: di.sl<CycleController>()),
+      ],
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: PremiumDesign.softText),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            'Tu Ciclo y Ambiente',
+            style: GoogleFonts.playfairDisplay(
+              fontWeight: FontWeight.w800,
+              color: PremiumDesign.softText,
             ),
           ),
-          body: Column(
-            children: [
-              const CyclePhaseBar(),
-              const SizedBox(height: 8),
-              _DailyCombinedCard(mood: mood),
-              const SizedBox(height: 4),
-              // MusicBody reutiliza el mismo MusicBloc del BaseModelScaffold
-              Expanded(child: MusicBody(model: model)),
-            ],
+          centerTitle: true,
+        ),
+        body: AnimatedBackground(
+          decorationCount: 6,
+          child: SafeArea(
+            child: Consumer2<MusicBloc, CycleController>(
+              builder: (context, musicModel, cycleModel, _) {
+                return Column(
+                  children: [
+                    const SizedBox(height: PremiumDesign.s16),
+                    
+                    // Cycle Info Card
+                    _CycleInfoCard(cycleModel: cycleModel),
+                    
+                    const SizedBox(height: PremiumDesign.s24),
+                    
+                    // Music Player
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24),
+                      child: PremiumMusicPlayer(player: di.sl<AudioPlayer>()),
+                    ),
+                    
+                    const SizedBox(height: PremiumDesign.s24),
+                    
+                    // Song List
+                    const Expanded(
+                      child: MusicList(),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
 
-Mood _moodForPhase(CyclePhase p, CycleController cycle) {
-  switch (p) {
-    case CyclePhase.premenstrual:
-      return Mood.relaxed;
-    case CyclePhase.fertile:
-      return cycle.fertilePreferEnergetic ? Mood.motivated : Mood.romantic;
-    case CyclePhase.period:
-      return Mood.relaxed;
-    case CyclePhase.other:
-      return Mood.relaxed;
-  }
-}
-
-class _DailyCombinedCard extends StatelessWidget {
-  const _DailyCombinedCard({required this.mood});
-  final Mood mood;
+class _CycleInfoCard extends StatelessWidget {
+  const _CycleInfoCard({required this.cycleModel});
+  final CycleController cycleModel;
 
   @override
   Widget build(BuildContext context) {
-    // Usa el mismo MusicBloc provisto por BaseModelScaffold en el contexto
-    final bloc = context.watch<MusicBloc>();
-    final song = bloc.dailyRecommendation;
-    final phrase = _phraseForMood(mood);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24),
+      padding: const EdgeInsets.all(PremiumDesign.s20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.8),
+        borderRadius: PremiumDesign.premiumRadius,
+        boxShadow: PremiumDesign.softShadow,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+      ),
+      child: Column(
+        children: [
+          Row(
             children: [
-              // Cover
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: song?.coverUrl.isNotEmpty == true
-                    ? Image.network(
-                        song!.coverUrl,
-                        width: 72,
-                        height: 72,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _placeholder(),
-                      )
-                    : _placeholder(),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: PremiumDesign.premiumGold.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Text('✨', style: TextStyle(fontSize: 20)),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -99,76 +108,50 @@ class _DailyCombinedCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Hoy: $phrase',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.lato(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 4),
-                    if (bloc.isLoading)
-                      const SizedBox(
-                          height: 2,
-                          child: LinearProgressIndicator(minHeight: 2))
-                    else if (song != null)
-                      Text(
-                        '${song.title} — ${song.artist}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.lato(fontSize: 13),
-                      )
-                    else
-                      Text(
-                        'No hay sugerencias ahora',
-                        style: GoogleFonts.lato(
-                            fontSize: 13, color: Colors.black54),
+                      'FASE ACTUAL',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: PremiumDesign.premiumGold,
+                        letterSpacing: 1.5,
                       ),
+                    ),
+                    Text(
+                      cycleModel.currentPhaseLabel,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: PremiumDesign.softText,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              FilledButton(
-                onPressed: (bloc.isLoading || song == null)
-                    ? null
-                    : () => bloc.playSong(song),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFE91E8C),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(44, 44),
-                  padding: EdgeInsets.zero,
-                  shape: const CircleBorder(),
-                ),
-                child: const Icon(Icons.play_arrow_rounded),
-              ),
             ],
           ),
-        ),
+          if (cycleModel.recommendation != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: PremiumDesign.cream,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: PremiumDesign.premiumGold.withValues(alpha: 0.1)),
+              ),
+              child: Text(
+                cycleModel.recommendation!,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: PremiumDesign.secondaryText,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
-  }
-
-  Widget _placeholder() => Container(
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8BBD0),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Icon(Icons.music_note_rounded,
-            color: Color(0xFFE91E8C), size: 28),
-      );
-}
-
-String _phraseForMood(Mood mood) {
-  switch (mood) {
-    case Mood.motivated:
-      return 'un impulso de energía ✨';
-    case Mood.nostalgic:
-      return 'una melodía para recordar 🌙';
-    case Mood.romantic:
-      return 'deja que la música hable por ti 💖';
-    case Mood.happy:
-      return 'sube el ánimo y sonríe 💛';
-    case Mood.relaxed:
-      return 'un respiro para el alma 🌿';
   }
 }
