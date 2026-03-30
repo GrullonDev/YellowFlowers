@@ -2,23 +2,26 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gal/gal.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower_themed.dart';
 import 'package:yellow_flowers/features/flowers/widgets/story_card.dart';
 import 'package:yellow_flowers/utils/app_theme.dart';
 import 'package:yellow_flowers/utils/constants.dart';
+import 'package:yellow_flowers/widgets/typewriter_text.dart';
+import 'package:yellow_flowers/features/music/widgets/premium_music_player.dart';
 
 class FlowerScreen extends StatefulWidget {
   const FlowerScreen({
@@ -49,6 +52,7 @@ class _FlowerScreenState extends State<FlowerScreen>
   late final AnimationController _petalController;
   late final AnimationController _sparkleBurstController;
   late final AnimationController _shareBloomController;
+  late final AnimationController _heroEntranceController;
 
   // Background gradient
   late final Animation<Color?> _topColorAnim;
@@ -167,6 +171,11 @@ class _FlowerScreenState extends State<FlowerScreen>
       );
     });
 
+    _heroEntranceController = AnimationController(
+      vsync: this,
+      duration: PremiumDesign.slow,
+    )..forward();
+
     _currentMessage = _messages[rnd.nextInt(_messages.length)];
 
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
@@ -213,6 +222,7 @@ class _FlowerScreenState extends State<FlowerScreen>
     _petalController.dispose();
     _sparkleBurstController.dispose();
     _shareBloomController.dispose();
+    _heroEntranceController.dispose();
     _timer.cancel();
     super.dispose();
   }
@@ -391,125 +401,101 @@ class _FlowerScreenState extends State<FlowerScreen>
                   ),
                 ),
               ),
+              // Soft Particles Background
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _SoftParticlesPainter(
+                    animation: _bgController,
+                  ),
+                ),
+              ),
               Align(
-                alignment: const Alignment(0, -0.15),
-                child: Opacity(
-                  opacity: _messageAnimationController.value,
-                  child: RepaintBoundary(
-                    key: _shareKey,
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: screenWidth * 0.88),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 18),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                alignment: const Alignment(0, -0.65),
+                child: AnimatedBuilder(
+                  animation: _messageAnimationController,
+                  builder: (context, _) => Opacity(
+                    opacity: _messageAnimationController.value,
+                    child: RepaintBoundary(
+                      key: _shareKey,
+                      child: Container(
+                        constraints:
+                            BoxConstraints(maxWidth: screenWidth * 0.88),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 28),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          borderRadius: PremiumDesign.premiumRadius,
+                          boxShadow: PremiumDesign.softShadow,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            width: 1.5,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('✨🌻💛', style: TextStyle(fontSize: 18)),
-                          const SizedBox(height: 8),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            transitionBuilder: (child, anim) {
-                              final curved = CurvedAnimation(
-                                  parent: anim, curve: Curves.easeOut);
-                              return FadeTransition(
-                                opacity: curved,
-                                child: SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(0, 0.15),
-                                    end: Offset.zero,
-                                  ).animate(curved),
-                                  child: ScaleTransition(
-                                    scale: Tween<double>(begin: 0.98, end: 1.0)
-                                        .animate(curved),
-                                    child: child,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: PremiumDesign.premiumRadius,
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('✨🌻💛',
+                                    style: PremiumDesign.sansBody
+                                        .copyWith(fontSize: 20)),
+                                const SizedBox(height: 12),
+                                AnimatedSwitcher(
+                                  duration: PremiumDesign.medium,
+                                  child: TypewriterText(
+                                    key: ValueKey(_currentMessage),
+                                    text:
+                                        '${widget.recipientName}, $_currentMessage',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.playfairDisplay(
+                                      color: PremiumDesign.softText,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600,
+                                      fontStyle: FontStyle.italic,
+                                      height: 1.4,
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
-                            child: Text(
-                              '${widget.recipientName}, $_currentMessage',
-                              key: ValueKey(_currentMessage),
-                              textAlign: TextAlign.center,
-                              style: (widget.fancyName
-                                      ? GoogleFonts.raleway()
-                                          .copyWith(fontStyle: FontStyle.italic)
-                                      : GoogleFonts.poppins())
-                                  .copyWith(
-                                color: Colors.black87,
-                                fontSize: 26, // Increased from 22
-                                fontWeight: FontWeight.w600,
-                                height: 1.35,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 48,
-                                height: 48,
-                                child: Stack(
-                                  alignment: Alignment.center,
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    AnimatedBuilder(
-                                      animation: _shareBloomController,
-                                      builder: (context, _) => CustomPaint(
-                                        painter: _BloomPainter(
-                                          progress: _shareBloomController.value,
-                                          color: Colors.pinkAccent,
-                                        ),
-                                        size: const Size(48, 48),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      tooltip: 'Compartir',
+                                    _PremiumInteractionButton(
+                                      icon: Icons.share_rounded,
+                                      color: Colors.pinkAccent,
                                       onPressed: () async {
+                                        HapticFeedback.mediumImpact();
                                         _shareBloomController.forward(from: 0);
                                         await _shareMessageCard();
                                       },
-                                      icon: const Icon(
-                                        Icons.share_rounded,
-                                        color: Colors.pinkAccent,
-                                      ),
+                                    ),
+                                    const SizedBox(width: 20),
+                                    _PremiumInteractionButton(
+                                      icon: Icons.yard_rounded,
+                                      color: PremiumDesign.leafGreen,
+                                      onPressed: () {
+                                        HapticFeedback.lightImpact();
+                                        _saveStoryCard();
+                                      },
                                     ),
                                   ],
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              IconButton(
-                                tooltip: 'Plantar en mi Jardín',
-                                onPressed: _saveStoryCard,
-                                icon: const Icon(
-                                  Icons.yard_rounded,
-                                  color: AppTheme.leafGreen,
-                                  size: 30,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-              // Music Player Control
+              // Premium Music Player
               Positioned(
                 top: MediaQuery.of(context).padding.top + 10,
-                right: 16,
-                child: _MusicPlayerButton(player: _audioPlayer),
+                right: 20,
+                child: PremiumMusicPlayer(player: _audioPlayer),
               ),
               ...List.generate(
                 _sparkleCount,
@@ -551,48 +537,70 @@ class _FlowerScreenState extends State<FlowerScreen>
               ...List.generate(
                 _flowerCount,
                 (index) => AnimatedBuilder(
-                  animation: _flowerControllers[index],
+                  animation: Listenable.merge(
+                      [_flowerControllers[index], _heroEntranceController]),
                   builder: (context, child) {
                     final rnd = math.Random(index);
                     final baseX = rnd.nextDouble() * screenWidth;
-                    final y = screenHeight * 0.38 +
+                    final targetY = screenHeight * 0.38 +
                         rnd.nextDouble() * (screenHeight * 0.45);
+
+                    // Hero Entrance
+                    final tEntrance = _heroEntranceController.value;
+                    final entranceY = (1.0 - tEntrance) * 100;
+                    final entranceBlur = (1.0 - tEntrance) * 10;
+                    final entranceOpacity =
+                        Interval(0.2, 1.0, curve: Curves.easeOut)
+                            .transform(tEntrance);
+                    final entranceScale = 0.8 + 0.2 * tEntrance;
+
                     final t = _flowerControllers[index].value;
                     // Animation styles
-                    double scale = 1.0;
+                    double scale = entranceScale;
                     double angle = 0.0;
                     double swayX = 0.0;
                     switch (widget.animationStyle) {
                       case FlowerAnimationStyle.pulse:
-                        scale = 0.95 + math.sin(t * 2 * math.pi) * 0.06;
+                        scale *= 0.95 + math.sin(t * 2 * math.pi) * 0.06;
                         break;
                       case FlowerAnimationStyle.spin:
                         angle = math.sin(t * 2 * math.pi) * 0.35; // ~20°
-                        scale = 0.98 + math.sin(t * 2 * math.pi) * 0.02;
+                        scale *= 0.98 + math.sin(t * 2 * math.pi) * 0.02;
                         break;
                       case FlowerAnimationStyle.sway:
                         swayX = math.sin(t * 2 * math.pi + index) * 14.0;
-                        scale = 0.98 + math.sin(t * 2 * math.pi) * 0.02;
+                        scale *= 0.98 + math.sin(t * 2 * math.pi) * 0.02;
                         break;
                     }
+
+                    // Soft Parallax
+                    final parallaxX = (math.sin(t * 0.5 * math.pi) * 5.0).abs();
+
                     return Positioned(
-                      left: baseX + swayX,
-                      top: y,
-                      child: GestureDetector(
-                        onTap: () {
-                          _sparkleBurstController.forward(from: 0);
-                          // Future: Play sound here
-                        },
-                        child: Transform.rotate(
-                          angle: angle,
-                          child: Transform.scale(
-                            scale: scale,
-                            child: SizedBox(
-                              width: screenWidth / 11,
-                              height: screenHeight / 2.3,
-                              child: widget.theme == FlowerTheme.daisy
-                                  ? const Flor()
-                                  : FlowerThemed(theme: widget.theme),
+                      left: baseX + swayX + parallaxX,
+                      top: targetY + entranceY,
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(
+                            sigmaX: entranceBlur, sigmaY: entranceBlur),
+                        child: Opacity(
+                          opacity: entranceOpacity,
+                          child: GestureDetector(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              _sparkleBurstController.forward(from: 0);
+                            },
+                            child: Transform.rotate(
+                              angle: angle,
+                              child: Transform.scale(
+                                scale: scale,
+                                child: SizedBox(
+                                  width: screenWidth / 11,
+                                  height: screenHeight / 2.3,
+                                  child: widget.theme == FlowerTheme.daisy
+                                      ? const Flor()
+                                      : FlowerThemed(theme: widget.theme),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -694,215 +702,118 @@ class _PetalSeed {
   final double phase;
 }
 
-class _BloomPainter extends CustomPainter {
-  _BloomPainter({required this.progress, required this.color});
-  final double progress;
-  final Color color;
+class _SoftParticlesPainter extends CustomPainter {
+  final Animation<double> animation;
+  final List<_Particle> particles;
+
+  _SoftParticlesPainter({required this.animation})
+      : particles = List.generate(15, (i) {
+          final rnd = math.Random(i);
+          return _Particle(
+            x: rnd.nextDouble(),
+            y: rnd.nextDouble(),
+            speed: 0.05 + rnd.nextDouble() * 0.1,
+            size: 40 + rnd.nextDouble() * 80,
+            opacity: 0.05 + rnd.nextDouble() * 0.1,
+          );
+        }),
+        super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    canvas.translate(center.dx, center.dy);
-    final t = Curves.easeOut.transform(progress.clamp(0.0, 1.0));
-
-    // Petals
-    const petals = 8;
-    const baseLen = 10.0;
-    final len = baseLen + 22.0 * t;
-    final width = 6.0 + 8.0 * t;
-    final yOffset = 6.0 + 8.0 * t;
-    final petalPaint = Paint()
-      ..color = color.withValues(alpha: 0.5 * (1.0 - t))
-      ..style = PaintingStyle.fill;
-    for (var i = 0; i < petals; i++) {
-      canvas.save();
-      canvas.rotate(i * (2 * math.pi / petals));
-      final rect = Rect.fromCenter(
-        center: Offset(0, -yOffset - len / 2),
-        width: width,
-        height: len,
+    final paint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30);
+    
+    for (final p in particles) {
+      final yOffset = (animation.value * p.speed * size.height) % size.height;
+      final xOffset = math.sin(animation.value * 2 * math.pi * p.speed) * 20;
+      
+      paint.color = Colors.white.withValues(alpha: p.opacity);
+      canvas.drawCircle(
+        Offset(p.x * size.width + xOffset, (p.y * size.height + yOffset) % size.height),
+        p.size,
+        paint,
       );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(width / 2)),
-        petalPaint,
-      );
-      canvas.restore();
     }
-
-    final corePaint = Paint()..color = color.withValues(alpha: 0.6 * (1.0 - t));
-    canvas.drawCircle(Offset.zero, 6.0 + 6.0 * t, corePaint);
   }
 
   @override
-  bool shouldRepaint(covariant _BloomPainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.color != color;
+  bool shouldRepaint(covariant _SoftParticlesPainter oldDelegate) => true;
 }
 
-class _MusicPlayerButton extends StatefulWidget {
-  final AudioPlayer player;
-  const _MusicPlayerButton({required this.player});
+class _Particle {
+  final double x, y, speed, size, opacity;
+  _Particle({
+    required this.x,
+    required this.y,
+    required this.speed,
+    required this.size,
+    required this.opacity,
+  });
+}
+
+
+
+class _PremiumInteractionButton extends StatefulWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _PremiumInteractionButton({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+  });
 
   @override
-  State<_MusicPlayerButton> createState() => _MusicPlayerButtonState();
+  State<_PremiumInteractionButton> createState() =>
+      __PremiumInteractionButtonState();
 }
 
-class _MusicPlayerButtonState extends State<_MusicPlayerButton> {
-  bool _isPlaying = false;
+class __PremiumInteractionButtonState extends State<_PremiumInteractionButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: PremiumDesign.fast,
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          onTap: () {
-            // Check if player has source, if not, prompt to pick
-            if (widget.player.duration == null && _isPlaying) {
-              _showAudioOptions(context);
-              return;
-            }
-            if (_isPlaying) {
-              widget.player.pause();
-            } else {
-              widget.player.play();
-            }
-          },
-          onLongPress: () => _showAudioOptions(context),
-          child: StreamBuilder<PlayerState>(
-            stream: widget.player.playerStateStream,
-            builder: (context, snapshot) {
-              final state = snapshot.data;
-              final playing = state?.playing ?? false;
-              _isPlaying = playing; // Sync local state
-
-              return Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  playing ? Icons.music_note_rounded : Icons.music_off_rounded,
-                  color: AppTheme.textDark,
-                  size: 24,
-                ),
-              );
-            },
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) => _controller.reverse(),
+      onTapCancel: () => _controller.reverse(),
+      onTap: widget.onPressed,
+      child: ScaleTransition(
+        scale: _scale,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: widget.color.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: widget.color.withValues(alpha: 0.2),
+              width: 1.5,
+            ),
           ),
-        ),
-      ],
-    );
-  }
-
-  void _showAudioOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Ambientación Musical 🎵",
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.audio_file_rounded,
-                  color: AppTheme.sunnyGold),
-              title: const Text("Elegir archivo de mi celular"),
-              onTap: () {
-                Navigator.pop(ctx);
-                _pickAudioFile();
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading:
-                  const Icon(Icons.open_in_new_rounded, color: Colors.green),
-              title: const Text("Abrir Spotify"),
-              onTap: () {
-                Navigator.pop(ctx);
-                _openExternalApp("spotify://", "https://open.spotify.com");
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.play_circle_filled_rounded,
-                  color: Colors.red),
-              title: const Text("Abrir YouTube Music"),
-              onTap: () {
-                Navigator.pop(ctx);
-                _openExternalApp(
-                    "youtubemusic://", "https://music.youtube.com");
-              },
-            ),
-          ],
+          child: Icon(widget.icon, color: widget.color, size: 28),
         ),
       ),
     );
-  }
-
-  Future<void> _pickAudioFile() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.audio,
-      );
-      if (result != null && result.files.single.path != null) {
-        await widget.player.setFilePath(result.files.single.path!);
-        widget.player.play();
-      }
-    } catch (e) {
-      debugPrint("Error picking file: $e");
-    }
-  }
-
-  Future<void> _openExternalApp(String schema, String webUrl) async {
-    final Uri schemaUri = Uri.parse(schema);
-    final Uri webUri = Uri.parse(webUrl);
-
-    try {
-      // 1. Intentar abrir la APP nativa (verificamos si se puede abrir)
-      bool launchedApp = false;
-      try {
-        if (await canLaunchUrl(schemaUri)) {
-          launchedApp =
-              await launchUrl(schemaUri, mode: LaunchMode.externalApplication);
-        }
-      } catch (e) {
-        debugPrint("Error checking/launching app schema: $e");
-      }
-
-      if (!launchedApp) {
-        // 2. Si falla la app nativa, abrir la WEB en el navegador
-        // Nota: No usamos canLaunchUrl aquí para evitar falsos negativos en algunos dispositivos.
-        // Intentamos lanzar directamente.
-        debugPrint("Intentando fallback web: $webUrl");
-        if (!await launchUrl(webUri, mode: LaunchMode.externalApplication)) {
-          throw 'Could not launch $webUrl';
-        }
-      }
-    } catch (e) {
-      debugPrint("Error launching fallback web: $e");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo abrir el enlace 😓'),
-          ),
-        );
-      }
-    }
   }
 }

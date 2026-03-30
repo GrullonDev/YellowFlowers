@@ -1,95 +1,140 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:yellow_flowers/core/design_system.dart';
 
-ThemeData buildLightTheme({Color seedColor = const Color(0xFFFFB200)}) {
+ThemeData buildLightTheme({Color seedColor = PremiumDesign.radiantGold}) {
   final base = ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorSchemeSeed: seedColor);
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorSchemeSeed: seedColor,
+    textTheme: GoogleFonts.plusJakartaSansTextTheme().copyWith(
+      displayLarge: PremiumDesign.serifHeading,
+      displayMedium: PremiumDesign.serifSubHeading,
+      bodyLarge: PremiumDesign.sansBody,
+      labelLarge: PremiumDesign.sansLabel,
+    ),
+  );
   final scheme = base.colorScheme;
   return base.copyWith(
-    scaffoldBackgroundColor: const Color(0xFFFFF9EC),
+    scaffoldBackgroundColor: PremiumDesign.cream,
     chipTheme: base.chipTheme.copyWith(
       selectedColor: scheme.primary,
       disabledColor: scheme.surfaceContainerHighest,
       secondarySelectedColor: scheme.primary,
-      labelStyle:
-          TextStyle(color: scheme.onSurface, fontWeight: FontWeight.w600),
-      side: BorderSide(color: scheme.outlineVariant),
+      labelStyle: TextStyle(
+        color: scheme.onSurface,
+        fontWeight: FontWeight.w600,
+        fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+      ),
+      side: BorderSide(color: scheme.outlineVariant, width: 0.5),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        elevation: 0,
+        textStyle: PremiumDesign.sansLabel.copyWith(
+          color: scheme.onPrimary,
+          letterSpacing: 0.5,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: scheme.primary,
-        side: BorderSide(color: scheme.primary, width: 1.4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        side: BorderSide(color: scheme.primary.withValues(alpha: 0.4), width: 1.2),
+        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        textStyle: PremiumDesign.sansLabel.copyWith(
+          color: scheme.primary,
+          letterSpacing: 0.5,
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       ),
     ),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: scheme.primary, width: 1.6),
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.6),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
       ),
-      labelStyle: TextStyle(color: scheme.onSurface.withValues(alpha:0.85)),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: scheme.primary.withValues(alpha: 0.5), width: 1.5),
+      ),
+      labelStyle: PremiumDesign.sansLabel.copyWith(
+        color: scheme.onSurface.withValues(alpha: 0.6),
+      ),
     ),
     dialogTheme: base.dialogTheme.copyWith(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+      elevation: 4,
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: PremiumDesign.serifSubHeading.copyWith(fontSize: 22),
+      iconTheme: IconThemeData(color: scheme.onSurface),
     ),
   );
 }
 
-ThemeData buildDarkTheme({Color seedColor = const Color(0xFFFFB200)}) {
+ThemeData buildDarkTheme({Color seedColor = PremiumDesign.radiantGold}) {
   final base = ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorSchemeSeed: seedColor);
-  final scheme = base.colorScheme;
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorSchemeSeed: seedColor,
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme).copyWith(
+      displayLarge: PremiumDesign.serifHeading.copyWith(color: Colors.white),
+      displayMedium: PremiumDesign.serifSubHeading.copyWith(color: Colors.white),
+      bodyLarge: PremiumDesign.sansBody.copyWith(color: Colors.white70),
+      labelLarge: PremiumDesign.sansLabel.copyWith(color: Colors.white60),
+    ),
+  );
   return base.copyWith(
-    scaffoldBackgroundColor: const Color(0xFF121212),
+    scaffoldBackgroundColor: PremiumDesign.darkBackground,
+    colorScheme: base.colorScheme.copyWith(
+      surface: PremiumDesign.darkSurface,
+      surfaceContainer: PremiumDesign.darkCard,
+    ),
     chipTheme: base.chipTheme.copyWith(
-      selectedColor: scheme.primaryContainer,
-      labelStyle:
-          TextStyle(color: scheme.onSurface, fontWeight: FontWeight.w600),
-      side: BorderSide(color: scheme.outlineVariant),
+      backgroundColor: PremiumDesign.darkSurface,
+      labelStyle: const TextStyle(color: Colors.white70),
+      side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: scheme.primaryContainer,
-        foregroundColor: scheme.onPrimaryContainer,
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        backgroundColor: PremiumDesign.radiantGold,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
+      ).copyWith(
+        shadowColor: WidgetStateProperty.all(PremiumDesign.radiantGold.withValues(alpha: 0.3)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: scheme.primaryContainer,
-        side: BorderSide(color: scheme.primaryContainer, width: 1.3),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        foregroundColor: PremiumDesign.radiantGold,
+        side: BorderSide(color: PremiumDesign.radiantGold.withValues(alpha: 0.5)),
+        shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 28),
       ),
     ),
-    inputDecorationTheme: base.inputDecorationTheme.copyWith(
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: scheme.primaryContainer, width: 1.6),
-      ),
-      labelStyle: TextStyle(color: scheme.onSurface.withValues(alpha:0.85)),
+    dividerTheme: const DividerThemeData(
+      color: PremiumDesign.darkDivider,
+      thickness: 1,
     ),
     dialogTheme: base.dialogTheme.copyWith(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: PremiumDesign.darkSurface,
+      shape: RoundedRectangleBorder(borderRadius: PremiumDesign.premiumRadius),
     ),
   );
 }
+
+

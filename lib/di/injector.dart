@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:yellow_flowers/core/personalization_service.dart';
 
 import 'package:yellow_flowers/core/tts/tts_service.dart';
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
@@ -22,6 +24,10 @@ Future<void> initDependencies() async {
   // External
   sl.registerLazySingleton<http.Client>(() => http.Client());
   sl.registerLazySingleton<AudioPlayer>(() => AudioPlayer());
+  
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerSingleton<SharedPreferences>(prefs);
+  sl.registerSingleton<PersonalizationService>(PersonalizationService(prefs));
 
   // Services
   sl.registerLazySingleton<JamendoApiService>(

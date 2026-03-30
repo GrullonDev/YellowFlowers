@@ -8,12 +8,15 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
+enum StoryCardStyle { romantic, minimal, elegant, vintage }
+
 class StoryCard extends StatelessWidget {
   StoryCard({
     super.key,
     required this.name,
     required this.message,
     required this.qrUrl,
+    this.style = StoryCardStyle.romantic,
     this.topColor = const Color(0xFFFFF7C2),
     this.bottomColor = const Color(0xFFFFB3C6),
     this.fancyName = false,
@@ -25,12 +28,12 @@ class StoryCard extends StatelessWidget {
   final String name;
   final String message;
   final String qrUrl;
+  final StoryCardStyle style;
   final Color topColor;
   final Color bottomColor;
   final bool fancyName;
   final double width;
   final double height;
-
   final GlobalKey boundaryKey;
 
   @override
@@ -40,119 +43,46 @@ class StoryCard extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        color: Colors.white, // Base paper white
+        color: _getBgColor(),
         child: Stack(
           children: [
-            // The main gradient card, slightly inset
-            Positioned(
-              top: 40,
-              left: 40,
-              right: 40,
-              bottom: 40,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [topColor, bottomColor],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+            if (style == StoryCardStyle.vintage)
+              Positioned.fill(child: _VintageTexture()),
+            
+            // Texture Layer
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _GrainPainter(
+                  opacity: style == StoryCardStyle.vintage ? 0.08 : 0.03,
                 ),
-                child: ClipRect(
-                  child: CustomPaint(
-                    foregroundPainter: _GrainPainter(), // Texture
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 48, vertical: 64),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 40),
-                          Text(
-                            '✨🌻💛',
-                            style: GoogleFonts.poppins(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            '$name, $message',
-                            textAlign: TextAlign.center,
-                            style: (fancyName
-                                    ? GoogleFonts.raleway()
-                                        .copyWith(fontStyle: FontStyle.italic)
-                                    : GoogleFonts.poppins())
-                                .copyWith(
-                              color: Colors.white,
-                              fontSize: 48,
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
-                              shadows: [
-                                Shadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4),
-                              ],
-                            ),
-                          ),
-                          const Spacer(),
-                          SizedBox(
-                            width: double.infinity,
-                            height: height * 0.28,
-                            child: CustomPaint(
-                              painter: _StoryFlowersPainter(),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.95),
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  width: 240,
-                                  height: 240,
-                                  child: PrettyQrView.data(
-                                    data: qrUrl,
-                                    decoration: const PrettyQrDecoration(
-                                      quietZone: PrettyQrQuietZone.standart,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Escanéame para abrir la app',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.black87,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              ),
+            ),
+
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(80),
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 60),
+                  Expanded(child: _buildBody()),
+                  _buildFooter(),
+                ],
+              ),
+            ),
+
+            // Watermark
+            Positioned(
+              bottom: 40,
+              right: 40,
+              child: Opacity(
+                opacity: 0.5,
+                child: Text(
+                  'by Yellow Flowers 🌻',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: _getTextColor().withValues(alpha: 0.6),
                   ),
                 ),
               ),
@@ -163,10 +93,163 @@ class StoryCard extends StatelessWidget {
     );
   }
 
-  static Future<Uint8List?> exportPng(GlobalKey boundaryKey,
-      {double pixelRatio = 3.0}) async {
-    final boundary = boundaryKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
+  Color _getBgColor() {
+    switch (style) {
+      case StoryCardStyle.minimal: return Colors.white;
+      case StoryCardStyle.vintage: return const Color(0xFFF2E8D5);
+      case StoryCardStyle.elegant: return const Color(0xFFFAFAFA);
+      default: return topColor.withValues(alpha: 0.1);
+    }
+  }
+
+  Color _getTextColor() {
+    switch (style) {
+      case StoryCardStyle.vintage: return const Color(0xFF4E342E);
+      case StoryCardStyle.elegant: return const Color(0xFF2C3E50);
+      default: return const Color(0xFF3E2723);
+    }
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        if (style == StoryCardStyle.elegant)
+          Container(
+            width: 80,
+            height: 2,
+            color: const Color(0xFFD4AF37),
+            margin: const EdgeInsets.only(bottom: 20),
+          ),
+        Text(
+          style == StoryCardStyle.minimal ? '🌻' : '✨🌻✨',
+          style: TextStyle(fontSize: style == StoryCardStyle.minimal ? 48 : 36),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    final textColor = _getTextColor();
+    final messageStyle = _getMessageStyle(textColor);
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
+            decoration: _getBoxDecoration(),
+            child: Column(
+              children: [
+                Text(
+                  name,
+                  textAlign: TextAlign.center,
+                  style: _getNameStyle(textColor),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: messageStyle,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  BoxDecoration? _getBoxDecoration() {
+    if (style == StoryCardStyle.minimal) return null;
+    if (style == StoryCardStyle.romantic) {
+      return BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: bottomColor.withValues(alpha: 0.15),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
+          ),
+        ],
+      );
+    }
+    if (style == StoryCardStyle.elegant) {
+      return BoxDecoration(
+        border: Border.all(color: const Color(0xFFD4AF37), width: 3),
+      );
+    }
+    return null;
+  }
+
+  TextStyle _getNameStyle(Color color) {
+    switch (style) {
+      case StoryCardStyle.minimal:
+        return GoogleFonts.inter(fontSize: 42, fontWeight: FontWeight.w300, color: color);
+      case StoryCardStyle.elegant:
+        return GoogleFonts.bodoniModa(fontSize: 56, fontWeight: FontWeight.bold, color: color);
+      case StoryCardStyle.vintage:
+        return GoogleFonts.playfairDisplay(fontSize: 52, fontWeight: FontWeight.w800, color: color);
+      default:
+        return GoogleFonts.playfairDisplay(fontSize: 64, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: color);
+    }
+  }
+
+  TextStyle _getMessageStyle(Color color) {
+    switch (style) {
+      case StoryCardStyle.minimal:
+        return GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.w400, color: color, height: 1.5);
+      case StoryCardStyle.elegant:
+        return GoogleFonts.montserrat(fontSize: 34, fontWeight: FontWeight.w300, color: color, height: 1.6, letterSpacing: 1.2);
+      case StoryCardStyle.vintage:
+        return GoogleFonts.merriweather(fontSize: 36, fontWeight: FontWeight.w400, color: color, height: 1.6);
+      default:
+        return GoogleFonts.plusJakartaSans(fontSize: 40, fontWeight: FontWeight.w500, color: color, height: 1.4);
+    }
+  }
+
+  Widget _buildFooter() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 20,
+              ),
+            ],
+          ),
+          child: SizedBox(
+            width: 200,
+            height: 200,
+            child: PrettyQrView.data(
+              data: qrUrl,
+              decoration: const PrettyQrDecoration(
+                shape: PrettyQrSmoothSymbol(),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Escanea para florecer',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: _getTextColor().withValues(alpha: 0.7),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Future<Uint8List?> exportPng(GlobalKey boundaryKey, {double pixelRatio = 3.0}) async {
+    final boundary = boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (boundary == null) return null;
     final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -174,39 +257,31 @@ class StoryCard extends StatelessWidget {
   }
 }
 
-class _StoryFlowersPainter extends CustomPainter {
+class _VintageTexture extends StatelessWidget {
   @override
-  void paint(Canvas canvas, Size size) {
-    final stem = Paint()
-      ..color = const Color(0xFF5A8F5D)
-      ..strokeWidth = 6
-      ..strokeCap = StrokeCap.round;
-    final head = Paint()..color = const Color(0xFFE57373);
-    final rnd = List<double>.generate(12, (i) => (i + 1) / 13.0);
-    for (var i = 0; i < rnd.length; i++) {
-      final x = 20 + i * (size.width - 40) / (rnd.length - 1);
-      final h = size.height * (0.35 + 0.6 * (i % 3) / 3);
-      final base = Offset(x, size.height);
-      final top = Offset(x, size.height - h);
-      canvas.drawLine(base, top, stem);
-      canvas.drawCircle(top + const Offset(0, 10), 22, head);
-    }
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.1,
+      child: Image.network(
+        'https://www.transparenttextures.com/patterns/paper-fibers.png',
+        repeat: ImageRepeat.repeat,
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _GrainPainter extends CustomPainter {
+  final double opacity;
+  _GrainPainter({this.opacity = 0.03});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withValues(alpha: 0.03);
+    final paint = Paint()..color = Colors.black.withValues(alpha: opacity);
     final rnd = math.Random(42);
-    // Draw random noise
-    for (int i = 0; i < 4000; i++) {
+    for (int i = 0; i < 6000; i++) {
       final x = rnd.nextDouble() * size.width;
       final y = rnd.nextDouble() * size.height;
-      canvas.drawCircle(Offset(x, y), 0.8, paint);
+      canvas.drawCircle(Offset(x, y), 0.9, paint);
     }
   }
 

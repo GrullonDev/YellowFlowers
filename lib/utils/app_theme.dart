@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:yellow_flowers/core/design_system.dart';
 
 class AppTheme {
-  // Paleta de Colores "Jardín Cálido"
-  static const Color primaryYellow = Color(0xFFFFF9C4); // Amarillo suave
-  static const Color accentPink = Color(0xFFF8BBD0); // Rosa pastel
-  static const Color backgroundCream = Color(0xFFFFF8E1); // Crema muy suave
-  static const Color textDark =
-      Color(0xFF4E342E); // Marrón café suave (más cálido que negro)
-  static const Color leafGreen = Color(0xFFA5D6A7); // Verde hoja suave
-  static const Color sunnyGold =
-      Color(0xFFFFB300); // Dorado para acentos fuertes
+  static const Color primaryYellow = PremiumDesign.radiantGold;
+  static const Color accentPink = PremiumDesign.pastelPink;
+  static const Color backgroundCream = PremiumDesign.cream;
+  static const Color textDark = PremiumDesign.softText;
+  static const Color leafGreen = PremiumDesign.leafGreen;
+  static const Color sunnyGold = PremiumDesign.radiantGold;
 
   static ThemeData get lightTheme {
-    return ThemeData(
+    final base = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: backgroundCream,
@@ -25,87 +23,80 @@ class AppTheme {
         onSurface: textDark,
         brightness: Brightness.light,
       ),
-
-      // Tipografía (Fallback a fuentes del sistema por problemas de red)
-      textTheme: TextTheme(
-        displayLarge: const TextStyle(
-          fontFamily: 'Georgia', // Serif elegante como Playball
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: textDark,
-        ),
-        displayMedium: const TextStyle(
-          fontFamily: 'Georgia',
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: textDark,
-        ),
-        headlineLarge: const TextStyle(
-          fontFamily: 'Verdana', // Sans-serif moderno como Outfit
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          color: textDark,
-        ),
-        headlineMedium: const TextStyle(
-          fontFamily: 'Verdana',
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: textDark,
-        ),
-        bodyLarge: const TextStyle(
-          fontFamily: 'Verdana',
-          fontSize: 16,
-          color: textDark,
-        ),
-        bodyMedium: TextStyle(
-          fontFamily: 'Verdana',
-          fontSize: 14,
-          color: textDark.withValues(alpha: 0.8),
-        ),
+    );
+    
+    return base.copyWith(
+      textTheme: base.textTheme.copyWith(
+        displayLarge: PremiumDesign.serifHeading,
+        displayMedium: PremiumDesign.serifSubHeading,
+        bodyLarge: PremiumDesign.sansBody,
+        bodyMedium: PremiumDesign.sansLabel,
       ),
-
-      // Estilo de Tarjetas
       cardTheme: CardThemeData(
         color: Colors.white,
-        elevation: 4,
-        shadowColor: textDark.withValues(alpha: 0.1),
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: PremiumDesign.premiumRadius,
+          side: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
         ),
-        margin: const EdgeInsets.all(8),
       ),
-
-      // Estilo de Botones
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: sunnyGold,
           foregroundColor: Colors.white,
-          elevation: 4,
-          shadowColor: sunnyGold.withValues(alpha: 0.4),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          textStyle: const TextStyle(
-            fontFamily: 'Verdana',
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+            borderRadius: PremiumDesign.premiumRadius,
           ),
         ),
       ),
+    );
+  }
 
-      // Estilo de AppBar
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
+  static ThemeData get darkTheme {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: PremiumDesign.darkBackground,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryYellow,
+        primary: PremiumDesign.radiantGold,
+        secondary: const Color(0xFFE91E63), // Softened Pink
+        tertiary: const Color(0xFF81C784), // Softened Green
+        surface: PremiumDesign.darkSurface,
+        onSurface: Colors.white.withValues(alpha: 0.9),
+        brightness: Brightness.dark,
+      ),
+    );
+
+    return base.copyWith(
+      textTheme: base.textTheme.copyWith(
+        displayLarge: PremiumDesign.serifHeading.copyWith(color: Colors.white),
+        displayMedium: PremiumDesign.serifSubHeading.copyWith(color: Colors.white70),
+        bodyLarge: PremiumDesign.sansBody.copyWith(color: Colors.white),
+        bodyMedium: PremiumDesign.sansLabel.copyWith(color: Colors.white60),
+      ),
+      cardTheme: CardThemeData(
+        color: PremiumDesign.darkCard,
         elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: textDark),
-        titleTextStyle: TextStyle(
-          fontFamily: 'Georgia',
-          fontSize: 26,
-          color: textDark,
+        shape: RoundedRectangleBorder(
+          borderRadius: PremiumDesign.premiumRadius,
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: PremiumDesign.radiantGold,
+          foregroundColor: Colors.black87,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: PremiumDesign.premiumRadius,
+          ),
         ),
       ),
     );
   }
 }
+

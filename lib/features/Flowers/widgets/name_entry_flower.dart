@@ -7,6 +7,7 @@ import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yellow_flowers/features/flowers/widgets/flower_illustration.dart';
+import 'package:yellow_flowers/utils/app_theme.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class NameEntryFlower extends StatefulWidget {
@@ -23,6 +24,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
   FlowerTheme _theme = FlowerTheme.daisy;
   Mood _mood = Mood.joy;
   FlowerAnimationStyle? _animationStyle; // null => usa el sugerido por tema
+  bool _fancyName = false;
 
   @override
   void initState() {
@@ -328,7 +330,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ],

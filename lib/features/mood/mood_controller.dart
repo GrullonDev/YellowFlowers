@@ -29,12 +29,20 @@ class MoodController extends ChangeNotifier {
   }
 
   Future<void> setMood(Mood m) async {
-    if (_mood == m) return;
     _mood = m;
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefKey, m.name);
+      await prefs.setInt('last_mood_timestamp', DateTime.now().millisecondsSinceEpoch);
     } catch (_) {}
+  }
+
+  Mood getRecommendedMood() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 11) return Mood.happy; // Mañana enérgica
+    if (hour >= 11 && hour < 17) return Mood.motivated; // Tarde productiva
+    if (hour >= 17 && hour < 22) return Mood.relaxed; // Tarde-noche de calma
+    return Mood.nostalgic; // Noche de recuerdos
   }
 }
