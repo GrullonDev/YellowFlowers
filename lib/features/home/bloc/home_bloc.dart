@@ -33,10 +33,10 @@ class HomeBloc extends BaseModel {
           description: 'Palabras que llegan al corazón ✍️',
         ),
         MenuItem(
-          title: 'Música Romántica',
-          icon: Icons.music_note,
+          title: 'Tu Música',
+          icon: Icons.headphones_rounded,
           destination: const MusicPage(),
-          description: 'Melodías para acompañar tu momento 🎵',
+          description: 'Canciones según tu estado de ánimo 🎵',
         ),
         MenuItem(
           title: 'Mi Ciclo',
