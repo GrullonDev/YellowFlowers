@@ -10,8 +10,9 @@ plugins {
 
 android {
     namespace = "com.jorgegrullon.yellowflowers"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 36 // Android 16 (API 36) - Change to 37 when SDK is installed
+    ndkVersion = "27.0.12077973"
+
 
     // --- Signing properties (optional) ---
     // If you create a file at android/key.properties (NOT committed) with:
@@ -77,14 +78,14 @@ android {
     def dynamicVersionCode = resolveDynamicVersionCode()
 
     compileOptions {
-        // Use Java 17 (LTS). Required/recommended by modern AGP and Play Store.
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        // Use Java 21 (LTS in 2026). Required for modern Android SDKs (API 36+).
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        // Align Kotlin JVM target to Java 17
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        // Align Kotlin JVM target to Java 21
+        jvmTarget = "21"
     }
 
     defaultConfig {
@@ -92,11 +93,12 @@ android {
         applicationId = "com.jorgegrullon.yellowflowers"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-    versionCode = dynamicVersionCode
-    // Keep base name from pubspec and append dynamic code for traceability
-    versionName = "${flutter.versionName}+${dynamicVersionCode}"
+        minSdk = 30
+        targetSdk = 36 // Android 16 (API 36) - Future ready for 37
+        multiDexEnabled true
+        versionCode = dynamicVersionCode
+        // Keep base name from pubspec and append dynamic code for traceability
+        versionName = "${flutter.versionName}+${dynamicVersionCode}"
     }
 
     buildTypes {

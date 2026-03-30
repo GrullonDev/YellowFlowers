@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Simple ChangeNotifier to toggle between light and dark ThemeMode.
 class ThemeController extends ChangeNotifier {
-
   ThemeController() {
     _load();
   }

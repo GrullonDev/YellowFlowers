@@ -1,6 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
 
 import 'package:yellow_flowers/core/tts/tts_service.dart';
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
@@ -23,6 +26,10 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<http.Client>(() => http.Client());
   sl.registerLazySingleton<AudioPlayer>(() => AudioPlayer());
 
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerSingleton<SharedPreferences>(prefs);
+  sl.registerSingleton<PersonalizationService>(PersonalizationService(prefs));
+
   // Services
   sl.registerLazySingleton<JamendoApiService>(
       () => JamendoApiService(client: sl()));
@@ -32,6 +39,8 @@ Future<void> initDependencies() async {
   }
 
   // Data sources
+  sl.registerLazySingleton<MusicLocalDataSource>(
+      () => MusicLocalDataSourceImpl(sharedPreferences: sl()));
   sl.registerLazySingleton<MusicRemoteDataSource>(
       () => MusicRemoteDataSourceImpl(audioPlayer: sl(), apiService: sl()));
 
@@ -41,7 +50,7 @@ Future<void> initDependencies() async {
 
   // Domain repository wrapper
   sl.registerLazySingleton<MusicRepository>(
-      () => MusicRepositoryImpl(remote: sl()));
+      () => MusicRepositoryImpl(remote: sl(), local: sl()));
 
   // Use cases
   sl.registerFactory(() => GetSongsByMoodUseCase(sl()));

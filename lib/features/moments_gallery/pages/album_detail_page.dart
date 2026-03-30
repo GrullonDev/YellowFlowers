@@ -1,11 +1,14 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
 import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
@@ -26,8 +29,13 @@ class AlbumDetailPage extends StatelessWidget {
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         return Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             title: Text('${album.emoji} ${album.label}',
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: GoogleFonts.playfairDisplay(
+                  fontWeight: FontWeight.w800,
+                  color: PremiumDesign.softText,
+                )),
             actions: [
               if (list.isNotEmpty)
                 IconButton(
@@ -48,91 +56,152 @@ class AlbumDetailPage extends StatelessWidget {
                 ),
             ],
           ),
-          body: AnimatedBackground(
-            child: list.isEmpty
-                ? const Center(child: Text('Aún no hay recuerdos aquí'))
-                : GridView.builder(
-                    padding: const EdgeInsets.all(12),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 6,
-                      mainAxisSpacing: 6,
-                    ),
-                    itemCount: list.length,
-                    itemBuilder: (context, i) {
-                      final mem = list[i];
-                      return Semantics(
-                          label:
-                              'Recuerdo ${i + 1} de ${list.length}${(mem.description ?? '').isNotEmpty ? ', descripción: ${mem.description}' : ''}',
-                          image: true,
-                          onLongPressHint: 'Editar descripción',
-                          child: GestureDetector(
-                            onLongPress: () => _editDescription(context, mem),
-                            onTap: () => _openViewer(context, list, i),
-                            child: FutureBuilder<File>(
-                              future: _resolveMemoryFile(mem.fileName),
-                              builder: (context, snap) {
-                                final file = snap.data;
-                                return Hero(
-                                  tag: mem.fileName,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Stack(
-                                      children: [
-                                        Positioned.fill(
-                                          child: file == null
-                                              ? Container(
-                                                  color: Colors.grey.shade200)
-                                              : Image.file(
-                                                  file,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (_, __, ___) =>
-                                                      Container(
-                                                    color: Colors.grey.shade300,
-                                                    alignment: Alignment.center,
-                                                    child: const Icon(
-                                                        Icons.image_not_supported,
-                                                        size: 22),
+          extendBodyBehindAppBar: true,
+          body: Stack(
+            children: [
+              // ── Background Hero ──────────────────────────────────────────
+              // We Hero-ize only the background to avoid nesting Heroes.
+              Positioned.fill(
+                child: Hero(
+                  tag: 'album-${album.label}',
+                  child: const AnimatedBackground(
+                    decorationCount: 6,
+                    child: SizedBox.expand(),
+                  ),
+                ),
+              ),
+
+              // ── Content ──────────────────────────────────────────────────
+              SafeArea(
+                child: list.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('🎈', style: TextStyle(fontSize: 40)),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Aún no hay recuerdos aquí',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: PremiumDesign.secondaryText,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(PremiumDesign.s20),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: PremiumDesign.s16,
+                          mainAxisSpacing: PremiumDesign.s16,
+                          childAspectRatio: 1.0,
+                        ),
+                        itemCount: list.length,
+                        itemBuilder: (context, i) {
+                          final mem = list[i];
+                          return Hero(
+                            tag: 'memory-${mem.fileName}',
+                            child: Semantics(
+                                label:
+                                    'Recuerdo ${i + 1} de ${list.length}${(mem.description ?? '').isNotEmpty ? ', descripción: ${mem.description}' : ''}',
+                                image: true,
+                                onLongPressHint: 'Editar descripción',
+                                child: GestureDetector(
+                                  onLongPress: () =>
+                                      _editDescription(context, mem),
+                                  onTap: () => _openViewer(context, list, i),
+                                  child: FutureBuilder<File>(
+                                    future: _resolveMemoryFile(mem.fileName),
+                                    builder: (context, snap) {
+                                      final file = snap.data;
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Stack(
+                                          children: [
+                                            Positioned.fill(
+                                              child: file == null
+                                                  ? Container(
+                                                      color: Colors.white
+                                                          .withValues(
+                                                              alpha: 0.3))
+                                                  : Image.file(
+                                                      file,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder:
+                                                          (_, __, ___) =>
+                                                              Container(
+                                                        color: Colors
+                                                            .grey.shade300,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: const Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            size: 22),
+                                                      ),
+                                                    ),
+                                            ),
+                                            if ((mem.description ?? '')
+                                                .isNotEmpty)
+                                              Positioned(
+                                                left: 8,
+                                                right: 8,
+                                                bottom: 8,
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child: BackdropFilter(
+                                                    filter: ImageFilter.blur(
+                                                        sigmaX: 5, sigmaY: 5),
+                                                    child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8,
+                                                                vertical: 6),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.black
+                                                              .withValues(
+                                                                  alpha: 0.3),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                        child: Text(
+                                                            mem.description!,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: GoogleFonts
+                                                                .plusJakartaSans(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        10,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    height:
+                                                                        1.15))),
                                                   ),
                                                 ),
+                                              ),
+                                          ],
                                         ),
-                                        if ((mem.description ?? '').isNotEmpty)
-                                          Positioned(
-                                            left: 4,
-                                            right: 4,
-                                            bottom: 4,
-                                            child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 5,
-                                                        vertical: 3),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black
-                                                      .withValues(alpha: 0.55),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                child: Text(mem.description!,
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        height: 1.15))),
-                                          ),
-                                      ],
-                                    ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
-                          ));
-                    },
-                  ),
+                                )),
+                          );
+                        },
+                      ),
+              ),
+            ],
           ),
         );
       },
@@ -244,8 +313,8 @@ class _FullScreenViewerState extends State<_FullScreenViewer> {
         ],
       ),
     );
-  if (confirm != true) return;
-  if (!mounted || !buttonContext.mounted) return;
+    if (confirm != true) return;
+    if (!mounted || !buttonContext.mounted) return;
     final albumId = mem.albumId;
     final willBeEmpty = bloc.countForAlbum(albumId) == 1;
     if (willBeEmpty) {

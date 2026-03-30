@@ -106,9 +106,8 @@ class MomentsGalleryBloc extends BaseModel {
       albumId: mem.albumId,
       createdAt: mem.createdAt,
       description: mem.description,
-      trackId: (trackId == null || trackId.trim().isEmpty)
-          ? null
-          : trackId.trim(),
+      trackId:
+          (trackId == null || trackId.trim().isEmpty) ? null : trackId.trim(),
     );
     await _saveMemories();
     notifyListeners();

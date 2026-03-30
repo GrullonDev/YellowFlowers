@@ -1,7 +1,5 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 
 class ThemedFlowerPainter extends CustomPainter {
@@ -10,293 +8,152 @@ class ThemedFlowerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    
+    // 1. Tallo Premium Universal
+    _drawPremiumStem(canvas, size, center);
+
     switch (theme) {
       case FlowerTheme.sunflower:
-        _drawSunflower(canvas, size);
+        _drawEliteSunflower(canvas, center);
+        break;
       case FlowerTheme.rose:
-        _drawRose(canvas, size);
+        _drawEliteRose(canvas, center);
+        break;
       case FlowerTheme.daisy:
-        _drawDaisy(canvas, size);
+        _drawEliteDaisy(canvas, center);
+        break;
     }
   }
 
-  void _drawStem(Canvas canvas, Size size,
-      {Color color = const Color(0xFF5A8F5D)}) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final stemPaint = Paint()
-      ..color = color
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(center, Offset(center.dx, size.height), stemPaint);
+  void _drawPremiumStem(Canvas canvas, Size size, Offset center) {
+    final talloPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [const Color(0xFF1B5E20), const Color(0xFF4CAF50)],
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+      ).createShader(Rect.fromLTWH(center.dx - 2, center.dy, 4, size.height - center.dy))
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final path = Path();
+    path.moveTo(center.dx, center.dy + 10);
+    path.quadraticBezierTo(center.dx + 8, center.dy + size.height * 0.2, center.dx, size.height);
+    canvas.drawPath(path, talloPaint);
   }
 
-  void _drawSunflower(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
+  void _drawEliteSunflower(Canvas canvas, Offset center) {
+    final petalPaint = Paint();
+    const count = 24;
 
-    // Petal paints and stroke
-    final petalPaint = Paint()..style = PaintingStyle.fill;
-    final petalStroke = Paint()
-      ..color = const Color(0xFFB06C00).withValues(alpha: 0.35)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
+    for (var i = 0; i < count; i++) {
+      final angle = i * (2 * math.pi / count);
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(angle);
 
-    Path petalPath(double w, double h, {double curvature = 0.5}) {
+      final rect = Rect.fromLTWH(-8, -45, 16, 45);
+      petalPaint.shader = RadialGradient(
+        colors: [const Color(0xFFFFD54F), const Color(0xFFFFA000), const Color(0xFFE65100)],
+        stops: const [0.0, 0.7, 1.0],
+      ).createShader(rect);
+
       final path = Path();
-      final top = Offset(0, -h / 2);
-      final bottom = Offset(0, h / 2);
-      path.moveTo(bottom.dx, bottom.dy);
-      path.cubicTo(-w / 2, h * 0.20, -w / 2, -h * 0.10, top.dx, top.dy);
-      path.cubicTo(w / 2, -h * 0.10, w / 2, h * 0.20, bottom.dx, bottom.dy);
+      path.moveTo(0, 0);
+      path.quadraticBezierTo(-10, -22, 0, -45);
+      path.quadraticBezierTo(10, -22, 0, 0);
       path.close();
-      return path;
-    }
 
-    // Outer ring of petals
-    const outerCount = 20;
-    for (var i = 0; i < outerCount; i++) {
-      final angle = i * (2 * math.pi / outerCount);
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(angle);
-      canvas.translate(0, -20);
-      final path = petalPath(18, 36);
-      final bounds = path.getBounds();
-      petalPaint.shader = const LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [Color(0xFFFFA000), Color(0xFFFFE082)],
-      ).createShader(bounds);
       canvas.drawPath(path, petalPaint);
-      canvas.drawPath(path, petalStroke);
       canvas.restore();
     }
 
-    // Inner ring, slightly shorter and offset
-    const innerCount = 20;
-    for (var i = 0; i < innerCount; i++) {
-      final angle = i * (2 * math.pi / innerCount) + (math.pi / innerCount);
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(angle);
-      canvas.translate(0, -14);
-      final path = petalPath(14, 28);
-      final bounds = path.getBounds();
-      petalPaint.shader = const LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [Color(0xFFFF8F00), Color(0xFFFFEE58)],
-      ).createShader(bounds);
-      canvas.drawPath(path, petalPaint);
-      canvas.drawPath(path, petalStroke);
-      canvas.restore();
-    }
-
-    // Dark center disk with subtle gradient
-    final diskPaint = Paint()..color = const Color(0xFF5D4037);
+    // Centro 3D
+    final diskPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [const Color(0xFF3E2723), const Color(0xFF5D4037)],
+      ).createShader(Rect.fromCircle(center: center, radius: 18));
+    
     canvas.drawCircle(center, 18, diskPaint);
-    canvas.drawCircle(center, 16, Paint()..color = const Color(0xFF6D4C41));
-
-    // Seed pattern (golden-angle spiral) - keep light for performance
-    const seeds = 80;
-    for (var i = 0; i < seeds; i++) {
-      final t = i / seeds;
-      final angle = i * 2.399963229728653; // ~137.5° in radians
-      final r = 2 + t * 14; // spread towards edge
-      final dx = r * math.cos(angle);
-      final dy = r * math.sin(angle);
-      final p = Offset(center.dx + dx, center.dy + dy);
-      final c = Color.lerp(const Color(0xFF8D6E63), const Color(0xFF3E2723), t)!
-          .withValues(alpha: 0.9);
-      canvas.drawCircle(p, 1.3 + 0.7 * (1 - t), Paint()..color = c);
+    
+    // Mini puntos de polen
+    final pPaint = Paint()..color = const Color(0xFFFFA000).withAlpha(150);
+    for (int j = 0; j < 12; j++) {
+      final a = j * (math.pi / 6);
+      canvas.drawCircle(Offset(center.dx + math.cos(a) * 10, center.dy + math.sin(a) * 10), 1.5, pPaint);
     }
-
-    _drawStem(canvas, size);
   }
 
-  void _drawDaisy(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final petalStroke = Paint()
-      ..color = const Color(0xFFE0E0E0)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
+  void _drawEliteDaisy(Canvas canvas, Offset center) {
+    final petalPaint = Paint();
+    const count = 18;
 
-    Path petalPath(double w, double h) {
-      final path = Path();
-      final top = Offset(0, -h / 2);
-      final bottom = Offset(0, h / 2);
-      path.moveTo(bottom.dx, bottom.dy);
-      path.quadraticBezierTo(-w / 2, 0, top.dx, top.dy);
-      path.quadraticBezierTo(w / 2, 0, bottom.dx, bottom.dy);
-      path.close();
-      return path;
-    }
-
-    const petals = 20;
-    for (var i = 0; i < petals; i++) {
-      final angle = i * (2 * math.pi / petals);
-      final w = 14 + (i.isEven ? 1.0 : -1.0); // sutil variación
-      final h = 34 + (i % 3 == 0 ? 2.0 : 0.0);
+    for (var i = 0; i < count; i++) {
+      final angle = i * (2 * math.pi / count);
       canvas.save();
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
-      canvas.translate(0, -18);
-      final path = petalPath(w, h);
-      // Sombra suave en base del pétalo
-      final bounds = path.getBounds();
-      final shader = const LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [Color(0xFFEAEAEA), Color(0xFFFFFFFF)],
-        stops: [0.0, 0.6],
-      ).createShader(bounds);
-      final fill = Paint()..shader = shader;
-      canvas.drawPath(path, fill);
-      canvas.drawPath(path, petalStroke);
+
+      petalPaint.shader = LinearGradient(
+        colors: [Colors.white, const Color(0xFFF5F5F5), const Color(0xFFE0E0E0)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromLTWH(-6, -40, 12, 40));
+
+      final path = Path();
+      path.moveTo(0, 0);
+      path.quadraticBezierTo(-8, -20, 0, -40);
+      path.quadraticBezierTo(8, -20, 0, 0);
+      path.close();
+
+      canvas.drawPath(path, petalPaint);
       canvas.restore();
     }
 
-    // Center disk with warm yellow/orange
-    final centerOuter = Paint()..color = const Color(0xFFFFD54F);
-    final centerInner = Paint()..color = const Color(0xFFFFC107);
-    canvas.drawCircle(center, 16, centerOuter);
-    canvas.drawCircle(center, 12, centerInner);
-
-    _drawStem(canvas, size);
+    canvas.drawCircle(center, 14, Paint()..color = const Color(0xFFFFD54F));
+    canvas.drawCircle(center, 9, Paint()..color = const Color(0xFFFFC107));
   }
 
-  void _drawRose(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
+  void _drawEliteRose(Canvas canvas, Offset center) {
+    final rosePaint = Paint();
+    
+    // Capas de pétalos envolventes
+    for (int layer = 3; layer >= 1; layer--) {
+      final count = layer * 4;
+      final radius = layer * 10.0;
+      final petalSize = 50.0 - (layer * 8);
 
-    // Colors
-    const roseBase = Color(0xFFE57373); // soft rose red
-    const roseLight = Color(0xFFFFCDD2); // light pink
-    const roseDark = Color(0xFFC62828); // deep red for strokes
+      for (int i = 0; i < count; i++) {
+        final angle = i * (2 * math.pi / count) + (layer * 0.5);
+        canvas.save();
+        canvas.translate(center.dx, center.dy);
+        canvas.rotate(angle);
 
-    // Paints
-    final petalPaint = Paint()
-      ..color = roseBase
-      ..style = PaintingStyle.fill;
-    final petalStroke = Paint()
-      ..color = roseDark.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..strokeJoin = StrokeJoin.round
-      ..strokeCap = StrokeCap.round;
+        rosePaint.shader = RadialGradient(
+          colors: [
+            const Color(0xFFFFCDD2),
+            const Color(0xFFE57373),
+            const Color(0xFFC62828).withAlpha(200),
+          ],
+          stops: const [0.0, 0.6, 1.0],
+        ).createShader(Rect.fromCircle(center: const Offset(0, -10), radius: radius));
 
-    // Helper: draw single petal as a teardrop using a path
-    Path petalPath(double w, double h, {double curvature = 0.55}) {
-      final path = Path();
-      final top = Offset(0, -h / 2);
-      final bottom = Offset(0, h / 2);
-      final rightCtrl = Offset(w * curvature, -h * 0.15);
-      path.moveTo(bottom.dx, bottom.dy);
-      // Left curve to top
-      path.cubicTo(
-        -w / 2,
-        h * 0.25,
-        -w / 2,
-        -h * 0.15,
-        top.dx,
-        top.dy,
-      );
-      // Right curve back to bottom
-      path.cubicTo(
-        rightCtrl.dx,
-        rightCtrl.dy,
-        w / 2,
-        h * 0.25,
-        bottom.dx,
-        bottom.dy,
-      );
-      path.close();
-      return path;
-    }
+        final path = Path();
+        path.moveTo(0, 0);
+        path.quadraticBezierTo(-petalSize/2, -radius, 0, -radius*1.5);
+        path.quadraticBezierTo(petalSize/2, -radius, 0, 0);
+        path.close();
 
-    // Outer petals ring
-    const outerCount = 8;
-    for (var i = 0; i < outerCount; i++) {
-      final t = i / outerCount;
-      final angle = i * (2 * math.pi / outerCount) + 0.2;
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(angle);
-      canvas.translate(0, -18);
-      final path = petalPath(22, 36);
-      // Slight color variation per petal
-      petalPaint.color = Color.lerp(roseBase, roseLight, 0.25 + 0.2 * t)!;
-      canvas.drawPath(path, petalPaint);
-      canvas.drawPath(path, petalStroke);
-      canvas.restore();
-    }
-
-    // Middle petals ring
-    const middleCount = 6;
-    for (var i = 0; i < middleCount; i++) {
-      final t = i / middleCount;
-      final angle = i * (2 * math.pi / middleCount) - 0.1;
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(angle);
-      canvas.translate(0, -10);
-      final path = petalPath(16, 26, curvature: 0.6);
-      petalPaint.color = Color.lerp(roseBase, roseLight, 0.15 + 0.25 * t)!;
-      canvas.drawPath(path, petalPaint);
-      canvas.drawPath(path, petalStroke);
-      canvas.restore();
-    }
-
-    // Inner bud: small petals + spiral stroke
-    final budPaint = Paint()..color = roseBase.withValues(alpha: 0.95);
-    canvas.drawCircle(center, 8, budPaint);
-
-    // Spiral stroke to suggest rose core
-    final spiral = Path();
-    const turns = 3.0;
-    const steps = 80;
-    for (var i = 0; i <= steps; i++) {
-      final p = i / steps;
-      final ang = p * turns * 2 * math.pi;
-      final r = 1.0 + p * 10.0;
-      final x = center.dx + r * math.cos(ang);
-      final y = center.dy + r * math.sin(ang);
-      if (i == 0) {
-        spiral.moveTo(x, y);
-      } else {
-        spiral.lineTo(x, y);
+        canvas.drawPath(path, rosePaint);
+        canvas.restore();
       }
     }
-    final spiralStroke = Paint()
-      ..color = roseDark.withValues(alpha: 0.7)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
-    canvas.drawPath(spiral, spiralStroke);
 
-    // Green sepals under the bud to make silhouette more rose-like
-    final sepalPaint = Paint()
-      ..color = const Color(0xFF4CAF50)
-      ..style = PaintingStyle.fill;
-    const sepalCount = 3;
-    for (var i = 0; i < sepalCount; i++) {
-      final ang = i * (2 * math.pi / sepalCount) + math.pi / 6;
-      final p1 = Offset(
-          center.dx + 2 * math.cos(ang), center.dy + 10 + 2 * math.sin(ang));
-      final p2 = Offset(center.dx + 10 * math.cos(ang + 0.25),
-          center.dy + 16 + 10 * math.sin(ang + 0.25));
-      final p3 = Offset(center.dx + 10 * math.cos(ang - 0.25),
-          center.dy + 16 + 10 * math.sin(ang - 0.25));
-      final sepal = Path()
-        ..moveTo(p1.dx, p1.dy)
-        ..lineTo(p2.dx, p2.dy)
-        ..lineTo(p3.dx, p3.dy)
-        ..close();
-      canvas.drawPath(sepal, sepalPaint);
-    }
-
-    // Stem at the end
-    _drawStem(canvas, size);
+    // Núcleo espiral
+    canvas.drawCircle(center, 6, Paint()..color = const Color(0xFFB71C1C));
   }
 
   @override
-  bool shouldRepaint(covariant ThemedFlowerPainter oldDelegate) =>
-      oldDelegate.theme != theme;
+  bool shouldRepaint(covariant ThemedFlowerPainter oldDelegate) => oldDelegate.theme != theme;
 }

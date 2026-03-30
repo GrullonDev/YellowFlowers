@@ -5,9 +5,12 @@ import 'package:yellow_flowers/features/music/data/repository/music_remote_repos
 import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart';
 import 'package:yellow_flowers/features/music/domain/repositories/music_repository.dart';
 
+import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
+
 class MusicRepositoryImpl implements MusicRepository {
+  MusicRepositoryImpl({required this.remote, required this.local});
   final MusicRemoteRepository remote;
-  MusicRepositoryImpl({required this.remote});
+  final MusicLocalDataSource local;
 
   SongEntity _map(Song s) => SongEntity(
         id: s.id,
@@ -19,24 +22,6 @@ class MusicRepositoryImpl implements MusicRepository {
         genre: s.genre,
       );
 
-  Future<Result<List<SongEntity>>> _guardList(Future<List<Song>> Function() block) async {
-    try {
-      final list = await block();
-      return Success(list.map(_map).toList());
-    } catch (e, st) {
-      return Error(UnknownFailure(e.toString(), cause: e, stackTrace: st));
-    }
-  }
-
-  Future<Result<SongEntity?>> _guardSong(Future<Song?> Function() block) async {
-    try {
-      final song = await block();
-      return Success(song == null ? null : _map(song));
-    } catch (e, st) {
-      return Error(UnknownFailure(e.toString(), cause: e, stackTrace: st));
-    }
-  }
-
   Future<Result<void>> _guardVoid(Future<void> Function() block) async {
     try {
       await block();
@@ -47,27 +32,58 @@ class MusicRepositoryImpl implements MusicRepository {
   }
 
   @override
-  Future<Result<List<SongEntity>>> getSongs(String genre) => _guardList(() => remote.getSongs(genre));
+  Future<Result<List<SongEntity>>> getSongs(String genre) async {
+    try {
+      final list = await remote.getSongs(genre);
+      await local.cacheSongs(genre, list);
+      return Success(list.map(_map).toList());
+    } catch (e) {
+      final cached = await local.getCachedSongs(genre);
+      if (cached.isNotEmpty) return Success(cached.map(_map).toList());
+      return Error(NetworkFailure(e.toString()));
+    }
+  }
 
   @override
-  Future<Result<List<SongEntity>>> getSongsByMood(Mood mood) => _guardList(() => remote.getSongsByMood(mood));
+  Future<Result<List<SongEntity>>> getSongsByMood(Mood mood) async {
+    try {
+      final list = await remote.getSongsByMood(mood);
+      await local.cacheSongs(mood.name, list);
+      return Success(list.map(_map).toList());
+    } catch (e) {
+      final cached = await local.getCachedSongs(mood.name);
+      if (cached.isNotEmpty) return Success(cached.map(_map).toList());
+      return Error(NetworkFailure(e.toString()));
+    }
+  }
 
   @override
-  Future<Result<SongEntity?>> getDailyRecommendation(Mood mood) => _guardSong(() => remote.getDailyRecommendation(mood));
+  Future<Result<SongEntity?>> getDailyRecommendation(Mood mood) async {
+    try {
+      final song = await remote.getDailyRecommendation(mood);
+      if (song != null) await local.cacheRecommendation(mood, song);
+      return Success(song == null ? null : _map(song));
+    } catch (e) {
+      final cached = await local.getCachedRecommendation(mood);
+      if (cached != null) return Success(_map(cached));
+      return Error(NetworkFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Result<void>> pauseSong() => _guardVoid(() => remote.pauseSong());
 
   @override
-  Future<Result<void>> playSong(SongEntity song) => _guardVoid(() => remote.playSong(Song(
-        id: song.id,
-        title: song.title,
-        artist: song.artist,
-        audioUrl: song.audioUrl,
-        coverUrl: song.coverUrl,
-        duration: song.duration,
-        genre: song.genre,
-      )));
+  Future<Result<void>> playSong(SongEntity song) =>
+      _guardVoid(() => remote.playSong(Song(
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            audioUrl: song.audioUrl,
+            coverUrl: song.coverUrl,
+            duration: song.duration,
+            genre: song.genre,
+          )));
 
   @override
   Future<Result<void>> stopSong() => _guardVoid(() => remote.stopSong());

@@ -56,7 +56,8 @@ class CyclePhaseBar extends StatelessWidget {
                     child: ChoiceChip(
                       label: const Text('Hoy prefiero energía 💥'),
                       selected: cycle.fertilePreferEnergetic,
-                      onSelected: (v) => context.read<CycleController>()
+                      onSelected: (v) => context
+                          .read<CycleController>()
                           .setFertilePreferEnergetic(v),
                     ),
                   ),
@@ -203,7 +204,8 @@ class _CycleConfigSheetState extends State<_CycleConfigSheet> {
               DropdownButton<int>(
                 value: _length,
                 items: List.generate(15, (i) => 21 + i)
-                    .map((d) => DropdownMenuItem(value: d, child: Text('$d días')))
+                    .map((d) =>
+                        DropdownMenuItem(value: d, child: Text('$d días')))
                     .toList(),
                 onChanged: (v) => setState(() => _length = v ?? 28),
               ),

@@ -33,16 +33,16 @@ class HomeBloc extends BaseModel {
           description: 'Palabras que llegan al corazón ✍️',
         ),
         MenuItem(
-          title: 'Música Romántica',
-          icon: Icons.music_note,
+          title: 'Tu Música',
+          icon: Icons.headphones_rounded,
           destination: const MusicPage(),
-          description: 'Melodías para acompañar tu momento 🎵',
+          description: 'Canciones según tu estado de ánimo 🎵',
         ),
         MenuItem(
-          title: 'Ciclo y Música',
-          icon: Icons.auto_awesome_rounded,
+          title: 'Mi Ciclo',
+          icon: Icons.spa_rounded,
           destination: const CycleMusicPage(),
-          description: 'Recomendaciones amigables para cada fase 💗',
+          description: 'Lleva el control de tu ciclo con amor 🌸',
         ),
         /* MenuItem(
           title: 'Tarjetas Virtuales',

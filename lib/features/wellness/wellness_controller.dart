@@ -5,14 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum Emotion { happy, relaxed, romantic, motivated, nostalgic }
 
-class WellnessController extends ChangeNotifier {
-  static const _kEmotionHistoryKey = 'wellness_emotion_history';
-
-  Map<String, String> _history = {}; // YYYY-MM-DD -> Emotion.name
+class WellnessController extends ChangeNotifier { // YYYY-MM-DD -> Emotion.name
 
   WellnessController() {
     _load();
   }
+  static const _kEmotionHistoryKey = 'wellness_emotion_history';
+
+  Map<String, String> _history = {};
 
   Future<void> _load() async {
     try {
@@ -52,7 +52,8 @@ class WellnessController extends ChangeNotifier {
   Emotion? emotionOf(String key) {
     final v = _history[key];
     if (v == null) return null;
-    return Emotion.values.firstWhere((e) => e.name == v, orElse: () => Emotion.relaxed);
+    return Emotion.values
+        .firstWhere((e) => e.name == v, orElse: () => Emotion.relaxed);
   }
 
   Future<void> setEmotionToday(Emotion e) async {
@@ -68,7 +69,8 @@ class WellnessController extends ChangeNotifier {
     final now = DateTime.now();
     return List.generate(7, (i) {
       final d = DateUtils.dateOnly(now.subtract(Duration(days: 6 - i)));
-      final key = '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+      final key =
+          '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
       return emotionOf(key);
     });
   }
