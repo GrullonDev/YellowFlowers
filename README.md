@@ -1,293 +1,128 @@
-# Yellow Flowers
+# 🌸 Yellow Flowers — Premium Emotional Experience
 
-Una app Flutter para crear y personalizar tarjetas de flores virtuales con animaciones sutiles y opciones de compartir/guardar listas para Instagram Stories.
+<div align="center">
+  <img src="assets/images/app_logo.png" width="128" height="128" alt="Yellow Flowers Logo">
+  
+  **Una experiencia diseñada para conectar, emocionar y florecer.**
+  
+  [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-brightgreen.svg)](#)
+  [![Flutter](https://img.shields.io/badge/Flutter-3.24+-02569B.svg?logo=flutter)](#)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+</div>
 
-## Tabla de Contenido
+---
 
-- [Descripción](#descripción)
-- [Versión y Requisitos](#versión-y-requisitos)
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Solución de Problemas](#solución-de-problemas)
-- [Contribuir](#contribuir)
-- [Recursos](#recursos)
-- [Licencia y Administración](#licencia-y-administración)
- - [Arquitectura Limpia (Migración)](#arquitectura-limpia-migración)
+## ✨ El Concepto
+**Yellow Flowers** no es solo una app; es un puente emocional. Permite a los usuarios crear tarjetas virtuales personalizadas con una estética de alta gama, animaciones fluidas y un diseño orientado al detalle. Perfecta para momentos especiales, compartiendo mensajes con elegancia y sutilidad.
 
-## Descripción
+### 🌟 Funcionalidades Premium
+- **Jardín de Experiencias:** Un dashboard intuitivo y elegante que agrupa todas las funcionalidades.
+- **Mensajes con Alma:** Personalización profunda de tarjetas:
+  - **Temas Florales:** Daisy (Margarita), Rose (Rosa), Sunflower (Girasol).
+  - **Moods Dinámicos:** Joy (Alegría), Calm (Calma), Passion (Pasión) con gradientes calculados.
+- **Exportación 4K Ready:** Generación de imágenes en formato **1080×1920**, listas para Instagram Stories, con códigos QR inteligentes incorporados.
+- **Frase del Día (TTS):** Escucha mensajes inspiradores con una síntesis de voz natural y suave.
+- **Onboarding de Autor:** Una bienvenida cálida con ilustraciones personalizadas y captura de identidad.
 
-Yellow Flowers permite generar mensajes bonitos con un fondo animado, flores elegantes y microinteracciones. Puedes personalizar el tema de flores, el estado de ánimo del gradiente y el estilo del nombre. La app exporta una tarjeta en formato 1080×1920 con un código QR configurable para compartir en redes.
+---
 
-## Versión y Requisitos
+## 📱 Plataformas Soportadas
+Esta aplicación ha sido optimizada **exclusivamente** para dispositivos móviles:
 
-- Dart SDK: >= 3.5.1 (según `environment.sdk` del proyecto)
-- Flutter: compatible con Dart 3.5 (por ejemplo, Flutter 3.24+)
-- iOS: 12.0+
-- Android: 5.0 (API 21)+
+*   **iOS:** 12.0 o superior.
+*   **Android:** API 21 (Android 5.0) o superior.
 
-### Funcionalidades clave
+---
 
-- Onboarding cálido con ilustración floral y entrada de nombre estilizada
-- Personalización:
-	- Tema de flores: Daisy, Rose, Sunflower
-	- Ánimo del gradiente de fondo: Joy, Calm, Passion
-	- Nombre en cursiva elegante (opcional)
-- Pantalla de mensaje animada:
-	- Gradiente dinámico, pétalos cayendo, brillos suaves y flores elegantes
-	- Transición sutil del mensaje y microinteracciones (bloom al compartir)
-- Compartir/Guardar como imagen:
-	- Exportación a 1080×1920 (formato Instagram Story)
-	- Código QR configurable hacia tu app/sitio
-	- Compartir como archivo (share_plus) y guardar en documentos de la app
+## 🛠️ Stack Tecnológico
+Arquitectura moderna pensada en la escalabilidad y el rendimiento:
 
-### Stack técnico
+*   **Framework:** [Flutter](https://flutter.dev) (Dart 3.5+).
+*   **Gestión de Estado:** `Provider`.
+*   **Inyección de Dependencias:** `GetIt`.
+*   **UI/UX:** Custom Painters para animaciones de partículas (pétalos) y efectos visuales.
+*   **Persistencia:** Servicios de personalización inteligentes.
 
-- Flutter + Dart 3.5+
-- State management: Provider
-- Inyección de dependencias: get_it
-- Pintado personalizado (CustomPainter) para flores y efectos
-- Paquetes clave: share_plus, pretty_qr_code, google_fonts, path_provider
-	- Opcional: just_audio (base presente en el repo para música ambiental)
+---
 
-## Instalación
+## 🚀 Guía de Inicio
 
-Sigue estos pasos para clonar el repositorio e instalar las dependencias necesarias:
+### Requisitos Previos
+1. Tener instalado [Flutter](https://flutter.dev/docs/get-started/install).
+2. (Opcional) [FVM](https://fvm.app/) para gestión de versiones.
+3. Cocoapods para iOS (`sudo gem install cocoapods`).
 
-1. Clona el repositorio:
-
+### Instalación
 ```bash
+# 1. Clonar el repositorio
 git clone https://github.com/GrullonDev/YellowFlowers.git
-
-### Versionado automático de APK (Android)
-
-Se configuró `android/app/build.gradle` para calcular `versionCode` automáticamente al compilar:
-
-Prioridad del `versionCode`:
-- Propiedad de Gradle: `-PversionCode=123`
-- Variables de entorno CI: `BUILD_NUMBER`, `GITHUB_RUN_NUMBER` o `CI_PIPELINE_IID`
-- Cantidad de commits: `git rev-list --count HEAD`
-- Marca de tiempo: `yyyyMMddHH`
-
-El `versionName` se mantiene con el valor de `pubspec.yaml` y se concatena `+versionCode` para trazabilidad.
-
-Comandos útiles:
-
-- Mostrar versión resuelta:
-	- `./gradlew :app:printVersion`
-- Construir APK release con versión automática:
-	- `flutter build apk --release`
-- Forzar un `versionCode` desde CI/local:
-	- `./gradlew :app:assembleRelease -PversionCode=42`
-
-El nombre del APK incluye versión: `yellowflowers-release-v<name>(<code>).apk`, útil para subir a Firebase App Distribution.
 cd YellowFlowers
-```
 
-2. Instala FVM (Flutter Version Management) si no lo tienes instalado:
-
-```bash
-dart pub global activate fvm
-```
-
-3. Usa FVM para instalar y usar la versión de Flutter deseada (opcional):
-
-```bash
+# 2. Configurar Flutter (si usas FVM)
 fvm install
 fvm use
-```
 
-4. Instala las dependencias del proyecto:
-
-```bash
+# 3. Obtener dependencias
 flutter pub get
-```
 
-## Uso
-
-Para ejecutar la aplicación, usa el siguiente comando:
-
-```bash
-flutter run
-```
-
-Flujo básico:
-- Ingresa el nombre de la persona (opcionalmente activa el estilo cursivo)
-- Elige el tema de flor y el estado de ánimo del fondo
-- En la pantalla del mensaje, usa los íconos de compartir o de descarga
-
-Configurar el enlace del QR:
-- Edita `lib/features/Flowers/pages/flower_screen.dart`
-- Busca `const qrUrl = 'https://jorgegrullondev.com/';` y cambia al URL final (Play Store/App Store/Deep Link)
-
-## Solución de Problemas
-
-### Compilación en iOS (macOS)
-
-Para resolver problemas comunes de compilación en iOS:
-
-1. Asegúrate de tener Xcode actualizado
-2. Ejecuta los siguientes comandos:
-
-Install CocoaPods:
-
-```bash
-sudo gem install cocoapods
-```
-
-```bash
-cd ios && pod repo update
-```
-
-```bash
-rm -f Podfile.lock
-```
-
-```bash
-pod deintegrate && pod cache clean --all
-```
-
-```bash
-cd .. && fvm flutter clean
-```
-
-```bash
-fvm flutter pub get
-```
-
-```bash
-cd ios && pod install --repo-update && cd ..
-```
-
-```bash
-fvm flutter run
-```
-
-Setup iOS project:
-
-```bash
+# 4. Configurar iOS (solo en macOS)
 cd ios
 pod install
 cd ..
 ```
 
-# Contribuir
-
-Si deseas contribuir a este proyecto, sigue estos pasos:
-
-- Haz un fork del repositorio.
-- Crea una nueva rama:
-
+### Ejecución
 ```bash
-git checkout -b feature/nueva-funcionalidad
+# Ejecutar en el dispositivo conectado
+flutter run
 ```
 
-- Realiza tus cambios y haz commit:
+---
 
+## 📦 Generación de Builds
+
+### Android (APK & App Bundle)
 ```bash
-git commit -m "Añadir nueva funcionalidad"
+# Generar APK de Lanzamiento
+flutter build apk --release
+
+# Generar Bundle para la Play Store
+flutter build appbundle --release
 ```
+> [!TIP]
+> Los archivos resultantes se encuentran en `build/app/outputs/flutter-apk/`.
 
-- Sube tus cambios a tu repositorio fork:
-
+### iOS (IPA)
 ```bash
-git push origin feature/nueva-funcionalidad
+# Generar archivo de distribución
+flutter build ipa --release
 ```
+> [!IMPORTANT]
+> Requiere configuración previa de perfiles de aprovisionamiento en Xcode.
 
-- Abre un Pull Request en GitHub.
+---
 
-# Generación de Builds
+## 🏗️ Arquitectura
+El proyecto se encuentra en una transición hacia **Arquitectura Limpia (Clean Architecture)**:
 
-## Android APK/Bundle
-
-Para generar un APK de debug:
-
-```bash
-fvm flutter build apk --debug
-```
-
-```bash
-fvm flutter build apk --release
-```
-
-```bash
-fvm flutter build appbundle --release
-```
-
-En Windows: explora la carpeta `build\app\outputs\flutter-apk\` en el Explorador.
-
-## iOS IPA/Bundle
-
-- Configurar certificados en Xcode
-- Generar archivo IPA:
-
-```bash
-fvm flutter build ipa
-```
-
-```bash
-fvm flutter build ipa --release
-```
-
-En macOS: abre `build/ios/ipa/` desde Finder.
-
-## Arquitectura Limpia (Migración)
-
-Se está realizando una migración gradual hacia una estructura de capas:
-
-```
+```text
 lib/
-	core/            # Result, Failures, UseCase base
-	di/              # injector.dart (nuevo contenedor CA)
-	features/
-		music/
-			data/        # models, datasources, repos impl
-			domain/      # entities, repositories abstract, usecases
-			bloc/        # (presentation) migrando luego a presentation/
+├── core/            # Modelos base, fallos y casos de uso genéricos.
+├── di/              # Inyección de dependencias (Clean Architecture).
+├── features/        # Módulos de la app (Music, Flowers, Personalization).
+│   ├── <feature>/
+│   │   ├── data/    # Implementación de repositorios y fuentes de datos.
+│   │   ├── domain/  # Entidades y contratos (Lógica de Negocio).
+│   │   └── bloc/    # Presentation logic (Capa de Vista).
+└── main.dart        # Punto de entrada.
 ```
 
-Durante la transición coexisten dos contenedores de dependencias:
+---
 
-1. `utils/inyenction_container.dart` (legacy)
-2. `di/injector.dart` (nuevo, Clean Architecture)
+## 📄 Licencia
+Este proyecto está bajo la licencia **MIT**. Siéntete libre de usarlo para inspirarte o extenderlo.
 
-`main.dart` inicializa ambos para compatibilidad temporal. El `MusicBloc` ahora acepta opcionalmente casos de uso de dominio; si no están disponibles, usa el repositorio legacy.
-
-### Pasos para extender la migración
-1. Crear entidades de dominio en `features/<feature>/domain/entities`.
-2. Definir repositorio abstracto y casos de uso.
-3. Implementar repositorio data adaptando fuentes existentes.
-4. Registrar en `di/injector.dart`.
-5. Inyectar casos de uso en el Bloc/Controller (modo híbrido) y eliminar dependencias directas a servicios externos.
-
-Guía detallada adicional en `ARCHITECTURE_MIGRATION.md`.
-
-### Reproducción de Frase Diaria (TTS)
-La tarjeta "Tu frase de hoy" ahora usa un servicio `TtsService` (flutter_tts) para leer la frase en voz alta.
-
-Botón:
-- Icono altavoz: inicia la locución.
-- Icono stop: detiene la reproducción.
-
-Mejoras futuras sugeridas:
-- Mostrar progreso real (escuchar callbacks de progreso de `flutter_tts`).
-- Cachear voces locales / permitir cambiar velocidad.
-- Parar automáticamente si el usuario cambia de mood o navega fuera.
-
-#### Si no se escucha la voz
-- iOS modo silencio (switch físico) o Focus activado: la categoría se setea a playback, pero en algunos dispositivos con iOS < 15 requiere subir volumen de multimedia.
-- Volumen del sistema en 0.
-- Idioma no soportado: se intenta `es-ES`, fallback a `es-419` o `es-MX`. Revisar lista con `getLanguages` si persiste.
-- Primera inicialización tardía: el botón muestra spinner hasta estar listo; si tarda demasiado, matar y relanzar la app.
-
-# Recursos
-
-Algunos recursos para ayudarte a comenzar si este es tu primer proyecto Flutter:
-
-- [Lab: Escribe tu primera app Flutter](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Ejemplos útiles de Flutter](https://docs.flutter.dev/cookbook)
-
-Para obtener ayuda sobre el desarrollo con Flutter, consulta la [documentación en línea](https://docs.flutter.dev/), que ofrece tutoriales, ejemplos, guías sobre desarrollo móvil y una referencia completa de la API.
-
-# Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+---
+<div align="center">
+  Diseñado con ❤️ por <b>GrullonDev</b>
+</div>
