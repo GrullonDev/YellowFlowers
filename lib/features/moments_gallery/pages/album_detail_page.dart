@@ -57,10 +57,22 @@ class AlbumDetailPage extends StatelessWidget {
             ],
           ),
           extendBodyBehindAppBar: true,
-          body: Hero(
-            tag: 'album-${album.label}',
-            child: AnimatedBackground(
-              child: SafeArea(
+          body: Stack(
+            children: [
+              // ── Background Hero ──────────────────────────────────────────
+              // We Hero-ize only the background to avoid nesting Heroes.
+              Positioned.fill(
+                child: Hero(
+                  tag: 'album-${album.label}',
+                  child: const AnimatedBackground(
+                    decorationCount: 6,
+                    child: SizedBox.expand(),
+                  ),
+                ),
+              ),
+
+              // ── Content ──────────────────────────────────────────────────
+              SafeArea(
                 child: list.isEmpty
                     ? Center(
                         child: Column(
@@ -98,7 +110,8 @@ class AlbumDetailPage extends StatelessWidget {
                                 image: true,
                                 onLongPressHint: 'Editar descripción',
                                 child: GestureDetector(
-                                  onLongPress: () => _editDescription(context, mem),
+                                  onLongPress: () =>
+                                      _editDescription(context, mem),
                                   onTap: () => _openViewer(context, list, i),
                                   child: FutureBuilder<File>(
                                     future: _resolveMemoryFile(mem.fileName),
@@ -111,14 +124,19 @@ class AlbumDetailPage extends StatelessWidget {
                                             Positioned.fill(
                                               child: file == null
                                                   ? Container(
-                                                      color: Colors.white.withValues(alpha: 0.3))
+                                                      color: Colors.white
+                                                          .withValues(
+                                                              alpha: 0.3))
                                                   : Image.file(
                                                       file,
                                                       fit: BoxFit.cover,
-                                                      errorBuilder: (_, __, ___) =>
-                                                          Container(
-                                                        color: Colors.grey.shade300,
-                                                        alignment: Alignment.center,
+                                                      errorBuilder:
+                                                          (_, __, ___) =>
+                                                              Container(
+                                                        color: Colors
+                                                            .grey.shade300,
+                                                        alignment:
+                                                            Alignment.center,
                                                         child: const Icon(
                                                             Icons
                                                                 .image_not_supported,
@@ -126,36 +144,50 @@ class AlbumDetailPage extends StatelessWidget {
                                                       ),
                                                     ),
                                             ),
-                                            if ((mem.description ?? '').isNotEmpty)
+                                            if ((mem.description ?? '')
+                                                .isNotEmpty)
                                               Positioned(
                                                 left: 8,
                                                 right: 8,
                                                 bottom: 8,
                                                 child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
                                                   child: BackdropFilter(
-                                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                                    filter: ImageFilter.blur(
+                                                        sigmaX: 5, sigmaY: 5),
                                                     child: Container(
                                                         padding:
-                                                            const EdgeInsets.symmetric(
+                                                            const EdgeInsets
+                                                                .symmetric(
                                                                 horizontal: 8,
                                                                 vertical: 6),
-                                                        decoration: BoxDecoration(
+                                                        decoration:
+                                                            BoxDecoration(
                                                           color: Colors.black
-                                                              .withValues(alpha: 0.3),
+                                                              .withValues(
+                                                                  alpha: 0.3),
                                                           borderRadius:
-                                                              BorderRadius.circular(10),
+                                                              BorderRadius
+                                                                  .circular(10),
                                                         ),
-                                                        child: Text(mem.description!,
+                                                        child: Text(
+                                                            mem.description!,
                                                             maxLines: 2,
                                                             overflow:
-                                                                TextOverflow.ellipsis,
-                                                            style: GoogleFonts.plusJakartaSans(
-                                                                color: Colors.white,
-                                                                fontSize: 10,
-                                                                fontWeight:
-                                                                    FontWeight.w600,
-                                                                height: 1.15))),
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: GoogleFonts
+                                                                .plusJakartaSans(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        10,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    height:
+                                                                        1.15))),
                                                   ),
                                                 ),
                                               ),
@@ -169,7 +201,7 @@ class AlbumDetailPage extends StatelessWidget {
                         },
                       ),
               ),
-            ),
+            ],
           ),
         );
       },

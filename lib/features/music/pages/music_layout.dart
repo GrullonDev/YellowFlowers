@@ -155,60 +155,77 @@ class _MusicLayoutState extends State<MusicLayout>
 
                   const SizedBox(height: PremiumDesign.s16),
 
-                  // ── Featured daily recommendation ─────────────────────────
-                  if (model.dailyRecommendation != null)
-                    FadeTransition(
-                      opacity: _listCtrl,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                            PremiumDesign.s24, 0,
-                            PremiumDesign.s24, PremiumDesign.s16),
-                        child: _FeaturedCard(
-                          song: model.dailyRecommendation!,
-                          isPlaying:
-                              model.currentSong?.id ==
-                                      model.dailyRecommendation!.id &&
-                                  model.isPlaying,
-                          onTap: () {
-                            final s = model.dailyRecommendation!;
-                            model.selectSong(s);
-                            model.playSong(s);
-                          },
-                        ),
-                      ),
-                    ),
+                  // ── Scrollable content with Refresh indicator ────────────────────
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: const Color(0xFFE91E8C),
+                      onRefresh: () async {
+                        await model.retry();
+                      },
+                      child: CustomScrollView(
+                        slivers: [
+                          // ── Featured daily recommendation ─────────────────────────
+                          if (model.dailyRecommendation != null)
+                            SliverToBoxAdapter(
+                              child: FadeTransition(
+                                opacity: _listCtrl,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      PremiumDesign.s24, 0,
+                                      PremiumDesign.s24, PremiumDesign.s16),
+                                  child: _FeaturedCard(
+                                    song: model.dailyRecommendation!,
+                                    isPlaying: model.currentSong?.id ==
+                                            model.dailyRecommendation!.id &&
+                                        model.isPlaying,
+                                    onTap: () {
+                                      final s = model.dailyRecommendation!;
+                                      model.selectSong(s);
+                                      model.playSong(s);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
 
-                  // ── "Canciones para ti" section label ────────────────────
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        PremiumDesign.s24, 0,
-                        PremiumDesign.s24, PremiumDesign.s12),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Canciones para ti',
-                          style: PremiumDesign.serifSubHeading
-                              .copyWith(fontSize: 20),
-                        ),
-                        const Spacer(),
-                        if (model.isLoading)
-                          const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Color(0xFFE91E8C),
+                          // ── "Canciones para ti" section label ────────────────────
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                  PremiumDesign.s24, 0,
+                                  PremiumDesign.s24, PremiumDesign.s12),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Canciones para ti',
+                                    style: PremiumDesign.serifSubHeading
+                                        .copyWith(fontSize: 20),
+                                  ),
+                                  const Spacer(),
+                                  if (model.isLoading)
+                                    const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Color(0xFFE91E8C),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
 
-                  // ── Song list ─────────────────────────────────────────────
-                  Expanded(
-                    child: FadeTransition(
-                      opacity: _listCtrl,
-                      child: const MusicList(),
+                          // ── Song list ─────────────────────────────────────────────
+                          SliverFillRemaining(
+                            hasScrollBody: true,
+                            child: FadeTransition(
+                              opacity: _listCtrl,
+                              child: const MusicList(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
