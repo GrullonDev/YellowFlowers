@@ -24,8 +24,17 @@ class DefaultMessages {
     'Simplemente quería recordarte lo mucho que te aprecio.',
   ];
 
-  static String getRandom() {
+  static String getRandom([String? name]) {
     final rnd = math.Random();
-    return poeticMessages[rnd.nextInt(poeticMessages.length)];
+    final message = poeticMessages[rnd.nextInt(poeticMessages.length)];
+    if (name != null && name.isNotEmpty) {
+      // Intelligently insert name
+      if (rnd.nextBool()) {
+        return '$name, $message';
+      } else {
+        return '${message.substring(0, message.length - 1)}, $name.';
+      }
+    }
+    return message;
   }
 }

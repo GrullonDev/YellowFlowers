@@ -12,6 +12,8 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:path_provider/path_provider.dart';
+import 'package:yellow_flowers/di/injector.dart';
+import 'package:yellow_flowers/core/personalization_service.dart';
 
 class FlowerResultPage extends StatefulWidget {
   const FlowerResultPage({
@@ -55,8 +57,9 @@ class _FlowerResultPageState extends State<FlowerResultPage>
         vsync: this, duration: const Duration(seconds: 18))
       ..repeat();
 
+    final name = sl<PersonalizationService>().getUserName();
     _finalDedication = (widget.dedication == null || widget.dedication!.trim().isEmpty) 
-        ? DefaultMessages.getRandom() 
+        ? DefaultMessages.getRandom(name) 
         : widget.dedication!;
 
     _initPetalSeeds();

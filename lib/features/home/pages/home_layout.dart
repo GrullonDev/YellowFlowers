@@ -221,7 +221,9 @@ class _EmotionalHeroState extends State<_EmotionalHero>
   @override
   Widget build(BuildContext context) {
     final mood = context.watch<MoodController>().mood;
-    final greeting = _greetingForTime();
+    final personalization = di.sl<PersonalizationService>();
+    final name = personalization.getUserName() ?? 'hermosa';
+    final greeting = _greetingForTime(name);
 
     return FadeTransition(
       opacity: _fade,
@@ -904,16 +906,16 @@ class _Greeting {
   final String line2;
 }
 
-_Greeting _greetingForTime() {
+_Greeting _greetingForTime(String name) {
   final hour = DateTime.now().hour;
   if (hour >= 5 && hour < 12) {
-    return const _Greeting('Buenos días,', 'flor hermosa.');
+    return _Greeting('Buenos días,', '$name.');
   } else if (hour >= 12 && hour < 18) {
-    return const _Greeting('Buenas tardes,', 'amor.');
+    return _Greeting('Buenas tardes,', '$name.');
   } else if (hour >= 18 && hour < 22) {
-    return const _Greeting('Buenas noches,', 'hermosa.');
+    return _Greeting('Buenas noches,', '$name.');
   } else {
-    return const _Greeting('Descansa bien,', 'bella.');
+    return _Greeting('Descansa bien,', '$name.');
   }
 }
 
@@ -1019,12 +1021,13 @@ void _breathingDialog(BuildContext context) {
 }
 
 void _affirmationDialog(BuildContext context) {
-  const affirmations = [
-    'Soy suficiente tal como soy.',
-    'Merezco amor, paz y todo lo hermoso.',
-    'Soy fuerte, capaz y llena de luz.',
-    'Cada día traigo algo valioso al mundo.',
-    'Mi presencia importa y marca la diferencia.',
+  final name = di.sl<PersonalizationService>().getUserName() ?? 'hermosa';
+  final affirmations = [
+    'Eres suficiente tal como eres, $name.',
+    'Mereces amor, paz y todo lo hermoso, $name.',
+    'Eres fuerte, capaz y llena de luz.',
+    'Cada día traes algo valioso al mundo, $name.',
+    'Tu presencia importa y marca la diferencia.',
   ];
   final text = affirmations[DateTime.now().day % affirmations.length];
   showDialog(

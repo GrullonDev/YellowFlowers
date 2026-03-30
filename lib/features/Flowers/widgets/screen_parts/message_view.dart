@@ -5,6 +5,8 @@ import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/widgets/typewriter_text.dart';
 import 'package:yellow_flowers/features/flowers/models/default_messages.dart';
+import 'package:yellow_flowers/di/injector.dart';
+import 'package:yellow_flowers/core/personalization_service.dart';
 
 class MessageView extends StatelessWidget {
   const MessageView({
@@ -26,7 +28,8 @@ class MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final finalMessage = (message.trim().isEmpty) ? DefaultMessages.getRandom() : message;
+    final name = sl<PersonalizationService>().getUserName();
+    final finalMessage = (message.trim().isEmpty) ? DefaultMessages.getRandom(name) : message;
 
     return Column(
       children: [
