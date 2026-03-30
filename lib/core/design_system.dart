@@ -22,6 +22,7 @@ class PremiumDesign {
   static const double s8 = 8.0;
   static const double s12 = 12.0;
   static const double s16 = 16.0;
+  static const double s20 = 20.0;
   static const double s24 = 24.0;
   static const double s32 = 32.0;
   static const double s48 = 48.0;
@@ -58,7 +59,9 @@ class PremiumDesign {
   static const Duration fast = Duration(milliseconds: 300);
 
   // --- Shapes ---
-  static BorderRadius premiumRadius = BorderRadius.circular(24);
+  static const double cardRadius = 28.0;
+  static BorderRadius premiumRadius = BorderRadius.circular(cardRadius);
+  
   static List<BoxShadow> softShadow = [
     BoxShadow(
       color: Colors.black.withValues(alpha: 0.04),
@@ -67,12 +70,11 @@ class PremiumDesign {
     ),
   ];
 
-  static List<BoxShadow> glassShadow = [
+  static List<BoxShadow> premiumShadow = [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.1),
-      blurRadius: 30,
-      spreadRadius: -5,
-      offset: const Offset(0, 15),
+      color: const Color(0xFF3E2723).withValues(alpha: 0.06),
+      blurRadius: 24,
+      offset: const Offset(0, 12),
     ),
   ];
 
