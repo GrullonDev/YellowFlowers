@@ -39,10 +39,10 @@ class HomeBloc extends BaseModel {
           description: 'Melodías para acompañar tu momento 🎵',
         ),
         MenuItem(
-          title: 'Ciclo y Música',
-          icon: Icons.auto_awesome_rounded,
+          title: 'Mi Ciclo',
+          icon: Icons.spa_rounded,
           destination: const CycleMusicPage(),
-          description: 'Recomendaciones amigables para cada fase 💗',
+          description: 'Lleva el control de tu ciclo con amor 🌸',
         ),
         /* MenuItem(
           title: 'Tarjetas Virtuales',

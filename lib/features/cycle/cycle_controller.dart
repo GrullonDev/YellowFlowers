@@ -22,6 +22,73 @@ class CycleController extends ChangeNotifier {
 
   CyclePhase get currentPhase => _computePhase(DateTime.now());
 
+  /// Día actual dentro del ciclo (1-indexed). 0 si no está configurado.
+  int get currentDayInCycle {
+    if (_lastPeriodStart == null) return 0;
+    final start = DateUtils.dateOnly(_lastPeriodStart!);
+    final now = DateUtils.dateOnly(DateTime.now());
+    final diff = now.difference(start).inDays;
+    return (diff % _cycleLength) + 1;
+  }
+
+  /// Días que faltan para el próximo periodo. 0 si no está configurado.
+  int get daysUntilNextPeriod {
+    if (_lastPeriodStart == null) return 0;
+    return _cycleLength - (currentDayInCycle - 1);
+  }
+
+  String get phaseEmoji {
+    switch (currentPhase) {
+      case CyclePhase.period:
+        return '🌹';
+      case CyclePhase.fertile:
+        return '✨';
+      case CyclePhase.premenstrual:
+        return '🌙';
+      case CyclePhase.other:
+        return '🌸';
+    }
+  }
+
+  String get phaseAffirmation {
+    switch (currentPhase) {
+      case CyclePhase.period:
+        return 'Tu cuerpo es sabio.\nDescansa con amor.';
+      case CyclePhase.fertile:
+        return 'Brillas con una\nenergía especial.';
+      case CyclePhase.premenstrual:
+        return 'La calma es\ntu fortaleza.';
+      case CyclePhase.other:
+        return 'Creces con\ncada nuevo día.';
+    }
+  }
+
+  List<String> get phaseTips {
+    switch (currentPhase) {
+      case CyclePhase.period:
+        return ['Hidratate bien 💧', 'Movimiento suave 🧘', 'Date cariño 🛁', 'Descansa profundo 🌙'];
+      case CyclePhase.fertile:
+        return ['Conéctate 💬', 'Crea y expresa 🎨', 'Muévete 💃', 'Planifica ⭐'];
+      case CyclePhase.premenstrual:
+        return ['Reduce el café ☕', 'Medita 🧘', 'Escribe cómo te sientes ✍️', 'Cuídate extra 🌿'];
+      case CyclePhase.other:
+        return ['Aprende algo nuevo 📚', 'Aire libre 🌿', 'Planifica tu semana 📋', 'Comparte amor 💛'];
+    }
+  }
+
+  List<Color> get phaseGradientColors {
+    switch (currentPhase) {
+      case CyclePhase.period:
+        return [const Color(0xFFFFCDD2), const Color(0xFFEF9A9A)];
+      case CyclePhase.fertile:
+        return [const Color(0xFFFFF9C4), const Color(0xFFFFECB3)];
+      case CyclePhase.premenstrual:
+        return [const Color(0xFFE8EAF6), const Color(0xFFD1C4E9)];
+      case CyclePhase.other:
+        return [const Color(0xFFFCE4EC), const Color(0xFFF8BBD0)];
+    }
+  }
+
   String get currentPhaseLabel {
     switch (currentPhase) {
       case CyclePhase.period:
@@ -31,20 +98,20 @@ class CycleController extends ChangeNotifier {
       case CyclePhase.premenstrual:
         return 'Fase Lútea / Premenstrual';
       case CyclePhase.other:
-        return 'Ciclo en Curso';
+        return 'Fase Folicular';
     }
   }
 
   String? get recommendation {
     switch (currentPhase) {
       case CyclePhase.period:
-        return 'Es momento de cuidar de ti. Una melodía suave ayudará a calmar tu mente y cuerpo.';
+        return 'Es momento de cuidar de ti. Permítete descansar, escuchar tu cuerpo y recibir amor.';
       case CyclePhase.fertile:
-        return 'Tu energía está en su punto máximo. ¡Aprovéchala con ritmos vibrantes y alegres!';
+        return 'Tu energía está en su punto máximo. ¡Aprovéchala, conecta con el mundo y disfruta!';
       case CyclePhase.premenstrual:
-        return 'Busca el equilibrio. Sonidos relajantes te ayudarán a navegar estos días con calma.';
+        return 'Busca el equilibrio interior. Sonidos relajantes y momentos de calma te nutren hoy.';
       case CyclePhase.other:
-        return 'Sigue el ritmo de tu corazón. Elige la música que mejor conecte con tu sentir hoy.';
+        return 'Estás en una fase de renovación. Un momento perfecto para aprender y florecer.';
     }
   }
 
