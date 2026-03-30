@@ -307,19 +307,58 @@ class _FavoritesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     if (model.favorites.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Opacity(opacity: 0.5, child: const Text('✨', style: TextStyle(fontSize: 40))),
-            const SizedBox(height: 16),
-            Text(
-              'Aún no tienes favoritos',
-              style: GoogleFonts.plusJakartaSans(
-                color: PremiumDesign.secondaryText,
-                fontWeight: FontWeight.w600,
+        child: Padding(
+          padding: const EdgeInsets.all(PremiumDesign.s32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(PremiumDesign.s24),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
+                ),
+                child: const Text('✨', style: TextStyle(fontSize: 48)),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              Text(
+                'Aquí guardarás tus momentos especiales',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: PremiumDesign.softText,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Colecciona los mensajes que más te lleguen al corazón.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  color: PremiumDesign.secondaryText,
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () {
+                  final controller = DefaultTabController.of(context);
+                  controller.animateTo(0);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PremiumDesign.softText,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Explorar mensajes',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
