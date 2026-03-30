@@ -346,9 +346,9 @@ class _NameEntryFlowerState extends State<NameEntryFlower>
   }
 }
 
-class _FeatureChip extends StatelessWidget {
-
-  const _FeatureChip({
+class FeatureChip extends StatelessWidget {
+  const FeatureChip({
+    super.key,
     required this.label,
     required this.selected,
     required this.onSelected,
