@@ -39,7 +39,8 @@ class StoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final finalMessage = (message.trim().isEmpty) ? DefaultMessages.getRandom() : message;
+    final finalMessage =
+        (message.trim().isEmpty) ? DefaultMessages.getRandom() : message;
 
     return RepaintBoundary(
       key: boundaryKey,
@@ -115,11 +116,13 @@ class StoryCard extends StatelessWidget {
   List<Widget> _buildPremiumBubbles() {
     return [
       Positioned(
-        top: -100, left: -100,
+        top: -100,
+        left: -100,
         child: _BlurBubble(size: 400, color: Colors.white.withAlpha(80)),
       ),
       Positioned(
-        bottom: 200, right: -150,
+        bottom: 200,
+        right: -150,
         child: _BlurBubble(size: 500, color: bottomColor.withAlpha(40)),
       ),
     ];
@@ -131,15 +134,16 @@ class StoryCard extends StatelessWidget {
         const SizedBox(height: 20),
         Text(
           '✨🌻✨',
-          style: TextStyle(fontSize: 42, color: const Color(0xFF3E2723).withAlpha(180)),
+          style: TextStyle(
+              fontSize: 42, color: const Color(0xFF3E2723).withAlpha(180)),
         ),
       ],
     );
   }
 
   Widget _buildBody(String messageToDisplay) {
-    final textColor = const Color(0xFF3E2723);
-    
+    const textColor = Color(0xFF3E2723);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 80),
@@ -190,7 +194,11 @@ class StoryCard extends StatelessWidget {
                 height: 3,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.transparent, textColor.withAlpha(60), Colors.transparent],
+                    colors: [
+                      Colors.transparent,
+                      textColor.withAlpha(60),
+                      Colors.transparent
+                    ],
                   ),
                 ),
               ),
@@ -225,7 +233,8 @@ class StoryCard extends StatelessWidget {
               decoration: const PrettyQrDecoration(
                 shape: PrettyQrSmoothSymbol(color: Color(0xFF3E2723)),
                 image: PrettyQrDecorationImage(
-                  image: NetworkImage('https://cdn-icons-png.flaticon.com/512/1047/1047711.png'),
+                  image: NetworkImage(
+                      'https://cdn-icons-png.flaticon.com/512/1047/1047711.png'),
                   scale: 0.3,
                 ),
               ),
@@ -246,8 +255,10 @@ class StoryCard extends StatelessWidget {
     );
   }
 
-  static Future<Uint8List?> exportPng(GlobalKey boundaryKey, {double pixelRatio = 3.0}) async {
-    final boundary = boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+  static Future<Uint8List?> exportPng(GlobalKey boundaryKey,
+      {double pixelRatio = 3.0}) async {
+    final boundary = boundaryKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
     if (boundary == null) return null;
     final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -275,7 +286,8 @@ class _GrainPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withAlpha((opacity * 255).toInt());
+    final paint = Paint()
+      ..color = Colors.black.withAlpha((opacity * 255).toInt());
     final rnd = math.Random(42);
     for (int i = 0; i < 6000; i++) {
       final x = rnd.nextDouble() * size.width;

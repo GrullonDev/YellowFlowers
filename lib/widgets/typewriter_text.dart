@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class TypewriterText extends StatefulWidget {
-
   const TypewriterText({
     super.key,
     required this.text,

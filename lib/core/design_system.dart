@@ -19,10 +19,26 @@ class PremiumDesign {
   static const Color darkDivider = Color(0xFF2C2C2C);
 
   // --- Dynamic Themes (Time of Day - Recuperados) ---
-  static const List<Color> morningColors = [Color(0xFFFFF9C4), Color(0xFFFFECB3), Color(0xFFFFD54F)];
-  static const List<Color> afternoonColors = [Color(0xFFE3F2FD), Color(0xFFBBDEFB), Color(0xFF90CAF9)];
-  static const List<Color> nightColors = [Color(0xFF1A237E), Color(0xFF311B92), Color(0xFF000000)];
-  static const List<Color> moodPinkColors = [Color(0xFFFCE4EC), Color(0xFFF8BBD0), Color(0xFFF48FB1)];
+  static const List<Color> morningColors = [
+    Color(0xFFFFF9C4),
+    Color(0xFFFFECB3),
+    Color(0xFFFFD54F)
+  ];
+  static const List<Color> afternoonColors = [
+    Color(0xFFE3F2FD),
+    Color(0xFFBBDEFB),
+    Color(0xFF90CAF9)
+  ];
+  static const List<Color> nightColors = [
+    Color(0xFF1A237E),
+    Color(0xFF311B92),
+    Color(0xFF000000)
+  ];
+  static const List<Color> moodPinkColors = [
+    Color(0xFFFCE4EC),
+    Color(0xFFF8BBD0),
+    Color(0xFFF48FB1)
+  ];
 
   // --- Mesh Gradient Colors ---
   static const Color mesh1 = Color(0xFFFFF9C4);
@@ -82,30 +98,30 @@ class PremiumDesign {
 
   // --- Shadows ---
   static List<BoxShadow> get deepShadow => [
-    BoxShadow(
-      color: Colors.black.withAlpha(20),
-      blurRadius: 40,
-      offset: const Offset(0, 20),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withAlpha(20),
+          blurRadius: 40,
+          offset: const Offset(0, 20),
+        ),
+      ];
 
   static List<BoxShadow> get premiumShadow => deepShadow;
 
   static List<BoxShadow> get softShadow => [
-    BoxShadow(
-      color: Colors.black.withAlpha(10),
-      blurRadius: 20,
-      offset: const Offset(0, 8),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withAlpha(10),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
+        ),
+      ];
 
   static List<BoxShadow> get goldGlow => [
-    BoxShadow(
-      color: radiantGold.withAlpha(80),
-      blurRadius: 30,
-      spreadRadius: 2,
-    ),
-  ];
+        BoxShadow(
+          color: radiantGold.withAlpha(80),
+          blurRadius: 30,
+          spreadRadius: 2,
+        ),
+      ];
 
   // --- Shapes ---
   static const double cardRadius = 32.0;

@@ -47,7 +47,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
 
   List<Color> _getTimeBasedColors(bool isDark) {
     if (isDark) return PremiumDesign.nightColors;
-    
+
     final hour = DateTime.now().hour;
     if (hour >= 5 && hour < 12) return PremiumDesign.morningColors;
     if (hour >= 12 && hour < 18) return PremiumDesign.afternoonColors;
@@ -93,7 +93,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
               top: dy * MediaQuery.of(context).size.height + drift,
               child: Opacity(
                 opacity: opacity,
-                child: _decorElement(i, rnd, isDark || timeColors == PremiumDesign.nightColors),
+                child: _decorElement(
+                    i, rnd, isDark || timeColors == PremiumDesign.nightColors),
               ),
             );
           }),

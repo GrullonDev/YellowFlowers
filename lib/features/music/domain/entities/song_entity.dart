@@ -1,5 +1,4 @@
 class SongEntity {
-
   const SongEntity({
     required this.id,
     required this.title,

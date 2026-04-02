@@ -5,7 +5,6 @@ import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 
 /// Global mood state used to personalize background palette, messages and music
 class MoodController extends ChangeNotifier {
-
   MoodController() {
     _load();
   }

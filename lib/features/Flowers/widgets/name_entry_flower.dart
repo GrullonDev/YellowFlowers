@@ -27,7 +27,8 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: PremiumDesign.softText),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: PremiumDesign.softText),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -37,12 +38,13 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
           child: Consumer<FlowerBloc>(
             builder: (context, model, _) {
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24, vertical: PremiumDesign.s16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: PremiumDesign.s24, vertical: PremiumDesign.s16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: PremiumDesign.s24),
-                    
+
                     // Título Minimalista
                     Text(
                       'Personaliza tu\nflor dorada',
@@ -62,9 +64,9 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    
+
                     const SizedBox(height: PremiumDesign.s48),
-                    
+
                     // Campo de Nombre (De)
                     _PremiumField(
                       controller: model.nameController,
@@ -72,7 +74,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                       hint: '¿Quién envía la flor?',
                     ),
                     const SizedBox(height: PremiumDesign.s24),
-                    
+
                     // Campo de Destinatario (Para)
                     _PremiumField(
                       controller: model.recipientController,
@@ -80,7 +82,7 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                       hint: 'Nombre de la persona especial',
                     ),
                     const SizedBox(height: PremiumDesign.s24),
-                    
+
                     // Campo de Dedicatoria (Mensaje)
                     _PremiumField(
                       controller: model.dedicationController,
@@ -88,9 +90,9 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                       hint: 'Escribe algo desde el corazón...',
                       maxLines: 3,
                     ),
-                    
+
                     const SizedBox(height: PremiumDesign.s32),
-                    
+
                     // Selección de Estilo (Tema)
                     const _SectionHeader(label: 'Elige el estilo visual'),
                     const SizedBox(height: 12),
@@ -99,25 +101,29 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                         _StyleChip(
                           label: 'Daisies',
                           isSelected: _theme == FlowerTheme.daisy,
-                          onTap: () => setState(() => _theme = FlowerTheme.daisy),
+                          onTap: () =>
+                              setState(() => _theme = FlowerTheme.daisy),
                         ),
                         const SizedBox(width: 8),
                         _StyleChip(
                           label: 'Sunflowers',
                           isSelected: _theme == FlowerTheme.sunflower,
-                          onTap: () => setState(() => _theme = FlowerTheme.sunflower),
+                          onTap: () =>
+                              setState(() => _theme = FlowerTheme.sunflower),
                         ),
                         const SizedBox(width: 8),
                         _StyleChip(
                           label: 'Roses',
                           isSelected: _theme == FlowerTheme.rose,
-                          onTap: () => setState(() => _theme = FlowerTheme.rose),
+                          onTap: () =>
+                              setState(() => _theme = FlowerTheme.rose),
                         ),
                       ],
                     ),
-                    
+
                     // Selección de Ánimo (Inteligencia Emocional)
-                    const _SectionHeader(label: '¿Cómo te sientes en este momento?'),
+                    const _SectionHeader(
+                        label: '¿Cómo te sientes en este momento?'),
                     const SizedBox(height: 12),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -138,22 +144,26 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                           const SizedBox(width: 8),
                           _StyleChip(
                             label: 'Nostálgica ☁️',
-                            isSelected: _mood == Mood.passion, // Usaremos pasión como placeholder de nostálgica o mapearemos
+                            isSelected: _mood ==
+                                Mood.passion, // Usaremos pasión como placeholder de nostálgica o mapearemos
                             onTap: () => setState(() => _mood = Mood.passion),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: PremiumDesign.s48),
-                    
+
                     // Botón de Acción Principal
                     _MainButton(
                       onTap: () {
                         HapticFeedback.mediumImpact();
-                        if (model.nameController.text.isEmpty || model.recipientController.text.isEmpty) {
+                        if (model.nameController.text.isEmpty ||
+                            model.recipientController.text.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Por favor completa los nombres.')),
+                            const SnackBar(
+                                content:
+                                    Text('Por favor completa los nombres.')),
                           );
                           return;
                         }
@@ -246,14 +256,17 @@ class _PremiumField extends StatelessWidget {
             ),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.7),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
+              borderSide:
+                  BorderSide(color: Colors.black.withValues(alpha: 0.05)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(20),
-              borderSide: const BorderSide(color: PremiumDesign.premiumGold, width: 1.5),
+              borderSide: const BorderSide(
+                  color: PremiumDesign.premiumGold, width: 1.5),
             ),
           ),
         ),
@@ -281,11 +294,15 @@ class _StyleChip extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? PremiumDesign.softText : Colors.white.withValues(alpha: 0.6),
+          color: isSelected
+              ? PremiumDesign.softText
+              : Colors.white.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isSelected ? PremiumDesign.softShadow : [],
           border: Border.all(
-            color: isSelected ? PremiumDesign.softText : Colors.black.withValues(alpha: 0.05),
+            color: isSelected
+                ? PremiumDesign.softText
+                : Colors.black.withValues(alpha: 0.05),
           ),
         ),
         child: Text(

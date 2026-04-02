@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonalizationService {
-
   PersonalizationService(this._prefs);
   final SharedPreferences _prefs;
 

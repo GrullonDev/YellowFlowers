@@ -9,7 +9,7 @@ class ThemedFlowerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    
+
     // 1. Tallo Premium Universal
     _drawPremiumStem(canvas, size, center);
 
@@ -28,18 +28,20 @@ class ThemedFlowerPainter extends CustomPainter {
 
   void _drawPremiumStem(Canvas canvas, Size size, Offset center) {
     final talloPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [const Color(0xFF1B5E20), const Color(0xFF4CAF50)],
+      ..shader = const LinearGradient(
+        colors: [Color(0xFF1B5E20), Color(0xFF4CAF50)],
         begin: Alignment.bottomCenter,
         end: Alignment.topCenter,
-      ).createShader(Rect.fromLTWH(center.dx - 2, center.dy, 4, size.height - center.dy))
+      ).createShader(
+          Rect.fromLTWH(center.dx - 2, center.dy, 4, size.height - center.dy))
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     final path = Path();
     path.moveTo(center.dx, center.dy + 10);
-    path.quadraticBezierTo(center.dx + 8, center.dy + size.height * 0.2, center.dx, size.height);
+    path.quadraticBezierTo(
+        center.dx + 8, center.dy + size.height * 0.2, center.dx, size.height);
     canvas.drawPath(path, talloPaint);
   }
 
@@ -53,10 +55,10 @@ class ThemedFlowerPainter extends CustomPainter {
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
 
-      final rect = Rect.fromLTWH(-8, -45, 16, 45);
-      petalPaint.shader = RadialGradient(
-        colors: [const Color(0xFFFFD54F), const Color(0xFFFFA000), const Color(0xFFE65100)],
-        stops: const [0.0, 0.7, 1.0],
+      const rect = Rect.fromLTWH(-8, -45, 16, 45);
+      petalPaint.shader = const RadialGradient(
+        colors: [Color(0xFFFFD54F), Color(0xFFFFA000), Color(0xFFE65100)],
+        stops: [0.0, 0.7, 1.0],
       ).createShader(rect);
 
       final path = Path();
@@ -71,17 +73,20 @@ class ThemedFlowerPainter extends CustomPainter {
 
     // Centro 3D
     final diskPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [const Color(0xFF3E2723), const Color(0xFF5D4037)],
+      ..shader = const RadialGradient(
+        colors: [Color(0xFF3E2723), Color(0xFF5D4037)],
       ).createShader(Rect.fromCircle(center: center, radius: 18));
-    
+
     canvas.drawCircle(center, 18, diskPaint);
-    
+
     // Mini puntos de polen
     final pPaint = Paint()..color = const Color(0xFFFFA000).withAlpha(150);
     for (int j = 0; j < 12; j++) {
       final a = j * (math.pi / 6);
-      canvas.drawCircle(Offset(center.dx + math.cos(a) * 10, center.dy + math.sin(a) * 10), 1.5, pPaint);
+      canvas.drawCircle(
+          Offset(center.dx + math.cos(a) * 10, center.dy + math.sin(a) * 10),
+          1.5,
+          pPaint);
     }
   }
 
@@ -95,11 +100,11 @@ class ThemedFlowerPainter extends CustomPainter {
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
 
-      petalPaint.shader = LinearGradient(
-        colors: [Colors.white, const Color(0xFFF5F5F5), const Color(0xFFE0E0E0)],
+      petalPaint.shader = const LinearGradient(
+        colors: [Colors.white, Color(0xFFF5F5F5), Color(0xFFE0E0E0)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-      ).createShader(Rect.fromLTWH(-6, -40, 12, 40));
+      ).createShader(const Rect.fromLTWH(-6, -40, 12, 40));
 
       final path = Path();
       path.moveTo(0, 0);
@@ -117,7 +122,7 @@ class ThemedFlowerPainter extends CustomPainter {
 
   void _drawEliteRose(Canvas canvas, Offset center) {
     final rosePaint = Paint();
-    
+
     // Capas de pétalos envolventes
     for (int layer = 3; layer >= 1; layer--) {
       final count = layer * 4;
@@ -137,12 +142,13 @@ class ThemedFlowerPainter extends CustomPainter {
             const Color(0xFFC62828).withAlpha(200),
           ],
           stops: const [0.0, 0.6, 1.0],
-        ).createShader(Rect.fromCircle(center: const Offset(0, -10), radius: radius));
+        ).createShader(
+            Rect.fromCircle(center: const Offset(0, -10), radius: radius));
 
         final path = Path();
         path.moveTo(0, 0);
-        path.quadraticBezierTo(-petalSize/2, -radius, 0, -radius*1.5);
-        path.quadraticBezierTo(petalSize/2, -radius, 0, 0);
+        path.quadraticBezierTo(-petalSize / 2, -radius, 0, -radius * 1.5);
+        path.quadraticBezierTo(petalSize / 2, -radius, 0, 0);
         path.close();
 
         canvas.drawPath(path, rosePaint);
@@ -155,5 +161,6 @@ class ThemedFlowerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant ThemedFlowerPainter oldDelegate) => oldDelegate.theme != theme;
+  bool shouldRepaint(covariant ThemedFlowerPainter oldDelegate) =>
+      oldDelegate.theme != theme;
 }

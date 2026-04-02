@@ -7,7 +7,6 @@ import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 
 class OnboardingPage {
-
   OnboardingPage({
     required this.title,
     required this.description,
@@ -183,7 +182,8 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
 }
 
 class _OnboardingContentView extends StatelessWidget {
-  const _OnboardingContentView({required this.page, required this.nameController});
+  const _OnboardingContentView(
+      {required this.page, required this.nameController});
   final OnboardingPage page;
   final TextEditingController nameController;
 
@@ -218,7 +218,8 @@ class _OnboardingContentView extends StatelessWidget {
               ),
               const SizedBox(height: PremiumDesign.s16), // Reduced from 24
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: PremiumDesign.s16),
                 child: Text(
                   page.description,
                   textAlign: TextAlign.center,
@@ -255,7 +256,8 @@ class _OnboardingContentView extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Tu nombre aquí...',
                       hintStyle: PremiumDesign.sansBody.copyWith(
-                        color: PremiumDesign.secondaryText.withValues(alpha: 0.4),
+                        color:
+                            PremiumDesign.secondaryText.withValues(alpha: 0.4),
                       ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
@@ -263,7 +265,8 @@ class _OnboardingContentView extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 120), // Extra space for the floating buttons
+              const SizedBox(
+                  height: 120), // Extra space for the floating buttons
             ],
           ),
         ),

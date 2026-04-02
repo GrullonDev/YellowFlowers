@@ -62,9 +62,7 @@ class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
           child: SafeArea(
             child: GridView.builder(
               padding: const EdgeInsets.symmetric(
-                horizontal: PremiumDesign.s24, 
-                vertical: PremiumDesign.s32
-              ),
+                  horizontal: PremiumDesign.s24, vertical: PremiumDesign.s32),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: PremiumDesign.s32,
@@ -78,13 +76,15 @@ class _MomentsGalleryLayoutState extends State<MomentsGalleryLayout>
                     model.recentMemoriesForAlbum(album.id, limit: 3).toList();
                 final count = model.countForAlbum(album.id);
                 final quotes = recent
-                    .where((m) => m.description != null && m.description!.isNotEmpty)
+                    .where((m) =>
+                        m.description != null && m.description!.isNotEmpty)
                     .map((m) => m.description!)
                     .toList();
 
                 final animation = CurvedAnimation(
                   parent: _controller,
-                  curve: Interval((i * 0.05).clamp(0.0, 1.0), 0.6 + (i * 0.05).clamp(0.0, 0.4),
+                  curve: Interval((i * 0.05).clamp(0.0, 1.0),
+                      0.6 + (i * 0.05).clamp(0.0, 0.4),
                       curve: Curves.easeOutBack),
                 );
 
@@ -142,7 +142,8 @@ class _PremiumFAB extends StatefulWidget {
   State<_PremiumFAB> createState() => _PremiumFABState();
 }
 
-class _PremiumFABState extends State<_PremiumFAB> with SingleTickerProviderStateMixin {
+class _PremiumFABState extends State<_PremiumFAB>
+    with SingleTickerProviderStateMixin {
   late AnimationController _fabController;
   late Animation<double> _scaleAnimation;
 
@@ -205,15 +206,13 @@ class _PremiumFABState extends State<_PremiumFAB> with SingleTickerProviderState
                 child: InkWell(
                   onTap: widget.onPressed,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.add_a_photo_rounded, 
-                          color: Colors.white, 
-                          size: 22
-                        ),
+                        const Icon(Icons.add_a_photo_rounded,
+                            color: Colors.white, size: 22),
                         const SizedBox(width: 10),
                         Text(
                           'Añadir Recuerdo',
@@ -235,7 +234,6 @@ class _PremiumFABState extends State<_PremiumFAB> with SingleTickerProviderState
     );
   }
 }
-
 
 Future<Iterable<String>> _resolveThumbPaths(Iterable<String> fileNames) async {
   final dir = await getApplicationDocumentsDirectory();

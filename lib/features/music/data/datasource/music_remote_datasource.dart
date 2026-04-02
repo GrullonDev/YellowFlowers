@@ -1,6 +1,6 @@
 import 'package:just_audio/just_audio.dart';
 
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
+import 'package:yellow_flowers/data/music_service/firebase_music_service.dart';
 import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 
@@ -19,25 +19,26 @@ abstract class MusicRemoteDataSource {
 class MusicRemoteDataSourceImpl implements MusicRemoteDataSource {
   MusicRemoteDataSourceImpl({
     required AudioPlayer audioPlayer,
-    required JamendoApiService apiService,
+    required FirebaseMusicService musicService,
   })  : _audioPlayer = audioPlayer,
-        _apiService = apiService;
+        _musicService = musicService;
+
   final AudioPlayer _audioPlayer;
-  final JamendoApiService _apiService;
+  final FirebaseMusicService _musicService;
 
   @override
   Future<List<Song>> getSongs(String genre) async {
-    return _apiService.getTracks(genre);
+    return _musicService.getSongsByGenre(genre);
   }
 
   @override
   Future<List<Song>> getSongsByMood(Mood mood) async {
-    return _apiService.getTracksByMood(mood);
+    return _musicService.getSongsByMood(mood);
   }
 
   @override
   Future<Song?> getDailyRecommendation(Mood mood) async {
-    return _apiService.randomTrackByMood(mood);
+    return _musicService.getRandomSongByMood(mood);
   }
 
   @override

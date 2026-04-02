@@ -1,69 +1,122 @@
+# 🎯 Yellow Flowers - Git Ignore Configuration
+
+# ---------------------------------------------------------------------------
 # Miscellaneous
+# ---------------------------------------------------------------------------
 *.class
 *.log
 *.pyc
 *.swp
+*.bak
+*.tmp
+*.temp
+node_modules/
+dist/
+build/
+*.pem
+*.jar
 .DS_Store
-.atom/
-.build/
-.buildlog/
+.apple
 .history
 .svn/
-.swiftpm/
-migrate_working_dir/
 
-# IntelliJ related
+# ---------------------------------------------------------------------------
+# IDE & Editors
+# ---------------------------------------------------------------------------
+
+# IntelliJ
 *.iml
 *.ipr
 *.iws
 .idea/
-# Android related
-/android/.cxx/
-/android/app/.cxx/
-/android/**/cmake/**/build/
-/android/app/.cxx/**/*
-/android/app/debug
-/android/app/profile
-/android/app/release
+out/
+cmake-build-*/
 
-# iOS related
-/ios/Podfile.lock
-/ios/Pods/
-/ios/.symlinks/
-/ios/Flutter/Flutter.podspec
-/ios/Flutter/Generated.xcconfig
-/ios/Flutter/ephemeral/
-**/ios/Flutter/.last_build_id
-
-# VS Code related
+# VS Code
 .vscode/
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+*.code-workspace
 
-# Flutter/Dart/Pub related
-**/doc/api/
+# ---------------------------------------------------------------------------
+# Flutter & Dart
+# ---------------------------------------------------------------------------
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
-/build/
+build/
+coverage/
+doc/api/
+test_driver/
 
-# Symbolication related
-app.*.symbols
+# Keep pubspec.lock for applications to ensure consistent builds
+# pubspec.lock
 
-# Obfuscation related
-app.*.map.json
-
-# Environment/Keys
-pubspec.lock
-.metadata
-key.properties
-*.keystore
-*.jks
-
-# FVM Version Cache
+# FVM
 .fvm/
-.fvmrc
+# .fvmrc # Uncomment if you want to share FVM version
 
-# Secrets / Configs (Optional but recommended)
+# ---------------------------------------------------------------------------
+# Android Hardware / Builds
+# ---------------------------------------------------------------------------
+/android/.gradletasknamecache
+/android/local.properties
+/android/GeneratedPluginRegistrant.java
+/android/app/src/main/java/io/flutter/plugins/
+/android/.cxx/
+/android/app/.cxx/
+/android/app/debug
+/android/app/profile
+/android/app/release
+**/*.keystore
+**/*.jks
+key.properties
+
+# ---------------------------------------------------------------------------
+# iOS / macOS Hardware / Builds
+# ---------------------------------------------------------------------------
+/ios/.symlinks/
+/ios/Pods/
+/ios/Podfile.lock
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+/ios/Flutter/.last_build_id
+/ios/ServiceDefinitions.json
+/ios/Runner/GeneratedPluginRegistrant.h
+/ios/Runner/GeneratedPluginRegistrant.m
+
+# macOS
+/macos/Flutter/ephemeral/
+/macos/generated_module.txt
+
+# ---------------------------------------------------------------------------
+# Secrets & Configs
+# ---------------------------------------------------------------------------
+.env*
 firebase.json
 database.rules.json
+*.rules.json
+*.indexes.json
+google-services.json
+GoogleService-Info.plist
+
+# Firebase Admin SDK & Service Accounts
+*-firebase-adminsdk-*.json
+firebase-adminsdk*.json
+service-account*.json
+*serviceaccount*.json
+*firebase*.json
+
+# Credentials / Private files
+**/secrets/*.json
+**/config/secrets.json
+**/assets/**/*.json
+# Note: be careful with the above if you have non-secret json in assets. 
+# Explicitly ignore the problematic file:
+yellowflowers-58d52-firebase-adminsdk-*.json
+serviceAccountKey.json

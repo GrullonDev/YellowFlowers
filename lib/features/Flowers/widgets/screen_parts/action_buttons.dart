@@ -47,7 +47,8 @@ class _PremiumInteractionButton extends StatefulWidget {
   final VoidCallback onPressed;
 
   @override
-  State<_PremiumInteractionButton> createState() => _PremiumInteractionButtonState();
+  State<_PremiumInteractionButton> createState() =>
+      _PremiumInteractionButtonState();
 }
 
 class _PremiumInteractionButtonState extends State<_PremiumInteractionButton> {

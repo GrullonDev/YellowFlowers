@@ -50,21 +50,22 @@ class _FlowerResultPageState extends State<FlowerResultPage>
     super.initState();
     _entranceController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 2500));
-    _bgController = AnimationController(
-        vsync: this, duration: const Duration(seconds: 15))
-      ..repeat(reverse: true);
-    _petalController = AnimationController(
-        vsync: this, duration: const Duration(seconds: 18))
-      ..repeat();
+    _bgController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 15))
+          ..repeat(reverse: true);
+    _petalController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 18))
+          ..repeat();
 
     final name = sl<PersonalizationService>().getUserName();
-    _finalDedication = (widget.dedication == null || widget.dedication!.trim().isEmpty) 
-        ? DefaultMessages.getRandom(name) 
-        : widget.dedication!;
+    _finalDedication =
+        (widget.dedication == null || widget.dedication!.trim().isEmpty)
+            ? DefaultMessages.getRandom(name)
+            : widget.dedication!;
 
     _initPetalSeeds();
-    Future.delayed(const Duration(milliseconds: 500),
-        () => _entranceController.forward());
+    Future.delayed(
+        const Duration(milliseconds: 500), () => _entranceController.forward());
   }
 
   void _initPetalSeeds() {
@@ -100,9 +101,9 @@ class _FlowerResultPageState extends State<FlowerResultPage>
       Uint8List pngBytes = byteData!.buffer.asUint8List();
 
       final directory = await getTemporaryDirectory();
-      final imagePath =
-          await File('${directory.path}/gift_${DateTime.now().millisecondsSinceEpoch}.png')
-              .create();
+      final imagePath = await File(
+              '${directory.path}/gift_${DateTime.now().millisecondsSinceEpoch}.png')
+          .create();
       await imagePath.writeAsBytes(pngBytes);
 
       await Share.shareXFiles([XFile(imagePath.path)],
@@ -151,15 +152,13 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                 petalAnimation: _petalController,
                 petalSeeds: _petalSeeds,
               ),
-
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: PremiumDesign.s24),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: PremiumDesign.s24),
                   child: Column(
                     children: [
                       const Spacer(flex: 3),
-
                       _StaggeredItem(
                         index: 0,
                         controller: _entranceController,
@@ -180,9 +179,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                           ),
                         ),
                       ),
-
                       const SizedBox(height: PremiumDesign.s16),
-
                       _StaggeredItem(
                         index: 1,
                         controller: _entranceController,
@@ -192,9 +189,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                           dedication: _finalDedication,
                         ),
                       ),
-
                       const Spacer(flex: 2),
-
                       _StaggeredItem(
                         index: 2,
                         controller: _entranceController,
@@ -233,7 +228,10 @@ class _FlowerResultPageState extends State<FlowerResultPage>
 }
 
 class _GiftCard extends StatelessWidget {
-  const _GiftCard({required this.recipient, required this.sender, required this.dedication});
+  const _GiftCard(
+      {required this.recipient,
+      required this.sender,
+      required this.dedication});
   final String recipient, sender, dedication;
 
   @override
@@ -257,19 +255,23 @@ class _GiftCard extends StatelessWidget {
           child: Stack(
             children: [
               // Decorative seal
-              Positioned(
-                top: -10, right: -10,
+              const Positioned(
+                top: -10,
+                right: -10,
                 child: Opacity(
                   opacity: 0.05,
-                  child: Icon(Icons.auto_awesome, size: 80, color: PremiumDesign.radiantGold),
+                  child: Icon(Icons.auto_awesome,
+                      size: 80, color: PremiumDesign.radiantGold),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('PARA ALGUIEN ESPECIAL 💛', style: PremiumDesign.sansLabel),
+                    Text('PARA ALGUIEN ESPECIAL 💛',
+                        style: PremiumDesign.sansLabel),
                     const SizedBox(height: 24),
                     Text(
                       '$recipient,',
@@ -294,7 +296,10 @@ class _GiftCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(width: 20, height: 1, color: PremiumDesign.radiantGold.withAlpha(80)),
+                        Container(
+                            width: 20,
+                            height: 1,
+                            color: PremiumDesign.radiantGold.withAlpha(80)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
@@ -306,7 +311,10 @@ class _GiftCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Container(width: 20, height: 1, color: PremiumDesign.radiantGold.withAlpha(80)),
+                        Container(
+                            width: 20,
+                            height: 1,
+                            color: PremiumDesign.radiantGold.withAlpha(80)),
                       ],
                     ),
                   ],
@@ -333,7 +341,8 @@ class _StaggeredItem extends StatelessWidget {
     final end = (start + 0.6).clamp(0.0, 1.0);
     return FadeTransition(
       opacity: CurvedAnimation(
-          parent: controller, curve: Interval(start, end, curve: Curves.easeOut)),
+          parent: controller,
+          curve: Interval(start, end, curve: Curves.easeOut)),
       child: SlideTransition(
         position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
             .animate(CurvedAnimation(
@@ -346,7 +355,8 @@ class _StaggeredItem extends StatelessWidget {
 }
 
 class _PremiumButton extends StatelessWidget {
-  const _PremiumButton({required this.icon, required this.label, required this.onPressed});
+  const _PremiumButton(
+      {required this.icon, required this.label, required this.onPressed});
   final IconData icon;
   final String label;
   final VoidCallback onPressed;

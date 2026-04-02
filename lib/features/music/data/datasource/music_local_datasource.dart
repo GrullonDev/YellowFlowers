@@ -28,7 +28,7 @@ class MusicLocalDataSourceImpl implements MusicLocalDataSource {
   Future<List<Song>> getCachedSongs(String key) async {
     final jsonStr = _sharedPreferences.getString('$_prefix$key');
     if (jsonStr == null) return [];
-    
+
     final List<dynamic> decoded = jsonDecode(jsonStr);
     return decoded.map((j) => Song.fromJson(j)).toList();
   }
@@ -43,7 +43,8 @@ class MusicLocalDataSourceImpl implements MusicLocalDataSource {
 
   @override
   Future<Song?> getCachedRecommendation(Mood mood) async {
-    final jsonStr = _sharedPreferences.getString('${_prefix}recommendation_${mood.name}');
+    final jsonStr =
+        _sharedPreferences.getString('${_prefix}recommendation_${mood.name}');
     if (jsonStr == null) return null;
     return Song.fromJson(jsonDecode(jsonStr));
   }

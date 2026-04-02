@@ -16,16 +16,15 @@ class SpecialMessagesLayout extends StatefulWidget {
   State<SpecialMessagesLayout> createState() => _SpecialMessagesLayoutState();
 }
 
-class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> with SingleTickerProviderStateMixin {
+class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout>
+    with SingleTickerProviderStateMixin {
   late AnimationController _listController;
 
   @override
   void initState() {
     super.initState();
     _listController = AnimationController(
-      vsync: this, 
-      duration: const Duration(milliseconds: 1000)
-    );
+        vsync: this, duration: const Duration(milliseconds: 1000));
     _listController.forward();
   }
 
@@ -59,7 +58,8 @@ class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> with Sing
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, SpecialMessagesBloc model) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, SpecialMessagesBloc model) {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -75,7 +75,8 @@ class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> with Sing
       actions: [
         IconButton(
           tooltip: 'Ciclo y Música',
-          icon: const Icon(Icons.auto_awesome_rounded, color: PremiumDesign.softText),
+          icon: const Icon(Icons.auto_awesome_rounded,
+              color: PremiumDesign.softText),
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const CycleMusicPage()),
@@ -90,7 +91,8 @@ class _SpecialMessagesLayoutState extends State<SpecialMessagesLayout> with Sing
         indicatorWeight: 3,
         indicatorSize: TabBarIndicatorSize.label,
         labelColor: PremiumDesign.softText,
-        unselectedLabelColor: PremiumDesign.secondaryText.withValues(alpha: 0.6),
+        unselectedLabelColor:
+            PremiumDesign.secondaryText.withValues(alpha: 0.6),
         labelStyle: GoogleFonts.plusJakartaSans(
           fontWeight: FontWeight.w800,
           fontSize: 14,
@@ -136,7 +138,8 @@ class _MessagesTab extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(PremiumDesign.s32, PremiumDesign.s24, PremiumDesign.s32, PremiumDesign.s16),
+            padding: const EdgeInsets.fromLTRB(PremiumDesign.s32,
+                PremiumDesign.s24, PremiumDesign.s32, PremiumDesign.s16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -162,13 +165,13 @@ class _MessagesTab extends StatelessWidget {
             ),
           ),
         ),
-
         SliverToBoxAdapter(
           child: Column(
             children: [
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: PremiumDesign.s24),
                 physics: const BouncingScrollPhysics(),
                 child: Row(
                   children: MessageCategory.values.map((category) {
@@ -183,16 +186,22 @@ class _MessagesTab extends StatelessWidget {
                         onSelected: (_) => model.setCategory(category),
                         showCheckmark: false,
                         labelStyle: GoogleFonts.plusJakartaSans(
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
                           fontSize: 13,
-                          color: isSelected ? Colors.white : PremiumDesign.softText,
+                          color: isSelected
+                              ? Colors.white
+                              : PremiumDesign.softText,
                         ),
                         selectedColor: chipColor,
                         backgroundColor: Colors.white.withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                           side: BorderSide(
-                            color: isSelected ? Colors.transparent : PremiumDesign.softText.withValues(alpha: 0.05),
+                            color: isSelected
+                                ? Colors.transparent
+                                : PremiumDesign.softText
+                                    .withValues(alpha: 0.05),
                             width: 1.5,
                           ),
                         ),
@@ -205,7 +214,6 @@ class _MessagesTab extends StatelessWidget {
             ],
           ),
         ),
-
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24),
@@ -220,7 +228,8 @@ class _MessagesTab extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                         fontSize: 10,
                         letterSpacing: 1.5,
-                        color: PremiumDesign.secondaryText.withValues(alpha: 0.7),
+                        color:
+                            PremiumDesign.secondaryText.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -234,13 +243,13 @@ class _MessagesTab extends StatelessWidget {
             ),
           ),
         ),
-
         SliverToBoxAdapter(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: PremiumDesign.s32),
                 child: Text(
                   'DI LO QUE SIENTES',
                   style: GoogleFonts.plusJakartaSans(
@@ -257,9 +266,9 @@ class _MessagesTab extends StatelessWidget {
             ],
           ),
         ),
-
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+              horizontal: PremiumDesign.s24, vertical: 8),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, i) {
@@ -317,7 +326,8 @@ class _FeaturedMessageCard extends StatefulWidget {
   State<_FeaturedMessageCard> createState() => _FeaturedMessageCardState();
 }
 
-class _FeaturedMessageCardState extends State<_FeaturedMessageCard> with SingleTickerProviderStateMixin {
+class _FeaturedMessageCardState extends State<_FeaturedMessageCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _glowController;
 
   @override
@@ -338,7 +348,7 @@ class _FeaturedMessageCardState extends State<_FeaturedMessageCard> with SingleT
   @override
   Widget build(BuildContext context) {
     if (widget.model.messages.isEmpty) return const SizedBox.shrink();
-    
+
     // Lógica para mensaje del día basado en la fecha
     final now = DateTime.now();
     final daySeed = now.year * 1000 + now.month * 100 + now.day;
@@ -373,12 +383,14 @@ class _FeaturedMessageCardState extends State<_FeaturedMessageCard> with SingleT
                     ),
                     borderRadius: BorderRadius.circular(32),
                     border: Border.all(
-                      color: widget.accentColor.withValues(alpha: 0.3 + (0.2 * _glowController.value)),
+                      color: widget.accentColor.withValues(
+                          alpha: 0.3 + (0.2 * _glowController.value)),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: widget.accentColor.withValues(alpha: 0.08 + (0.08 * _glowController.value)),
+                        color: widget.accentColor.withValues(
+                            alpha: 0.08 + (0.08 * _glowController.value)),
                         blurRadius: 40,
                         spreadRadius: 10 * _glowController.value,
                         offset: const Offset(0, 20),
@@ -398,7 +410,8 @@ class _FeaturedMessageCardState extends State<_FeaturedMessageCard> with SingleT
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.auto_awesome_rounded, color: widget.accentColor, size: 14),
+              Icon(Icons.auto_awesome_rounded,
+                  color: widget.accentColor, size: 14),
               const SizedBox(width: 8),
               Text(
                 'DESTACADO DEL MOMENTO',
@@ -410,7 +423,8 @@ class _FeaturedMessageCardState extends State<_FeaturedMessageCard> with SingleT
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.auto_awesome_rounded, color: widget.accentColor, size: 14),
+              Icon(Icons.auto_awesome_rounded,
+                  color: widget.accentColor, size: 14),
             ],
           ),
           const SizedBox(height: 24),
@@ -480,12 +494,15 @@ class _MessageComposerState extends State<_MessageComposer> {
               color: Colors.white.withValues(alpha: _isFocused ? 0.98 : 0.8),
               borderRadius: BorderRadius.circular(32),
               border: Border.all(
-                color: _isFocused ? widget.accentColor.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.8),
+                color: _isFocused
+                    ? widget.accentColor.withValues(alpha: 0.6)
+                    : Colors.white.withValues(alpha: 0.8),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (_isFocused ? widget.accentColor : Colors.black).withValues(alpha: 0.05),
+                  color: (_isFocused ? widget.accentColor : Colors.black)
+                      .withValues(alpha: 0.05),
                   blurRadius: _isFocused ? 30 : 15,
                   offset: Offset(0, _isFocused ? 15 : 6),
                 ),
@@ -496,7 +513,9 @@ class _MessageComposerState extends State<_MessageComposer> {
                 const SizedBox(width: 12),
                 Icon(
                   Icons.auto_fix_high_rounded,
-                  color: _isFocused ? widget.accentColor : PremiumDesign.secondaryText.withValues(alpha: 0.4),
+                  color: _isFocused
+                      ? widget.accentColor
+                      : PremiumDesign.secondaryText.withValues(alpha: 0.4),
                   size: 20,
                 ),
                 Expanded(
@@ -511,11 +530,13 @@ class _MessageComposerState extends State<_MessageComposer> {
                     decoration: InputDecoration(
                       hintText: 'Siente y escribe... ✨',
                       hintStyle: GoogleFonts.plusJakartaSans(
-                        color: PremiumDesign.secondaryText.withValues(alpha: 0.3),
+                        color:
+                            PremiumDesign.secondaryText.withValues(alpha: 0.3),
                         fontWeight: FontWeight.w500,
                       ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                   ),
                 ),
@@ -539,14 +560,16 @@ class _MessageComposerState extends State<_MessageComposer> {
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             child: Row(
-              children: _suggestions.map((s) => _SuggestionChip(
-                label: s,
-                onTap: () {
-                  final suggestion = s.split('...')[0];
-                  widget.model.controller.text = '$suggestion ';
-                  _focusNode.requestFocus();
-                },
-              )).toList(),
+              children: _suggestions
+                  .map((s) => _SuggestionChip(
+                        label: s,
+                        onTap: () {
+                          final suggestion = s.split('...')[0];
+                          widget.model.controller.text = '$suggestion ';
+                          _focusNode.requestFocus();
+                        },
+                      ))
+                  .toList(),
             ),
           ),
         ],
@@ -556,7 +579,10 @@ class _MessageComposerState extends State<_MessageComposer> {
 }
 
 class _AnimatedSendButton extends StatelessWidget {
-  const _AnimatedSendButton({required this.isFocused, required this.onPressed, required this.accentColor});
+  const _AnimatedSendButton(
+      {required this.isFocused,
+      required this.onPressed,
+      required this.accentColor});
   final bool isFocused;
   final VoidCallback onPressed;
   final Color accentColor;
@@ -655,17 +681,17 @@ class _PrimaryActionButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-             Icon(icon, color: Colors.white, size: 18),
-             const SizedBox(width: 10),
-             Text(
-               label,
-               style: GoogleFonts.plusJakartaSans(
-                 color: Colors.white,
-                 fontWeight: FontWeight.w800,
-                 fontSize: 14,
-                 letterSpacing: 0.5,
-               ),
-             ),
+            Icon(icon, color: Colors.white, size: 18),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+                letterSpacing: 0.5,
+              ),
+            ),
           ],
         ),
       ),

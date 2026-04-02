@@ -34,7 +34,7 @@ class _AlbumCardState extends State<AlbumCard> {
   @override
   Widget build(BuildContext context) {
     final bool isFeatured = widget.count > 0;
-    
+
     return Hero(
       tag: 'album-${widget.title}',
       child: GestureDetector(
@@ -42,96 +42,103 @@ class _AlbumCardState extends State<AlbumCard> {
         onTapUp: (_) => setState(() => _isHovered = false),
         onTapCancel: () => setState(() => _isHovered = false),
         child: TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 200),
-          tween: Tween<double>(begin: 1.0, end: _isHovered ? 1.03 : 1.0),
-          builder: (context, scale, child) {
-            return Transform.scale(
-              scale: scale,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: _isHovered 
-                    ? PremiumDesign.deepShadow 
-                    : (isFeatured ? PremiumDesign.softShadow : []),
-                  border: !isFeatured 
-                    ? Border.all(color: PremiumDesign.softText.withValues(alpha: 0.05))
-                    : null,
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: Material(
-                    color: isFeatured ? Colors.white : Colors.white.withValues(alpha: 0.5),
-                    child: InkWell(
-                      onTap: widget.onTap,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Preview Area
-                          Expanded(
-                            flex: 3,
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                _buildPreviewBackground(isFeatured),
-                                if (isFeatured) _buildGlossyOverlay(),
-                                _buildCounterBadge(),
-                                if (isFeatured && widget.quotes.isNotEmpty) 
-                                  _buildQuotesOverlay(),
-                              ],
-                            ),
-                          ),
-                          
-                          // Album Info
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
+            duration: const Duration(milliseconds: 200),
+            tween: Tween<double>(begin: 1.0, end: _isHovered ? 1.03 : 1.0),
+            builder: (context, scale, child) {
+              return Transform.scale(
+                scale: scale,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: _isHovered
+                        ? PremiumDesign.deepShadow
+                        : (isFeatured ? PremiumDesign.softShadow : []),
+                    border: !isFeatured
+                        ? Border.all(
+                            color:
+                                PremiumDesign.softText.withValues(alpha: 0.05))
+                        : null,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: Material(
+                      color: isFeatured
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.5),
+                      child: InkWell(
+                        onTap: widget.onTap,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Preview Area
+                            Expanded(
+                              flex: 3,
+                              child: Stack(
+                                fit: StackFit.expand,
                                 children: [
-                                  Text(
-                                    widget.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                      color: isFeatured ? PremiumDesign.softText : PremiumDesign.secondaryText,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        widget.icon, 
-                                        size: 14, 
-                                        color: isFeatured ? PremiumDesign.radiantGold : PremiumDesign.secondaryText.withValues(alpha: 0.5)
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        isFeatured ? 'Colección' : 'Vacío',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: PremiumDesign.secondaryText.withValues(alpha: 0.7),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  _buildPreviewBackground(isFeatured),
+                                  if (isFeatured) _buildGlossyOverlay(),
+                                  _buildCounterBadge(),
+                                  if (isFeatured && widget.quotes.isNotEmpty)
+                                    _buildQuotesOverlay(),
                                 ],
                               ),
                             ),
-                          ),
-                        ],
+
+                            // Album Info
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      widget.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        color: isFeatured
+                                            ? PremiumDesign.softText
+                                            : PremiumDesign.secondaryText,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(widget.icon,
+                                            size: 14,
+                                            color: isFeatured
+                                                ? PremiumDesign.radiantGold
+                                                : PremiumDesign.secondaryText
+                                                    .withValues(alpha: 0.5)),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          isFeatured ? 'Colección' : 'Vacío',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: PremiumDesign.secondaryText
+                                                .withValues(alpha: 0.7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }
-        ),
+              );
+            }),
       ),
     );
   }
@@ -161,7 +168,7 @@ class _AlbumCardState extends State<AlbumCard> {
                   ),
                 ),
               ),
-            
+
             // Middle fake card for stack effect
             if (widget.previewPaths.length > 2)
               Positioned.fill(
@@ -227,11 +234,8 @@ class _AlbumCardState extends State<AlbumCard> {
         ),
       ),
       child: Center(
-        child: Icon(
-          widget.icon, 
-          color: widget.colors.last.withValues(alpha: 0.5), 
-          size: 44
-        ),
+        child: Icon(widget.icon,
+            color: widget.colors.last.withValues(alpha: 0.5), size: 44),
       ),
     );
   }
@@ -255,7 +259,7 @@ class _AlbumCardState extends State<AlbumCard> {
 
   Widget _buildCounterBadge() {
     if (widget.count == 0) return const SizedBox.shrink();
-    
+
     return Positioned(
       top: 16,
       right: 16,
@@ -273,11 +277,9 @@ class _AlbumCardState extends State<AlbumCard> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.auto_awesome_rounded, 
-                  color: PremiumDesign.radiantGold.withValues(alpha: 0.9), 
-                  size: 10
-                ),
+                Icon(Icons.auto_awesome_rounded,
+                    color: PremiumDesign.radiantGold.withValues(alpha: 0.9),
+                    size: 10),
                 const SizedBox(width: 6),
                 Text(
                   '${widget.count} ${widget.count == 1 ? 'recuerdo' : 'recuerdos'}',
@@ -312,17 +314,16 @@ class _AlbumCardState extends State<AlbumCard> {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: GoogleFonts.plusJakartaSans(
-            color: Colors.white,
-            fontSize: 10,
-            fontStyle: FontStyle.italic,
-            fontWeight: FontWeight.w500,
-            shadows: [
-              const Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 1))
-            ]
-          ),
+              color: Colors.white,
+              fontSize: 10,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+              shadows: [
+                const Shadow(
+                    color: Colors.black26, blurRadius: 4, offset: Offset(0, 1))
+              ]),
         ),
       ),
     );
   }
 }
-

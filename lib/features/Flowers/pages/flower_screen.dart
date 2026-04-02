@@ -92,7 +92,8 @@ class _FlowerScreenState extends State<FlowerScreen>
     _initPetals();
     _initAudio();
     _currentMessage = _messages[math.Random().nextInt(_messages.length)];
-    _timer = Timer.periodic(const Duration(seconds: 7), (_) => _rotateMessage());
+    _timer =
+        Timer.periodic(const Duration(seconds: 7), (_) => _rotateMessage());
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _heroEntranceController.forward();
     });
@@ -100,19 +101,35 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   void _initControllers() {
     _flowerControllers = List.generate(
-      _flowerCount, (i) => AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat(reverse: true),
+      _flowerCount,
+      (i) => AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 900))
+        ..repeat(reverse: true),
     );
     _sparkleControllers = List.generate(
-      _sparkleCount, (i) => AnimationController(vsync: this, duration: Duration(milliseconds: 1200 + math.Random().nextInt(1400)))..repeat(reverse: true),
+      _sparkleCount,
+      (i) => AnimationController(
+          vsync: this,
+          duration: Duration(milliseconds: 1200 + math.Random().nextInt(1400)))
+        ..repeat(reverse: true),
     );
-    _bgController = AnimationController(vsync: this, duration: const Duration(seconds: 12))..repeat(reverse: true);
-    _petalController = AnimationController(vsync: this, duration: const Duration(seconds: 14))..repeat();
-    _sparkleBurstController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
-    _heroEntranceController = AnimationController(vsync: this, duration: PremiumDesign.slow);
+    _bgController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 12))
+          ..repeat(reverse: true);
+    _petalController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 14))
+          ..repeat();
+    _sparkleBurstController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800));
+    _heroEntranceController =
+        AnimationController(vsync: this, duration: PremiumDesign.slow);
 
     final gradients = _gradientsForMood(widget.mood);
-    _topColorAnim = ColorTween(begin: gradients.$1, end: gradients.$2).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
-    _bottomColorAnim = ColorTween(begin: gradients.$3, end: gradients.$4).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
+    _topColorAnim = ColorTween(begin: gradients.$1, end: gradients.$2).animate(
+        CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
+    _bottomColorAnim = ColorTween(begin: gradients.$3, end: gradients.$4)
+        .animate(
+            CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
   }
 
   void _initPetals() {
@@ -147,8 +164,12 @@ class _FlowerScreenState extends State<FlowerScreen>
   void dispose() {
     _audioPlayer.dispose();
     _timer.cancel();
-    for (final c in _flowerControllers) { c.dispose(); }
-    for (final c in _sparkleControllers) { c.dispose(); }
+    for (final c in _flowerControllers) {
+      c.dispose();
+    }
+    for (final c in _sparkleControllers) {
+      c.dispose();
+    }
     _bgController.dispose();
     _petalController.dispose();
     _sparkleBurstController.dispose();
@@ -167,11 +188,13 @@ class _FlowerScreenState extends State<FlowerScreen>
 
   Future<void> _shareCard() async {
     setState(() => _exportActive = true);
-    await Future.delayed(const Duration(milliseconds: 100)); 
-    final bytes = await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+    await Future.delayed(const Duration(milliseconds: 100));
+    final bytes =
+        await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
     if (bytes != null) {
       final dir = await getTemporaryDirectory();
-      final path = '${dir.path}/mensaje_flores_${DateTime.now().millisecondsSinceEpoch}.png';
+      final path =
+          '${dir.path}/mensaje_flores_${DateTime.now().millisecondsSinceEpoch}.png';
       await File(path).writeAsBytes(bytes);
       await Share.shareXFiles([XFile(path)], text: 'Un regalo para ti 💛');
     }
@@ -181,16 +204,21 @@ class _FlowerScreenState extends State<FlowerScreen>
   Future<void> _saveCard() async {
     setState(() => _exportActive = true);
     await Future.delayed(const Duration(milliseconds: 100));
-    final bytes = await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
+    final bytes =
+        await StoryCard.exportPng(_exportBoundaryKey, pixelRatio: 2.0);
     if (bytes != null) {
       final dir = await getApplicationDocumentsDirectory();
-      final f = await File('${dir.path}/flor_${DateTime.now().millisecondsSinceEpoch}.png').create();
+      final f = await File(
+              '${dir.path}/flor_${DateTime.now().millisecondsSinceEpoch}.png')
+          .create();
       await f.writeAsBytes(bytes);
       try {
         await Gal.putImage(f.path);
-        _showConfirmation('¡Flor guardada en tu galería!', Icons.check_circle_rounded);
+        _showConfirmation(
+            '¡Flor guardada en tu galería!', Icons.check_circle_rounded);
       } catch (_) {
-        _showConfirmation('Guardado en archivos del dispositivo.', Icons.folder_rounded);
+        _showConfirmation(
+            'Guardado en archivos del dispositivo.', Icons.folder_rounded);
       }
     }
     setState(() => _exportActive = false);
@@ -204,7 +232,8 @@ class _FlowerScreenState extends State<FlowerScreen>
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: PremiumDesign.softText),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: PremiumDesign.softText),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -215,18 +244,20 @@ class _FlowerScreenState extends State<FlowerScreen>
         ],
       ),
       body: AnimatedBuilder(
-        animation: Listenable.merge([_bgController, _petalController, _sparkleBurstController]),
+        animation: Listenable.merge(
+            [_bgController, _petalController, _sparkleBurstController]),
         builder: (context, _) => Stack(
           children: [
             // Export Hidden Layer
-            if (_exportActive) _HiddenExportCard(
-              boundaryKey: _exportBoundaryKey,
-              name: widget.recipientName,
-              message: _currentMessage,
-              topColor: _topColorAnim.value ?? Colors.white,
-              bottomColor: _bottomColorAnim.value ?? Colors.white,
-              fancyName: widget.fancyName,
-            ),
+            if (_exportActive)
+              _HiddenExportCard(
+                boundaryKey: _exportBoundaryKey,
+                name: widget.recipientName,
+                message: _currentMessage,
+                topColor: _topColorAnim.value ?? Colors.white,
+                bottomColor: _bottomColorAnim.value ?? Colors.white,
+                fancyName: widget.fancyName,
+              ),
 
             // Layers Modularizados
             BackgroundLayer(
@@ -249,7 +280,8 @@ class _FlowerScreenState extends State<FlowerScreen>
             SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s24, vertical: PremiumDesign.s16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: PremiumDesign.s24, vertical: PremiumDesign.s16),
                 child: Column(
                   children: [
                     MessageView(
@@ -302,11 +334,16 @@ class _HiddenExportCard extends StatelessWidget {
             maxWidth: double.infinity,
             maxHeight: double.infinity,
             child: SizedBox(
-              width: 1080, height: 1920,
+              width: 1080,
+              height: 1920,
               child: StoryCard(
-                name: name, message: message, qrUrl: kQrCodeUrl,
-                topColor: topColor, bottomColor: bottomColor,
-                fancyName: fancyName, boundaryKey: boundaryKey,
+                name: name,
+                message: message,
+                qrUrl: kQrCodeUrl,
+                topColor: topColor,
+                bottomColor: bottomColor,
+                fancyName: fancyName,
+                boundaryKey: boundaryKey,
               ),
             ),
           ),
@@ -327,18 +364,28 @@ class _ConfirmationDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.all(PremiumDesign.s32),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: PremiumDesign.premiumRadius, boxShadow: PremiumDesign.premiumShadow),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: PremiumDesign.premiumRadius,
+            boxShadow: PremiumDesign.premiumShadow),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: PremiumDesign.leafGreen, size: 48),
             const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 16, color: PremiumDesign.softText)),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: PremiumDesign.softText)),
             const SizedBox(height: 24),
             TextButton(
-              onPressed: () => Navigator.pop(context), 
-              child: Text('Entendido 💛', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: PremiumDesign.softText))
-            ),
+                onPressed: () => Navigator.pop(context),
+                child: Text('Entendido 💛',
+                    style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        color: PremiumDesign.softText))),
           ],
         ),
       ),
@@ -348,8 +395,26 @@ class _ConfirmationDialog extends StatelessWidget {
 
 (Color, Color, Color, Color) _gradientsForMood(Mood mood) {
   switch (mood) {
-    case Mood.joy: return (const Color(0xFFFFF7C2), const Color(0xFFFFE8A3), const Color(0xFFFFD3B6), const Color(0xFFFFB347));
-    case Mood.calm: return (const Color(0xFFEDE7F6), const Color(0xFFD1C4E9), const Color(0xFFB39DDB), const Color(0xFF9575CD));
-    case Mood.passion: return (const Color(0xFFFFE0E0), const Color(0xFFFFC0CB), const Color(0xFFFFA6C1), const Color(0xFFFF77A9));
+    case Mood.joy:
+      return (
+        const Color(0xFFFFF7C2),
+        const Color(0xFFFFE8A3),
+        const Color(0xFFFFD3B6),
+        const Color(0xFFFFB347)
+      );
+    case Mood.calm:
+      return (
+        const Color(0xFFEDE7F6),
+        const Color(0xFFD1C4E9),
+        const Color(0xFFB39DDB),
+        const Color(0xFF9575CD)
+      );
+    case Mood.passion:
+      return (
+        const Color(0xFFFFE0E0),
+        const Color(0xFFFFC0CB),
+        const Color(0xFFFFA6C1),
+        const Color(0xFFFF77A9)
+      );
   }
 }

@@ -34,7 +34,6 @@ class PremiumLoading extends StatelessWidget {
 }
 
 class GlassCard extends StatelessWidget {
-
   const GlassCard({
     super.key,
     required this.child,
@@ -75,7 +74,6 @@ class GlassCard extends StatelessWidget {
 }
 
 class PremiumModal extends StatelessWidget {
-
   const PremiumModal({
     super.key,
     required this.title,

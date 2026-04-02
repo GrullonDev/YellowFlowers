@@ -11,13 +11,13 @@ class Song {
 
   factory Song.fromJson(Map<String, dynamic> json) {
     return Song(
-      id: json['id'],
-      title: json['title'],
-      artist: json['artist'],
-      audioUrl: json['audio_url'],
-      coverUrl: json['cover_url'],
-      duration: Duration(seconds: json['duration']),
-      genre: json['genre'],
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      artist: json['artist'] as String? ?? '',
+      audioUrl: json['audio_url'] as String? ?? '',
+      coverUrl: json['cover_url'] as String? ?? '',
+      duration: Duration(seconds: (json['duration'] as num?)?.toInt() ?? 0),
+      genre: json['genre'] as String? ?? '',
     );
   }
 

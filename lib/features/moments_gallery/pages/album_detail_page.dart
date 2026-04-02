@@ -10,9 +10,6 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/moments_gallery/bloc/moments_gallery_bloc.dart';
-import 'package:yellow_flowers/di/injector.dart' as di;
-import 'package:yellow_flowers/data/music_service/jamendo_service.dart';
-import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/moments_gallery/model/album_category.dart';
 import 'package:yellow_flowers/features/moments_gallery/data/memory_model.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
@@ -157,11 +154,10 @@ class AlbumDetailPage extends StatelessWidget {
                                                     filter: ImageFilter.blur(
                                                         sigmaX: 5, sigmaY: 5),
                                                     child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 8,
-                                                                vertical: 6),
+                                                        padding: const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 6),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: Colors.black
@@ -248,18 +244,6 @@ void _openViewer(BuildContext context, List<Memory> list, int index) {
   final barrier = Colors.black.withValues(alpha: 0.9);
   final bloc = context.read<MomentsGalleryBloc>();
   final parentContext = context; // keep context with provider to use after pop
-  // If memory has an associated track, try to resolve and play it softly.
-  final mem = list[index];
-  if (mem.trackId != null && mem.trackId!.isNotEmpty) {
-    try {
-      final jam = di.sl<JamendoApiService>();
-      final bloc = di.sl<MusicBloc>();
-      jam.getTrackById(mem.trackId!).then((song) async {
-        if (song == null) return;
-        await bloc.playSong(song);
-      });
-    } catch (_) {}
-  }
   Navigator.of(context).push(
     PageRouteBuilder(
       opaque: false,
