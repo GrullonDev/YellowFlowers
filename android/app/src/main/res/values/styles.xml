@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Sin el prefijo "android:" para atributos de la librería core-splashscreen -->
+        <!-- Background color of the splash screen -->
         <item name="windowSplashScreenBackground">@android:color/white</item>
+        <!-- The icon displayed on the splash screen -->
         <item name="windowSplashScreenAnimatedIcon">@mipmap/yellow_flowers_launcher</item>
+        <!-- The theme to use once the splash screen is dismissed -->
         <item name="postSplashScreenTheme">@style/NormalTheme</item>
     </style>
 
     <style name="LaunchTheme" parent="Theme.App.Starting">
-        <item name="android:windowBackground">@drawable/launch_background</item>
+        <!-- No windowBackground here to prevent conflicts with the Splash API -->
     </style>
 
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">

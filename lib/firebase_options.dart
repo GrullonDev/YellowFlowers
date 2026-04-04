@@ -53,7 +53,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDCfR7Rc4iDP8RuBrDw0ZMVwUxrmcdukV4',
-    appId: '1:991471677738:android:9f3a4eb84a7f23735dee53',
+    appId: '1:991471677738:android:502d66c0157df7c05dee53',
     messagingSenderId: '991471677738',
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
     storageBucket: 'yellowflowers-58d52.appspot.com',
-    iosBundleId: 'com.jorgegrullon.yellowFlowers',
+    iosBundleId: 'com.grullondev.yellowFlowers',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -77,7 +77,7 @@ class DefaultFirebaseOptions {
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
     storageBucket: 'yellowflowers-58d52.appspot.com',
-    iosBundleId: 'com.jorgegrullon.yellowFlowers',
+    iosBundleId: 'com.grullondev.yellowFlowers',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
