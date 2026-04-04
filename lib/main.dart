@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:yellow_flowers/app.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
-
 import 'firebase_options.dart';
 
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    bool initialized = false;
-    try {
-      Firebase.app();
-      initialized = true;
-    } catch (_) {
-      // Not initialized yet
-    }
-
-    if (!initialized) {
+    // Importante: En Android, si tienes el archivo google-services.json, 
+    // Firebase ya se inicializa automáticamente en el lado nativo.
+    // Usamos Firebase.apps.isEmpty para evitar el error [core/duplicate-app].
+    if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -30,12 +23,11 @@ void main() async {
 
     runApp(const MyApp());
   } catch (e) {
-    debugPrint("Error during app initialization: $e");
-    // Run an error app or just proceed to launch if possible
+    debugPrint('Error during app initialization: $e');
     runApp(MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Text("Error al iniciar: $e"),
+          child: Text('Error al iniciar: $e'),
         ),
       ),
     ));

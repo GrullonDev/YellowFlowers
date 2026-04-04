@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.grullondev.amarillas"
-    compileSdk = 37 // Android 17 (API 37)
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -23,7 +23,7 @@ android {
     defaultConfig {
         applicationId = "com.grullondev.amarillas"
         minSdk = 30
-        targetSdk = 37
+        targetSdk = 36
         multiDexEnabled = true
         versionCode = flutter.versionCode
         versionName = flutter.versionName
