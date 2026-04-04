@@ -11,7 +11,15 @@ void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    if (Firebase.apps.isEmpty) {
+    bool initialized = false;
+    try {
+      Firebase.app();
+      initialized = true;
+    } catch (_) {
+      // Not initialized yet
+    }
+
+    if (!initialized) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
