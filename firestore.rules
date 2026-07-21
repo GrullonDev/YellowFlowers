@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// NOTE: No firestore.rules file existed in this repo before — rules were
+// presumably being managed directly in the Firebase console. This file is
+// a starting point covering the collections the app currently uses. It
+// is NOT deployed automatically; you need to run
+//   firebase deploy --only firestore:rules
+// (or paste this into Firebase Console > Firestore > Rules) after
+// reviewing it against whatever rules are live today, so you don't
+// accidentally tighten/loosen something already in production.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Music catalogue: read-only for the app (all users, including
+    // anonymous), only editable via the Firebase console / an admin
+    // script — matches current behavior (FirebaseMusicService only
+    // ever reads this collection).
+    match /songs/{songId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Per-user synced content (currently: user-composed special
+    // messages; moments gallery sync can land in the same pattern
+    // later). Anonymous auth still gives every install a stable uid,
+    // so this scopes each user's data to themselves only.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /special_messages/{messageId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
