@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/music/widgets/music_list_tile.dart';
+import 'package:yellow_flowers/widgets/app_error_view.dart';
 
 class MusicList extends StatelessWidget {
   const MusicList({super.key});
@@ -22,36 +22,15 @@ class MusicList extends StatelessWidget {
         }
 
         if (model.songs.isEmpty) {
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(PremiumDesign.s32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('🐚', style: TextStyle(fontSize: 48)),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No se encontraron canciones',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: PremiumDesign.softText,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    model.errorMessage ?? 'Inténtalo de nuevo más tarde.',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      color: PremiumDesign.secondaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _RetryButton(onTap: () => model.retry()),
-                ],
-              ),
-            ),
+          // model.errorMessage (set by MusicBloc via friendlyErrorMessage)
+          // distinguishes "genuinely no songs for this mood" from a
+          // network/timeout failure, but both degrade to the same
+          // reassuring empty state with a retry action.
+          return AppErrorView(
+            title: 'No se encontraron canciones',
+            message: model.errorMessage ??
+                'Prueba con otro estado de ánimo o inténtalo de nuevo.',
+            onRetry: () => model.retry(),
           );
         }
 
@@ -74,35 +53,6 @@ class MusicList extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class _RetryButton extends StatelessWidget {
-  const _RetryButton({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          border: Border.all(
-              color: PremiumDesign.premiumGold.withValues(alpha: 0.5)),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          'Reintentar',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: PremiumDesign.premiumGold,
-          ),
-        ),
-      ),
     );
   }
 }

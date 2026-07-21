@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
+import 'package:yellow_flowers/l10n/generated/app_localizations.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class MoodEntryPage extends StatelessWidget {
@@ -14,6 +15,7 @@ class MoodEntryPage extends StatelessWidget {
     return Consumer<MoodController>(
       builder: (context, moodController, _) {
         final palette = _paletteForMood(moodController.mood);
+        final l10n = AppLocalizations.of(context);
         return PopScope(
           canPop: false,
           child: Scaffold(
@@ -23,7 +25,7 @@ class MoodEntryPage extends StatelessWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: Text(
-                '¿Cómo te sientes hoy? 🌸',
+                l10n.moodPageTitle,
                 style: GoogleFonts.pacifico(
                   color: const Color(0xFF4E342E),
                   fontSize: 20,
@@ -43,7 +45,7 @@ class MoodEntryPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Elige tu estado de ánimo\npara personalizar tu experiencia',
+                        l10n.moodPageSubtitle,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.lato(
                           fontSize: 14,
@@ -53,9 +55,9 @@ class MoodEntryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       _MoodCard(
-                        label: 'Alegre',
+                        label: l10n.moodHappy,
                         emoji: '💛',
-                        description: 'Energía positiva y sonrisas',
+                        description: l10n.moodHappyDesc,
                         gradient: const LinearGradient(
                           colors: [Color(0xFFFFF9C4), Color(0xFFFFE082)],
                           begin: Alignment.topLeft,
@@ -70,9 +72,9 @@ class MoodEntryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       _MoodCard(
-                        label: 'Tranquila',
+                        label: l10n.moodRelaxed,
                         emoji: '🌿',
-                        description: 'Serenidad y paz interior',
+                        description: l10n.moodRelaxedDesc,
                         gradient: const LinearGradient(
                           colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
                           begin: Alignment.topLeft,
@@ -87,9 +89,9 @@ class MoodEntryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       _MoodCard(
-                        label: 'Enamorada',
+                        label: l10n.moodRomantic,
                         emoji: '💖',
-                        description: 'Ternura y romanticismo',
+                        description: l10n.moodRomanticDesc,
                         gradient: const LinearGradient(
                           colors: [Color(0xFFFFE4EC), Color(0xFFFFC1D9)],
                           begin: Alignment.topLeft,
@@ -104,9 +106,9 @@ class MoodEntryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       _MoodCard(
-                        label: 'Motivada',
+                        label: l10n.moodMotivated,
                         emoji: '✨',
-                        description: 'Fuerza, enfoque y determinación',
+                        description: l10n.moodMotivatedDesc,
                         gradient: const LinearGradient(
                           colors: [Color(0xFFFFF3E0), Color(0xFFFFCC80)],
                           begin: Alignment.topLeft,
@@ -121,9 +123,9 @@ class MoodEntryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       _MoodCard(
-                        label: 'Nostálgica',
+                        label: l10n.moodNostalgic,
                         emoji: '🌙',
-                        description: 'Recuerdos y momentos especiales',
+                        description: l10n.moodNostalgicDesc,
                         gradient: const LinearGradient(
                           colors: [Color(0xFFEDE7F6), Color(0xFFD1C4E9)],
                           begin: Alignment.topLeft,

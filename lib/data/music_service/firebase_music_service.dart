@@ -31,6 +31,11 @@ class FirebaseMusicService {
   final FirebaseFirestore _firestore;
   static const String _collection = 'songs';
 
+  /// Bounds every Firestore query so a poor/absent connection surfaces a
+  /// clear error (and triggers the local-cache fallback in
+  /// MusicRepositoryImpl) instead of leaving the UI spinning indefinitely.
+  static const Duration _queryTimeout = Duration(seconds: 8);
+
   String _moodToString(Mood mood) {
     switch (mood) {
       case Mood.relaxed:
@@ -53,7 +58,8 @@ class FirebaseMusicService {
         .collection(_collection)
         .where('mood', isEqualTo: _moodToString(mood))
         .limit(limit + 10) // margen por si algunas están inactivas
-        .get();
+        .get()
+        .timeout(_queryTimeout);
 
     return snapshot.docs
         .where((doc) => doc.data()['is_active'] == true)
@@ -68,7 +74,8 @@ class FirebaseMusicService {
         .collection(_collection)
         .where('genre', isEqualTo: genre)
         .limit(limit + 10)
-        .get();
+        .get()
+        .timeout(_queryTimeout);
 
     return snapshot.docs
         .where((doc) => doc.data()['is_active'] == true)
@@ -91,7 +98,8 @@ class FirebaseMusicService {
         .collection(_collection)
         .where('is_active', isEqualTo: true)
         .limit(limit)
-        .get();
+        .get()
+        .timeout(_queryTimeout);
 
     return snapshot.docs
         .map((doc) => Song.fromJson({...doc.data(), 'id': doc.id}))

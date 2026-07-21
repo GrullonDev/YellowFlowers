@@ -7,10 +7,12 @@ import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/core/transitions.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
 import 'package:yellow_flowers/features/home/bloc/home_bloc.dart';
+import 'package:yellow_flowers/features/home/widgets/reminder_settings_sheet.dart';
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/l10n/generated/app_localizations.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
 
 class HomeLayout extends StatefulWidget {
@@ -88,13 +90,13 @@ class _HomeLayoutState extends State<HomeLayout> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Tu jardín',
+                          AppLocalizations.of(context).gardenTitle,
                           style:
                               PremiumDesign.serifHeading.copyWith(fontSize: 26),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Elige cómo vivir este momento',
+                          AppLocalizations.of(context).gardenSubtitle,
                           style: PremiumDesign.sansBody.copyWith(
                             fontSize: 13,
                             color: PremiumDesign.secondaryText,
@@ -227,7 +229,8 @@ class _EmotionalHeroState extends State<_EmotionalHero>
     final mood = context.watch<MoodController>().mood;
     final personalization = di.sl<PersonalizationService>();
     final name = personalization.getUserName() ?? 'hermosa';
-    final greeting = _greetingForTime(name);
+    final l10n = AppLocalizations.of(context);
+    final greeting = _greetingForTime(l10n, name);
 
     return FadeTransition(
       opacity: _fade,
@@ -247,14 +250,21 @@ class _EmotionalHeroState extends State<_EmotionalHero>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'flores amarillas',
+                        l10n.appTagline,
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 13,
                           letterSpacing: 1.5,
                           color: PremiumDesign.secondaryText,
                         ),
                       ),
-                      _MoodBadge(mood: mood),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const _ReminderBellButton(),
+                          const SizedBox(width: 8),
+                          _MoodBadge(mood: mood),
+                        ],
+                      ),
                     ],
                   ),
 
@@ -317,6 +327,7 @@ class _FeaturedGem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final recommendation = di.sl<PersonalizationService>().getRecommendation();
     final parts = recommendation.split('*');
     final p1 = parts[0];
@@ -376,7 +387,7 @@ class _FeaturedGem extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'PARA TI HOY',
+                          l10n.forYouToday,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -410,7 +421,7 @@ class _FeaturedGem extends StatelessWidget {
                     ),
                     const SizedBox(height: PremiumDesign.s20),
                     _PremiumActionButton(
-                      label: 'Explorar ahora',
+                      label: l10n.exploreNow,
                       onPressed: () {
                         HapticFeedback.mediumImpact();
                         final model = context.read<HomeBloc>();
@@ -535,6 +546,33 @@ class _FloralAccent extends StatelessWidget {
       );
 }
 
+class _ReminderBellButton extends StatelessWidget {
+  const _ReminderBellButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        showReminderSettingsSheet(context);
+      },
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: PremiumDesign.radiantGold.withValues(alpha: 0.12),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.notifications_none_rounded,
+          size: 17,
+          color: PremiumDesign.radiantGold,
+        ),
+      ),
+    );
+  }
+}
+
 class _MoodBadge extends StatelessWidget {
   const _MoodBadge({required this.mood});
   final Mood mood;
@@ -585,14 +623,22 @@ class _DailySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final wc = context.watch<WellnessController>();
     final last7 = wc.last7Days();
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Título de sección
-        Text(
-          'Cómo te sientes',
-          style: PremiumDesign.serifSubHeading.copyWith(fontSize: 18),
+        // Título de sección + racha de días consecutivos
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              l10n.howDoYouFeelTitle,
+              style: PremiumDesign.serifSubHeading.copyWith(fontSize: 18),
+            ),
+            if (wc.currentStreak > 0)
+              _StreakChip(days: wc.currentStreak, l10n: l10n),
+          ],
         ),
         const SizedBox(height: PremiumDesign.s16),
 
@@ -609,7 +655,12 @@ class _DailySection extends StatelessWidget {
                 child: _EmotionPill(
                   emotion: e,
                   isSelected: isSelected,
-                  onTap: () => wc.setEmotionToday(e),
+                  onTap: () async {
+                    final milestone = await wc.setEmotionToday(e);
+                    if (milestone != null && context.mounted) {
+                      _streakMilestoneDialog(context, milestone);
+                    }
+                  },
                 ),
               );
             }).toList(),
@@ -622,7 +673,7 @@ class _DailySection extends StatelessWidget {
         Row(
           children: [
             Text(
-              'Esta semana',
+              l10n.thisWeek,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 11,
                 color: PremiumDesign.secondaryText.withValues(alpha: 0.6),
@@ -659,20 +710,55 @@ class _DailySection extends StatelessWidget {
           children: [
             _QuickAction(
               icon: Icons.air_rounded,
-              label: 'Respirar',
+              label: l10n.breathe,
               color: const Color(0xFF43A047),
               onTap: () => _breathingDialog(context),
             ),
             const SizedBox(width: PremiumDesign.s12),
             _QuickAction(
               icon: Icons.auto_awesome_rounded,
-              label: 'Afirmación',
+              label: l10n.affirmation,
               color: PremiumDesign.radiantGold,
               onTap: () => _affirmationDialog(context),
             ),
           ],
         ),
       ],
+    );
+  }
+}
+
+class _StreakChip extends StatelessWidget {
+  const _StreakChip({required this.days, required this.l10n});
+  final int days;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFF7043).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFFF7043).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🔥', style: TextStyle(fontSize: 12)),
+          const SizedBox(width: 4),
+          Text(
+            l10n.streakDays(days),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFD84315),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -915,16 +1001,16 @@ class _Greeting {
   final String line2;
 }
 
-_Greeting _greetingForTime(String name) {
+_Greeting _greetingForTime(AppLocalizations l10n, String name) {
   final hour = DateTime.now().hour;
   if (hour >= 5 && hour < 12) {
-    return _Greeting('Buenos días,', '$name.');
+    return _Greeting(l10n.greetingMorning, '$name.');
   } else if (hour >= 12 && hour < 18) {
-    return _Greeting('Buenas tardes,', '$name.');
+    return _Greeting(l10n.greetingAfternoon, '$name.');
   } else if (hour >= 18 && hour < 22) {
-    return _Greeting('Buenas noches,', '$name.');
+    return _Greeting(l10n.greetingEvening, '$name.');
   } else {
-    return _Greeting('Descansa bien,', '$name.');
+    return _Greeting(l10n.greetingNight, '$name.');
   }
 }
 
@@ -1039,6 +1125,47 @@ void _breathingDialog(BuildContext context) {
                   borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Listo 🌸'),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    ),
+  );
+}
+
+void _streakMilestoneDialog(BuildContext context, int days) {
+  final name = di.sl<PersonalizationService>().getUserName() ?? 'de nuevo';
+  final l10n = AppLocalizations.of(context);
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Column(
+        children: [
+          const Text('🔥', style: TextStyle(fontSize: 40)),
+          const SizedBox(height: 8),
+          Text(
+            l10n.streakMilestoneTitle(days),
+            style: PremiumDesign.serifSubHeading.copyWith(fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      content: Text(
+        l10n.streakMilestoneBody(name),
+        style: PremiumDesign.sansBody.copyWith(fontSize: 14, height: 1.6),
+        textAlign: TextAlign.center,
+      ),
+      actions: [
+        Center(
+          child: FilledButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFD4AF37),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text(l10n.streakMilestoneCta),
           ),
         ),
         const SizedBox(height: 8),

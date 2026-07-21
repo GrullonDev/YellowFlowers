@@ -12,6 +12,11 @@
     <!-- Android 13+ (API 33) Notification Permissions -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Re-arms the opt-in daily reminder notification after a device reboot.
+         Uses inexact scheduling (AndroidScheduleMode.inexactAllowWhileIdle),
+         so no SCHEDULE_EXACT_ALARM permission is required. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:label="Amarillas"
         android:name="${applicationName}"

@@ -9,6 +9,7 @@ import 'package:yellow_flowers/features/music/domain/usecases/pause_song.dart';
 import 'package:yellow_flowers/features/music/domain/usecases/get_position_stream.dart';
 import 'package:yellow_flowers/features/music/domain/entities/song_entity.dart'
     as domain;
+import 'package:yellow_flowers/core/error_messages.dart';
 import 'package:yellow_flowers/core/result.dart';
 import 'package:yellow_flowers/core/usecase.dart';
 
@@ -122,7 +123,7 @@ class MusicBloc extends BaseModel {
           },
           error: (f) {
             _songs = [];
-            _errorMessage = f.message;
+            _errorMessage = friendlyErrorMessage(f.message);
           },
         );
       } else {
@@ -147,7 +148,7 @@ class MusicBloc extends BaseModel {
           },
           error: (f) {
             _dailyRecommendation = null;
-            _errorMessage = f.message;
+            _errorMessage = friendlyErrorMessage(f.message);
           },
         );
       } else {
@@ -158,7 +159,7 @@ class MusicBloc extends BaseModel {
     } catch (e) {
       _songs = [];
       _dailyRecommendation = null;
-      _errorMessage = e.toString();
+      _errorMessage = friendlyErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -194,7 +195,7 @@ class MusicBloc extends BaseModel {
         genre: song.genre,
       )));
       if (res is Error) {
-        _errorMessage = res.failure.message;
+        _errorMessage = friendlyErrorMessage(res.failure.message);
         notifyListeners();
         return;
       }
@@ -229,7 +230,7 @@ class MusicBloc extends BaseModel {
       _errorMessage = null;
     } catch (e) {
       // keep existing list on failure
-      _errorMessage = e.toString();
+      _errorMessage = friendlyErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -261,7 +262,7 @@ class MusicBloc extends BaseModel {
           },
           error: (f) {
             _songs = [];
-            _errorMessage = f.message;
+            _errorMessage = friendlyErrorMessage(f.message);
           },
         );
       } else {
@@ -286,7 +287,7 @@ class MusicBloc extends BaseModel {
           },
           error: (f) {
             _dailyRecommendation = null;
-            _errorMessage = f.message;
+            _errorMessage = friendlyErrorMessage(f.message);
           },
         );
       } else {
@@ -296,7 +297,7 @@ class MusicBloc extends BaseModel {
     } catch (e) {
       _songs = [];
       _dailyRecommendation = null;
-      _errorMessage = e.toString();
+      _errorMessage = friendlyErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();
