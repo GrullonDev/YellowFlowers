@@ -43,6 +43,7 @@ cmake-build-*/
 # Flutter & Dart
 # ---------------------------------------------------------------------------
 .dart_tool/
+.gradle-local/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
