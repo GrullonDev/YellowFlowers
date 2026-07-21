@@ -1,0 +1,46 @@
+{
+  "@@locale": "en",
+  "appTagline": "yellow flowers",
+
+  "greetingMorning": "Good morning,",
+  "greetingAfternoon": "Good afternoon,",
+  "greetingEvening": "Good evening,",
+  "greetingNight": "Rest well,",
+
+  "gardenTitle": "Your garden",
+  "gardenSubtitle": "Choose how to live this moment",
+
+  "forYouToday": "FOR YOU TODAY",
+  "exploreNow": "Explore now",
+
+  "howDoYouFeelTitle": "How you're feeling",
+  "thisWeek": "This week",
+  "breathe": "Breathe",
+  "affirmation": "Affirmation",
+
+  "streakDays": "{count, plural, one {{count} day} other {{count} days}}",
+
+  "streakMilestoneTitle": "{count} days in a row!",
+  "streakMilestoneBody": "Every check-in counts, {name}. Thank you for making time for this — keep going 🌼",
+  "streakMilestoneCta": "Keep my streak 💛",
+
+  "reminderTitle": "Daily reminder",
+  "reminderSubtitle": "A gentle nudge to log your mood and keep your streak. You can turn it off anytime.",
+  "reminderEnable": "Enable reminder",
+  "reminderTimeLabel": "Time: {time}",
+  "reminderChange": "Change",
+  "reminderPermissionError": "Turn on notifications for Amarillas in your system settings.",
+
+  "moodPageTitle": "How are you feeling today? 🌸",
+  "moodPageSubtitle": "Choose your mood\nto personalize your experience",
+  "moodHappy": "Happy",
+  "moodHappyDesc": "Positive energy and smiles",
+  "moodRelaxed": "Calm",
+  "moodRelaxedDesc": "Serenity and inner peace",
+  "moodRomantic": "In love",
+  "moodRomanticDesc": "Tenderness and romance",
+  "moodMotivated": "Motivated",
+  "moodMotivatedDesc": "Strength, focus and drive",
+  "moodNostalgic": "Nostalgic",
+  "moodNostalgicDesc": "Memories and special moments"
+}

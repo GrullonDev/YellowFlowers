@@ -1,0 +1,70 @@
+{
+  "@@locale": "es",
+  "appTagline": "flores amarillas",
+  "@appTagline": {
+    "description": "Small wordmark shown at the top of the Home screen."
+  },
+
+  "greetingMorning": "Buenos días,",
+  "greetingAfternoon": "Buenas tardes,",
+  "greetingEvening": "Buenas noches,",
+  "greetingNight": "Descansa bien,",
+
+  "gardenTitle": "Tu jardín",
+  "gardenSubtitle": "Elige cómo vivir este momento",
+
+  "forYouToday": "PARA TI HOY",
+  "exploreNow": "Explorar ahora",
+
+  "howDoYouFeelTitle": "Cómo te sientes",
+  "thisWeek": "Esta semana",
+  "breathe": "Respirar",
+  "affirmation": "Afirmación",
+
+  "streakDays": "{count, plural, one {{count} día} other {{count} días}}",
+  "@streakDays": {
+    "description": "Consecutive daily check-in streak, shown as a small chip (e.g. '5 días').",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "streakMilestoneTitle": "¡{count} días seguidos!",
+  "@streakMilestoneTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "streakMilestoneBody": "Cada check-in cuenta, {name}. Gracias por dedicarte este momento — sigue así 🌼",
+  "@streakMilestoneBody": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "streakMilestoneCta": "Seguir mi racha 💛",
+
+  "reminderTitle": "Recordatorio diario",
+  "reminderSubtitle": "Un aviso suave para registrar tu ánimo y cuidar tu racha. Puedes desactivarlo cuando quieras.",
+  "reminderEnable": "Activar recordatorio",
+  "reminderTimeLabel": "Hora: {time}",
+  "@reminderTimeLabel": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "reminderChange": "Cambiar",
+  "reminderPermissionError": "Activa las notificaciones para Amarillas en los ajustes del sistema.",
+
+  "moodPageTitle": "¿Cómo te sientes hoy? 🌸",
+  "moodPageSubtitle": "Elige tu estado de ánimo\npara personalizar tu experiencia",
+  "moodHappy": "Alegre",
+  "moodHappyDesc": "Energía positiva y sonrisas",
+  "moodRelaxed": "Tranquila",
+  "moodRelaxedDesc": "Serenidad y paz interior",
+  "moodRomantic": "Enamorada",
+  "moodRomanticDesc": "Ternura y romanticismo",
+  "moodMotivated": "Motivada",
+  "moodMotivatedDesc": "Fuerza, enfoque y determinación",
+  "moodNostalgic": "Nostálgica",
+  "moodNostalgicDesc": "Recuerdos y momentos especiales"
+}
