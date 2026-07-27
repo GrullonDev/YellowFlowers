@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:yellow_flowers/core/analytics/analytics_service.dart';
+import 'package:yellow_flowers/di/injector.dart' as di;
 import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 
 /// Global mood state used to personalize background palette, messages and music
@@ -35,6 +39,14 @@ class MoodController extends ChangeNotifier {
       await prefs.setString(_prefKey, m.name);
       await prefs.setInt(
           'last_mood_timestamp', DateTime.now().millisecondsSinceEpoch);
+    } catch (_) {}
+    // Fase 1 analítica: cada cambio de mood alimenta el evento
+    // mood_selected (ver AnalyticsService). Guardado tras
+    // notifyListeners() para no retrasar la reacción de la UI.
+    try {
+      if (di.sl.isRegistered<AnalyticsService>()) {
+        unawaited(di.sl<AnalyticsService>().logMoodSelected(m.name));
+      }
     } catch (_) {}
   }
 

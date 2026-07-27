@@ -106,6 +106,34 @@ class NotificationService {
     } catch (_) {}
   }
 
+  /// Shows an immediate (non-scheduled) local notification. Used by
+  /// [PushNotificationService] to surface an FCM push while the app is in
+  /// the foreground — Android and iOS don't auto-display push
+  /// notifications when the app is already open, so without this the
+  /// message would silently disappear.
+  Future<void> showNow({required String title, required String body}) async {
+    if (!_initialized) await init();
+    try {
+      await _plugin.show(
+        DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        title,
+        body,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'push_channel',
+            'Notificaciones',
+            channelDescription: 'Notificaciones de Yellow Flowers',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(),
+        ),
+      );
+    } catch (_) {
+      // Notifications are a nice-to-have; never crash the app over one.
+    }
+  }
+
   Future<void> _schedule({required int hour, required int minute}) async {
     try {
       await _plugin.cancel(_reminderNotificationId);

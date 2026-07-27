@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,6 +14,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:path_provider/path_provider.dart';
 import 'package:yellow_flowers/di/injector.dart';
+import 'package:yellow_flowers/core/analytics/analytics_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 
 class FlowerResultPage extends StatefulWidget {
@@ -66,6 +68,11 @@ class _FlowerResultPageState extends State<FlowerResultPage>
     _initPetalSeeds();
     Future.delayed(
         const Duration(milliseconds: 500), () => _entranceController.forward());
+
+    // Fase 1 analítica: la flor personalizada ya quedó generada con su
+    // tema y mood en este punto — este es el evento flower_created.
+    unawaited(sl<AnalyticsService>()
+        .logFlowerCreated(theme: widget.theme.name, mood: widget.mood.name));
   }
 
   void _initPetalSeeds() {
@@ -108,6 +115,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
 
       await Share.shareXFiles([XFile(imagePath.path)],
           text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛');
+      unawaited(sl<AnalyticsService>().logMessageShared('flower_export'));
     } catch (e) {
       debugPrint('Export Error: $e');
     }

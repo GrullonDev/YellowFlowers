@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:yellow_flowers/core/analytics/analytics_service.dart';
 import 'package:yellow_flowers/core/auth/auth_service.dart';
 import 'package:yellow_flowers/core/notifications/notification_service.dart';
+import 'package:yellow_flowers/core/notifications/push_notification_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
 
@@ -40,6 +42,19 @@ Future<void> initDependencies() async {
   }
   if (!sl.isRegistered<AuthService>()) {
     sl.registerLazySingleton<AuthService>(() => AuthService());
+  }
+
+  // Fase 1 — observabilidad y re-enganche.
+  if (!sl.isRegistered<AnalyticsService>()) {
+    sl.registerLazySingleton<AnalyticsService>(() => AnalyticsService());
+  }
+  if (!sl.isRegistered<PushNotificationService>()) {
+    sl.registerLazySingleton<PushNotificationService>(
+      () => PushNotificationService(
+        authService: sl<AuthService>(),
+        localNotifications: sl<NotificationService>(),
+      ),
+    );
   }
 
   // Guarded registration for TTS to avoid duplicate registration errors during hot reload

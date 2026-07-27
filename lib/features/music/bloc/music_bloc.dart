@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:get_it/get_it.dart';
+import 'package:yellow_flowers/core/analytics/analytics_service.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
@@ -204,6 +208,18 @@ class MusicBloc extends BaseModel {
     }
     _isPlaying = true;
     notifyListeners();
+
+    // Fase 1 analítica: evento music_played (ver AnalyticsService).
+    // Usa GetIt.instance directamente (no injector.dart) para no crear un
+    // import circular: injector.dart ya importa este archivo para
+    // registrar MusicBloc.
+    try {
+      final getIt = GetIt.instance;
+      if (getIt.isRegistered<AnalyticsService>()) {
+        unawaited(getIt<AnalyticsService>()
+            .logMusicPlayed(songId: song.id, mood: _selectedMood.name));
+      }
+    } catch (_) {}
   }
 
   Future<void> pauseSong() async {

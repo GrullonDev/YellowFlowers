@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:yellow_flowers/core/analytics/analytics_service.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/core/transitions.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
@@ -425,11 +428,23 @@ class _FeaturedGem extends StatelessWidget {
                       onPressed: () {
                         HapticFeedback.mediumImpact();
                         final model = context.read<HomeBloc>();
-                        if (model.menuItems.isNotEmpty) {
-                          Navigator.of(context).push(
-                              PremiumTransitions.fadeThrough(
-                                  model.menuItems[0].destination));
-                        }
+                        if (model.menuItems.isEmpty) return;
+
+                        // Navega al ítem que la recomendación realmente
+                        // sugirió, no siempre al primero — ver
+                        // PersonalizationService.getRecommendationTargetId.
+                        final targetId = di.sl<PersonalizationService>()
+                            .getRecommendationTargetId();
+                        final target = model.menuItems.firstWhere(
+                          (item) => item.id == targetId,
+                          orElse: () => model.menuItems[0],
+                        );
+                        unawaited(di.sl<AnalyticsService>().logCustom(
+                          'explore_now_tapped',
+                          {'target': target.id},
+                        ));
+                        Navigator.of(context).push(
+                            PremiumTransitions.fadeThrough(target.destination));
                       },
                     ),
                   ],

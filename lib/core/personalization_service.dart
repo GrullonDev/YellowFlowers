@@ -21,6 +21,29 @@ class PersonalizationService {
     }
   }
 
+  /// The [MenuItem.id] that [getRecommendation]'s copy is actually talking
+  /// about, so the home screen's "Explorar ahora" button can navigate to
+  /// the recommended feature instead of always opening the first menu
+  /// item. Kept on the same hour bands as [getRecommendation] so the text
+  /// and the destination never disagree.
+  ///
+  /// Fixes the bug documented in
+  /// YellowFlowers_Analisis_Dinamismo_Social.docx, sección 3.1: "el botón
+  /// 'Explorar ahora' ... siempre navega al primer ítem del menú, sin
+  /// importar qué mood o recomendación se mostró".
+  String getRecommendationTargetId() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return 'music'; // Enérgico ☀️ — playlist para empezar el día
+    } else if (hour >= 12 && hour < 18) {
+      return 'flowers'; // Creativo 🎨 — canalizar la creatividad en una flor
+    } else if (hour >= 18 && hour < 22) {
+      return 'music'; // Relajado 🌙 — playlist para desconectar
+    } else {
+      return 'moments'; // Soñador ✨ — recuerdos antes de dormir
+    }
+  }
+
   Future<void> saveUserName(String name) async {
     await _prefs.setString(_keyUserName, name);
   }

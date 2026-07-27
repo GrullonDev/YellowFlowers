@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:yellow_flowers/core/analytics/analytics_service.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/core/transitions.dart';
 import 'package:yellow_flowers/features/home/pages/home_page.dart';
@@ -138,6 +141,7 @@ class _StorytellingOnboardingState extends State<StorytellingOnboarding> {
           }
           await personalization.saveUserName(name);
           await personalization.setNotFirstTime();
+          unawaited(sl<AnalyticsService>().logOnboardingCompleted());
           if (mounted) {
             if (widget.onComplete != null) {
               widget.onComplete!();

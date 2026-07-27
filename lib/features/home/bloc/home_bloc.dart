@@ -15,36 +15,42 @@ class HomeBloc extends BaseModel {
 
   List<MenuItem> get menuItems => [
         MenuItem(
+          id: 'flowers',
           title: 'Flores Amarillas',
           icon: Icons.local_florist,
           destination: const FlowerOnboardingPage(),
           description: 'Un detalle con flores y un mensaje especial 💛',
         ),
         MenuItem(
+          id: 'moments',
           title: 'Galería de Momentos',
           icon: Icons.photo_library,
           destination: const MomentsGalleryPage(),
           description: 'Tus recuerdos favoritos, en un solo lugar 🖼️',
         ),
         MenuItem(
+          id: 'messages',
           title: 'Mensajes Especiales',
           icon: Icons.message,
           destination: const SpecialMessagesPage(),
           description: 'Palabras que llegan al corazón ✍️',
         ),
         MenuItem(
+          id: 'music',
           title: 'Tu Música',
           icon: Icons.headphones_rounded,
           destination: const MusicPage(),
           description: 'Canciones según tu estado de ánimo 🎵',
         ),
         MenuItem(
+          id: 'cycle',
           title: 'Mi Ciclo',
           icon: Icons.spa_rounded,
           destination: const CycleMusicPage(),
           description: 'Lleva el control de tu ciclo con amor 🌸',
         ),
         /* MenuItem(
+          id: 'cards',
           title: 'Tarjetas Virtuales',
           icon: Icons.card_giftcard,
           destination: AlertDialog(
