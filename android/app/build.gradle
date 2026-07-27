@@ -81,6 +81,9 @@ android {
         // Use Java 21 (LTS in 2026). Required for modern Android SDKs (API 36+).
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        // flutter_local_notifications requires core library desugaring
+        // (it uses java.time APIs under the hood on older minSdk levels).
+        coreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -129,6 +132,8 @@ android {
 
 dependencies {
     implementation "androidx.core:core-splashscreen:1.2.0"
+    // Required by flutter_local_notifications (core library desugaring).
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"
 }
 
 flutter {
