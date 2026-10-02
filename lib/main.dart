@@ -5,6 +5,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 
 import 'package:yellow_flowers/app.dart';
 import 'package:yellow_flowers/core/home_widget_service.dart';
+import 'package:yellow_flowers/core/notification_service.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
 import 'firebase_options.dart';
 
@@ -37,6 +38,9 @@ void main() async {
     final homeWidget = di.sl<HomeWidgetService>();
     await homeWidget.init();
     homeWidget.refresh(); // sin await: no bloquea el arranque
+
+    // Notificaciones locales: recordatorio diario del jardín
+    await di.sl<NotificationService>().init();
 
     Uri? launchUri;
     try {

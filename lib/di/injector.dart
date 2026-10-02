@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:yellow_flowers/core/home_widget_service.dart';
+import 'package:yellow_flowers/core/notification_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/features/garden/data/garden_service.dart';
 import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
@@ -32,6 +33,7 @@ Future<void> initDependencies() async {
   sl.registerSingleton<GardenService>(GardenService(prefs));
   sl.registerSingleton<HomeWidgetService>(
       HomeWidgetService(sl<PersonalizationService>(), sl<GardenService>()));
+  sl.registerSingleton<NotificationService>(NotificationService(prefs));
 
   // Services
   sl.registerLazySingleton<FirebaseMusicService>(() => FirebaseMusicService());
