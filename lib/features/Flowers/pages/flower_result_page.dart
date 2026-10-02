@@ -7,7 +7,6 @@ import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/background_layer.dart';
 import 'package:yellow_flowers/features/flowers/models/default_messages.dart';
-import 'dart:typed_data';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:path_provider/path_provider.dart';
@@ -123,12 +122,38 @@ class _FlowerResultPageState extends State<FlowerResultPage>
 
   Future<void> _exportImage() async {
     try {
-      RenderRepaintBoundary boundary = _boundaryKey.currentContext!
+      final shareKey = GlobalKey();
+      final overlay = OverlayEntry(builder: (_) => Positioned(
+        left: -2000,
+        top: -2000,
+        child: Opacity(
+          opacity: 0.01,
+          child: RepaintBoundary(
+            key: shareKey,
+            child: Material(
+              color: Colors.transparent,
+              child: _ShareCard(
+                recipient: widget.recipient,
+                sender: widget.sender,
+                dedication: _finalDedication,
+                inspiration: _inspiration,
+              ),
+            ),
+          ),
+        ),
+      ));
+      Overlay.of(context).insert(overlay);
+
+      await Future.delayed(const Duration(milliseconds: 300));
+      await WidgetsBinding.instance.endOfFrame;
+
+      final boundary = shareKey.currentContext!
           .findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage(pixelRatio: 3.5);
-      ByteData? byteData =
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
-      Uint8List pngBytes = byteData!.buffer.asUint8List();
+      final pngBytes = byteData!.buffer.asUint8List();
+      overlay.remove();
 
       final directory = await getTemporaryDirectory();
       final imagePath = await File(
@@ -469,6 +494,132 @@ class _GiftCard extends StatelessWidget {
               ),
               Container(width: 20, height: 1, color: gold.withAlpha(80)),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShareCard extends StatelessWidget {
+  const _ShareCard({
+    required this.recipient,
+    required this.sender,
+    required this.dedication,
+    required this.inspiration,
+  });
+  final String recipient, sender, dedication;
+  final DailyInspiration inspiration;
+
+  static const _bg = Color(0xFF0B0820);
+  static const _gold = Color(0xFFFFD54F);
+  static const _white = Color(0xFFFFF8E1);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1080,
+      padding: const EdgeInsets.all(64),
+      decoration: BoxDecoration(
+        color: _bg,
+        border: Border.all(color: _gold.withAlpha(80), width: 3),
+        borderRadius: BorderRadius.circular(48),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🌻', style: TextStyle(fontSize: 64)),
+          const SizedBox(height: 32),
+          Text(
+            '$recipient,',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 42,
+              fontWeight: FontWeight.w700,
+              color: _white,
+              shadows: [Shadow(color: _gold.withAlpha(100), blurRadius: 20)],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              dedication,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 26,
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+                color: _white.withAlpha(220),
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(12),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: _gold.withAlpha(40)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '"${inspiration.quote}"',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 22,
+                    fontStyle: FontStyle.italic,
+                    height: 1.5,
+                    color: _white,
+                  ),
+                ),
+                if (inspiration.author != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    '— ${inspiration.author}',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: _gold,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(width: 40, height: 1.5, color: _gold.withAlpha(80)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'De: $sender',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: _gold,
+                  ),
+                ),
+              ),
+              Container(width: 40, height: 1.5, color: _gold.withAlpha(80)),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Opacity(
+            opacity: 0.35,
+            child: Text(
+              'flores amarillas • tu jardín emocional 🌻',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 2,
+                color: _white,
+              ),
+            ),
           ),
         ],
       ),

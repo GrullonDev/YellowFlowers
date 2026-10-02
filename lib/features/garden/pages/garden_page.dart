@@ -152,103 +152,107 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final bloomedToday = _garden.hasBloomedToday;
     final hPad = context.wp(20).clamp(14.0, 28.0);
+    final navClearance = context.bottomNavClearance;
 
     return Stack(
-        children: [
-          const Positioned.fill(child: LuminousBackground()),
-          Positioned.fill(
-            child: ParticleLayer(
-                mood: Mood.calm, controller: _burst, density: 0.6),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        context.wp(8), context.hp(4), context.wp(8), 0),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          tooltip: 'Menú',
-                          icon: const Icon(Icons.menu_rounded,
-                              color: _warmWhite),
-                          onPressed: () =>
-                              Scaffold.of(context).openDrawer(),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          tooltip: 'Sonidos para leer',
-                          icon: const Icon(Icons.headphones_rounded,
-                              color: _warmWhite),
-                          onPressed: () => showAmbientSounds(context),
-                        ),
-                      ],
+      children: [
+        const Positioned.fill(child: LuminousBackground()),
+        Positioned.fill(
+          child: ParticleLayer(
+              mood: Mood.calm, controller: _burst, density: 0.6),
+        ),
+        // Ground + flowers anchored to the very bottom of the screen
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: context.screenHeight * 0.48,
+          child: _field(navClearance),
+        ),
+        SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    context.wp(8), context.hp(2), context.wp(8), 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: 'Menú',
+                      icon: const Icon(Icons.menu_rounded, color: _warmWhite),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 0),
-                    child: Column(
-                      children: [
-                        Text('Mi Jardín',
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: context.sp(34).clamp(26, 40),
-                              fontWeight: FontWeight.w700,
-                              color: _warmWhite,
-                              shadows: [
-                                Shadow(
-                                    color: _gold.withAlpha(120),
-                                    blurRadius: 24)
-                              ],
-                            )),
-                        SizedBox(height: context.hp(4)),
-                        Text('Cada frase que lees hace florecer algo nuevo',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
-                                fontSize: context.sp(13).clamp(11, 15),
-                                color: _warmWhite.withAlpha(170))),
-                        SizedBox(height: context.hp(14)),
-                        Row(
-                          children: [
-                            _Stat(value: '${_days.length}', label: 'flores'),
-                            SizedBox(width: context.wp(8)),
-                            _Stat(
-                                value: '${_garden.currentStreak}',
-                                label: 'días seguidos'),
-                            SizedBox(width: context.wp(8)),
-                            _Stat(
-                                value: '${_garden.weeksGrowing}',
-                                label: 'semanas'),
-                          ],
-                        ),
-                        SizedBox(height: context.hp(12)),
-                        _QuoteCard(
+                    const Spacer(),
+                    IconButton(
+                      tooltip: 'Sonidos para leer',
+                      icon: const Icon(Icons.headphones_rounded,
+                          color: _warmWhite),
+                      onPressed: () => showAmbientSounds(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 0),
+                  child: Column(
+                    children: [
+                      Text('Mi Jardín',
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: context.sp(32).clamp(24, 38),
+                            fontWeight: FontWeight.w700,
+                            color: _warmWhite,
+                            shadows: [
+                              Shadow(
+                                  color: _gold.withAlpha(120),
+                                  blurRadius: 24)
+                            ],
+                          )),
+                      SizedBox(height: context.hp(2)),
+                      Text('Cada frase que lees hace florecer algo nuevo',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.sp(12).clamp(10, 14),
+                              color: _warmWhite.withAlpha(170))),
+                      SizedBox(height: context.hp(6)),
+                      Row(
+                        children: [
+                          _Stat(value: '${_days.length}', label: 'flores'),
+                          SizedBox(width: context.wp(6)),
+                          _Stat(
+                              value: '${_garden.currentStreak}',
+                              label: 'días seguidos'),
+                          SizedBox(width: context.wp(6)),
+                          _Stat(
+                              value: '${_garden.weeksGrowing}',
+                              label: 'semanas'),
+                        ],
+                      ),
+                      SizedBox(height: context.hp(6)),
+                      Flexible(
+                        child: _QuoteCard(
                           inspiration: _inspiration,
                           bloomedToday: bloomedToday,
                           onRead: _plant,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    height: context.screenHeight * 0.38,
-                    child: _field(),
-                  ),
-                  SizedBox(height: context.bottomNavClearance),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
+      ],
     );
   }
 
-  Widget _field() {
+  Widget _field(double navClearance) {
     if (_days.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.only(bottom: navClearance),
           child: Text(
             'Tu jardín está listo para su primera semilla 🌱\nLee tu frase de hoy para plantarla.',
             textAlign: TextAlign.center,
@@ -260,33 +264,37 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
     }
 
     return LayoutBuilder(builder: (context, c) {
-      const spacing = 30.0;
+      const spacing = 36.0;
       final n = _days.length;
-      final width = math.max(c.maxWidth, n * spacing + 60);
-      final flowerH = c.maxHeight;
-      final flowerW = math.min(64.0, flowerH * 0.32);
+      final width = math.max(c.maxWidth, n * spacing + 80);
+      final totalH = c.maxHeight;
+      // Grass strip: thin band just above the nav bar
+      final grassH = navClearance + context.hp(28).clamp(20.0, 36.0);
+      // Flowers grow from the grass upward, filling most of the field
+      final flowerH = (totalH - navClearance - 8).clamp(100.0, totalH * 0.92);
+      final flowerW = (flowerH * 0.25).clamp(36.0, 90.0);
 
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        reverse: true, // lo más reciente a la vista
+        reverse: true,
         physics: const BouncingScrollPhysics(),
         child: SizedBox(
           width: width,
-          height: flowerH,
+          height: totalH,
           child: AnimatedBuilder(
             animation: Listenable.merge([_entrance, _sway, _newGrowth]),
             builder: (context, _) {
-              // Si hay pocas flores, se centran; si hay muchas, se reparten.
               final startX = (width - (n - 1) * spacing) / 2;
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Suelo luminoso
+                  // Thin grass strip anchored at bottom, extending
+                  // through the nav bar zone
                   Positioned(
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    height: 26,
+                    height: grassH,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -294,8 +302,11 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
                           end: Alignment.bottomCenter,
                           colors: [
                             const Color(0xFF7CB342).withAlpha(0),
-                            const Color(0xFF33691E).withAlpha(140),
+                            const Color(0xFF558B2F).withAlpha(100),
+                            const Color(0xFF33691E).withAlpha(160),
+                            const Color(0xFF1B5E20).withAlpha(200),
                           ],
+                          stops: const [0.0, 0.25, 0.55, 1.0],
                         ),
                       ),
                     ),
@@ -305,10 +316,10 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
                       left: startX +
                           i * spacing -
                           flowerW / 2 +
-                          (math.Random(i).nextDouble() - 0.5) * 10,
-                      bottom: 6 + (i % 3) * 4,
+                          (math.Random(i).nextDouble() - 0.5) * 12,
+                      bottom: navClearance + 2 + (i % 3) * 4,
                       width: flowerW,
-                      height: flowerH - 10,
+                      height: flowerH,
                       child: GrowingFlower(
                         variant: _variants[i],
                         progress: _progressFor(i, n),
@@ -385,6 +396,7 @@ class _QuoteCard extends StatelessWidget {
       glow: !bloomedToday,
       padding: EdgeInsets.all(context.dp(18).clamp(14.0, 24.0)),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text('TU FRASE DE HOY ☀️',
               style: GoogleFonts.plusJakartaSans(

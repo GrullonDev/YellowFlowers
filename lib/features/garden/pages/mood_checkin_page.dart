@@ -106,9 +106,9 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                       style: GoogleFonts.plusJakartaSans(
                           fontSize: context.sp(13).clamp(11, 15),
                           color: _warmWhite.withAlpha(170))),
-                  SizedBox(height: context.hp(24)),
+                  SizedBox(height: context.hp(16)),
                   ...DailyMood.values.map((m) => Padding(
-                        padding: EdgeInsets.only(bottom: context.hp(10)),
+                        padding: EdgeInsets.only(bottom: context.hp(6)),
                         child: _MoodOption(
                           mood: m,
                           selected: _selected == m,
