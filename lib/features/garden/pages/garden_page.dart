@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yellow_flowers/core/home_widget_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/core/responsive.dart';
@@ -51,15 +52,51 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     final name = sl<PersonalizationService>().getUserName() ?? '';
-    _inspiration = DailyInspiration.forToday(name, mood: Mood.calm);
+    final todayMood = _todayMoodIndex();
+    final mood = _dailyMoodToMood(todayMood);
+    _inspiration = DailyInspiration.forToday(name, mood: mood);
     _load();
+  }
+
+  static Mood _dailyMoodToMood(int? index) {
+    // DailyMood: 0=happy, 1=calm, 2=strong, 3=reflective, 4=loving
+    // Mood: joy, calm, passion
+    switch (index) {
+      case 0: return Mood.joy;
+      case 1: return Mood.calm;
+      case 2: return Mood.passion;
+      case 3: return Mood.calm;
+      case 4: return Mood.passion;
+      default: return Mood.calm;
+    }
+  }
+
+  int? _todayMoodIndex() {
+    final prefs = sl<SharedPreferences>();
+    final n = DateTime.now();
+    final key =
+        'mood_checkin_${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
+    final raw = prefs.getString(key);
+    if (raw == null) return null;
+    return int.tryParse(raw);
+  }
+
+  static int? _moodIndexForDay(DateTime d) {
+    final prefs = sl<SharedPreferences>();
+    final key =
+        'mood_checkin_${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    final raw = prefs.getString(key);
+    if (raw == null) return null;
+    return int.tryParse(raw);
   }
 
   void _load() {
     _days = _garden.bloomDays;
     _variants = _days
-        .map((d) =>
-            FlowerVariant.fromSeed(d.year * 10000 + d.month * 100 + d.day))
+        .map((d) => FlowerVariant.fromSeed(
+              d.year * 10000 + d.month * 100 + d.day,
+              moodIndex: _moodIndexForDay(d),
+            ))
         .toList();
   }
 

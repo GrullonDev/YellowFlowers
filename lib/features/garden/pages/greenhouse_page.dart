@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/di/injector.dart';
@@ -15,6 +16,15 @@ import 'package:yellow_flowers/widgets/luminous_background.dart';
 
 const _gold = Color(0xFFFFD54F);
 const _warmWhite = Color(0xFFFFF8E1);
+
+int? _moodForDay(DateTime d) {
+  final prefs = sl<SharedPreferences>();
+  final key =
+      'mood_checkin_${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  final raw = prefs.getString(key);
+  if (raw == null) return null;
+  return int.tryParse(raw);
+}
 
 class GreenhousePage extends StatefulWidget {
   const GreenhousePage({super.key});
@@ -138,7 +148,8 @@ class _FlowerCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final variant = FlowerVariant.fromSeed(
-        day.year * 10000 + day.month * 100 + day.day);
+        day.year * 10000 + day.month * 100 + day.day,
+        moodIndex: _moodForDay(day));
     final months = [
       '', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
       'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
