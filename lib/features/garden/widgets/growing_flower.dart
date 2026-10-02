@@ -12,9 +12,12 @@ class FlowerVariant {
   });
 
   /// Variante estable a partir de una semilla (p. ej. la fecha).
-  factory FlowerVariant.fromSeed(int seed) {
+  factory FlowerVariant.fromSeed(int seed, {int? moodIndex}) {
     final rnd = math.Random(seed);
-    final petal = _warmPalette[rnd.nextInt(_warmPalette.length)];
+    final palette = moodIndex != null && moodIndex < _moodPalettes.length
+        ? _moodPalettes[moodIndex]
+        : _warmPalette;
+    final petal = palette[rnd.nextInt(palette.length)];
     return FlowerVariant(
       petalColor: petal,
       centerColor: petal == const Color(0xFFFFF8E1)
@@ -204,7 +207,7 @@ class _GrowingFlowerPainter extends CustomPainter {
       old.progress != progress || old.sway != sway || old.v != v;
 }
 
-/// Amarillos cálidos, dorados y blancos luminosos.
+/// Amarillos cálidos, dorados y blancos luminosos (default / calm).
 const _warmPalette = [
   Color(0xFFFFD54F),
   Color(0xFFFFC107),
@@ -212,4 +215,18 @@ const _warmPalette = [
   Color(0xFFFFB300),
   Color(0xFFFFF8E1),
   Color(0xFFFFCA28),
+];
+
+/// Paletas por DailyMood.index: happy, calm, strong, reflective, loving.
+const _moodPalettes = <List<Color>>[
+  // happy — amarillos brillantes y naranjas alegres
+  [Color(0xFFFFD54F), Color(0xFFFFAB00), Color(0xFFFF8F00), Color(0xFFFFCA28), Color(0xFFFFF176)],
+  // calm — amarillos suaves y verdes claros
+  _warmPalette,
+  // strong — naranjas intensos y ámbar
+  [Color(0xFFF57C00), Color(0xFFFF9800), Color(0xFFFFB74D), Color(0xFFE65100), Color(0xFFFFCC80)],
+  // reflective — lilas y lavandas suaves
+  [Color(0xFFCE93D8), Color(0xFFBA68C8), Color(0xFFE1BEE7), Color(0xFFAB47BC), Color(0xFFD1C4E9)],
+  // loving — rosas y fucsias
+  [Color(0xFFF48FB1), Color(0xFFEC407A), Color(0xFFF8BBD0), Color(0xFFE91E63), Color(0xFFFCE4EC)],
 ];
