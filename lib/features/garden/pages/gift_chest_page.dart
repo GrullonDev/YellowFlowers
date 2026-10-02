@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/di/injector.dart';
+import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/features/garden/data/garden_service.dart';
 import 'package:yellow_flowers/widgets/glass_card.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
@@ -127,6 +128,8 @@ class _GiftChestPageState extends State<GiftChestPage>
 
   @override
   Widget build(BuildContext context) {
+    final hPad = context.wp(20).clamp(14.0, 28.0);
+
     return Stack(
       children: [
         const Positioned.fill(child: LuminousBackground()),
@@ -134,23 +137,24 @@ class _GiftChestPageState extends State<GiftChestPage>
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                padding: EdgeInsets.fromLTRB(hPad, context.hp(12), hPad, 0),
                 child: Column(
                   children: [
                     Text('Cofre de Regalos',
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 28,
+                          fontSize: context.sp(28).clamp(22, 34),
                           fontWeight: FontWeight.w700,
                           color: _warmWhite,
                           shadows: [
                             Shadow(color: _gold.withAlpha(120), blurRadius: 24)
                           ],
                         )),
-                    const SizedBox(height: 4),
+                    SizedBox(height: context.hp(4)),
                     Text('Desbloquea sorpresas con tu constancia',
                         style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13, color: _warmWhite.withAlpha(170))),
-                    const SizedBox(height: 14),
+                            fontSize: context.sp(13).clamp(11, 15),
+                            color: _warmWhite.withAlpha(170))),
+                    SizedBox(height: context.hp(14)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -158,7 +162,7 @@ class _GiftChestPageState extends State<GiftChestPage>
                             icon: Icons.local_fire_department_rounded,
                             value: '$_streak',
                             label: 'racha'),
-                        const SizedBox(width: 20),
+                        SizedBox(width: context.wp(20).clamp(14.0, 28.0)),
                         _MiniStat(
                             icon: Icons.filter_vintage_rounded,
                             value: '$_totalFlowers',
@@ -168,10 +172,11 @@ class _GiftChestPageState extends State<GiftChestPage>
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.hp(12)),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                  padding: EdgeInsets.fromLTRB(
+                      hPad, 0, hPad, context.bottomNavClearance),
                   physics: const BouncingScrollPhysics(),
                   itemCount: _gifts.length,
                   itemBuilder: (context, i) {
@@ -189,7 +194,7 @@ class _GiftChestPageState extends State<GiftChestPage>
                           end: Offset.zero,
                         ).animate(fade),
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: EdgeInsets.only(bottom: context.hp(10)),
                           child: _GiftCard(
                             gift: _gifts[i],
                             streak: _streak,
@@ -239,15 +244,18 @@ class _MiniStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: _gold, size: 18),
-        const SizedBox(width: 6),
+        Icon(icon, color: _gold, size: context.dp(18).clamp(14.0, 22.0)),
+        SizedBox(width: context.wp(6)),
         Text(value,
             style: GoogleFonts.playfairDisplay(
-                fontSize: 22, fontWeight: FontWeight.w700, color: _gold)),
-        const SizedBox(width: 4),
+                fontSize: context.sp(22).clamp(18, 26),
+                fontWeight: FontWeight.w700,
+                color: _gold)),
+        SizedBox(width: context.wp(4)),
         Text(label,
             style: GoogleFonts.plusJakartaSans(
-                fontSize: 12, color: _warmWhite.withAlpha(160))),
+                fontSize: context.sp(12).clamp(10, 14),
+                color: _warmWhite.withAlpha(160))),
       ],
     );
   }
@@ -282,55 +290,58 @@ class _GiftCard extends StatelessWidget {
         children: [
           GlassCard(
             dark: true,
-            radius: 22,
+            radius: context.dp(22).clamp(16.0, 26.0),
             glow: unlocked && !opened,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            padding: EdgeInsets.symmetric(
+                horizontal: context.wp(18).clamp(12.0, 22.0),
+                vertical: context.hp(14).clamp(10.0, 18.0)),
             child: Row(
               children: [
                 AnimatedScale(
                   scale: opening ? 1.4 : 1.0,
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOutBack,
-                  child: Text(gift.icon, style: const TextStyle(fontSize: 36)),
+                  child: Text(gift.icon,
+                      style: TextStyle(fontSize: context.sp(36).clamp(28, 44))),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: context.wp(16).clamp(10.0, 20.0)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(gift.title,
                           style: GoogleFonts.plusJakartaSans(
-                              fontSize: 15,
+                              fontSize: context.sp(15).clamp(13, 18),
                               fontWeight: FontWeight.w700,
                               color: unlocked
                                   ? _warmWhite
                                   : _warmWhite.withAlpha(100))),
-                      const SizedBox(height: 4),
+                      SizedBox(height: context.hp(4)),
                       if (!unlocked) ...[
                         Text('${gift.streakRequired} días seguidos',
                             style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
+                                fontSize: context.sp(12).clamp(10, 14),
                                 color: _warmWhite.withAlpha(120))),
-                        const SizedBox(height: 6),
+                        SizedBox(height: context.hp(6)),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: progress,
-                            minHeight: 6,
+                            minHeight: context.hp(6).clamp(4.0, 8.0),
                             backgroundColor: Colors.white.withAlpha(20),
                             valueColor: const AlwaysStoppedAnimation(_gold),
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: context.hp(2)),
                         Text('$streak / ${gift.streakRequired}',
                             style: GoogleFonts.plusJakartaSans(
-                                fontSize: 10,
+                                fontSize: context.sp(10).clamp(8, 12),
                                 color: _warmWhite.withAlpha(100))),
                       ] else
                         Text(
                           opened ? 'Toca para releer' : '¡Desbloqueado! Toca para abrir',
                           style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
+                              fontSize: context.sp(12).clamp(10, 14),
                               fontWeight: FontWeight.w600,
                               color: opened
                                   ? _warmWhite.withAlpha(140)
@@ -345,10 +356,12 @@ class _GiftCard extends StatelessWidget {
                         ? Icons.auto_awesome_rounded
                         : Icons.card_giftcard_rounded,
                     color: opened ? _gold.withAlpha(120) : _gold,
+                    size: context.dp(24).clamp(20.0, 28.0),
                   ),
                 if (!unlocked)
                   Icon(Icons.lock_rounded,
-                      color: _warmWhite.withAlpha(60), size: 20),
+                      color: _warmWhite.withAlpha(60),
+                      size: context.dp(20).clamp(16.0, 24.0)),
               ],
             ),
           ),
@@ -419,7 +432,8 @@ class _DedicationDialogState extends State<_DedicationDialog>
       child: ScaleTransition(
         scale: CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: EdgeInsets.symmetric(
+              horizontal: context.wp(28).clamp(20.0, 40.0)),
           child: Material(
             color: Colors.transparent,
             child: GlassCard(
@@ -429,33 +443,36 @@ class _DedicationDialogState extends State<_DedicationDialog>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(widget.gift.icon,
-                      style: const TextStyle(fontSize: 48)),
-                  const SizedBox(height: 12),
+                      style: TextStyle(fontSize: context.sp(48).clamp(36, 56))),
+                  SizedBox(height: context.hp(12)),
                   Text(widget.gift.title,
                       style: GoogleFonts.playfairDisplay(
-                          fontSize: 22,
+                          fontSize: context.sp(22).clamp(18, 26),
                           fontWeight: FontWeight.w700,
                           color: _gold)),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.hp(16)),
                   Text(widget.gift.dedication,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
+                          fontSize: context.sp(15).clamp(13, 18),
                           height: 1.6,
                           color: _warmWhite)),
-                  const SizedBox(height: 24),
+                  SizedBox(height: context.hp(24)),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 26, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: context.wp(26).clamp(18.0, 32.0),
+                          vertical: context.hp(12).clamp(10.0, 16.0)),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(
+                            context.dp(16).clamp(12.0, 20.0)),
                         gradient: const LinearGradient(
                             colors: [Color(0xFFFFE082), Color(0xFFFFB300)]),
                       ),
                       child: Text('Gracias 💛',
                           style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.sp(14).clamp(12, 16),
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF3E2723))),
                     ),

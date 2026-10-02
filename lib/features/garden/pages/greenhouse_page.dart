@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/flowers/models/daily_inspiration.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
@@ -40,6 +41,9 @@ class _GreenhousePageState extends State<GreenhousePage>
 
   @override
   Widget build(BuildContext context) {
+    final hPad = context.wp(16).clamp(10.0, 24.0);
+    final cols = context.gridColumns(small: 2, medium: 3, large: 4);
+
     return Stack(
       children: [
         const Positioned.fill(child: LuminousBackground()),
@@ -47,45 +51,51 @@ class _GreenhousePageState extends State<GreenhousePage>
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                padding: EdgeInsets.fromLTRB(hPad, context.hp(12), hPad, 0),
                 child: Column(
                   children: [
                     Text('Invernadero',
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 30,
+                          fontSize: context.sp(30).clamp(24, 36),
                           fontWeight: FontWeight.w700,
                           color: _warmWhite,
                           shadows: [
                             Shadow(color: _gold.withAlpha(120), blurRadius: 24)
                           ],
                         )),
-                    const SizedBox(height: 4),
+                    SizedBox(height: context.hp(4)),
                     Text('Tus flores y recuerdos de cada día',
                         style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13, color: _warmWhite.withAlpha(170))),
+                            fontSize: context.sp(13).clamp(11, 15),
+                            color: _warmWhite.withAlpha(170))),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: context.hp(12)),
               Expanded(
                 child: _days.isEmpty
                     ? Center(
-                        child: Text(
-                          'Aún no tienes flores.\nPlanta tu primera frase hoy 🌱',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
-                              color: _warmWhite.withAlpha(160), height: 1.5),
+                        child: Padding(
+                          padding: EdgeInsets.all(context.dp(32)),
+                          child: Text(
+                            'Aún no tienes flores.\nPlanta tu primera frase hoy 🌱',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                                fontSize: context.sp(14).clamp(12, 16),
+                                color: _warmWhite.withAlpha(160),
+                                height: 1.5),
+                          ),
                         ),
                       )
                     : GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                        padding: EdgeInsets.fromLTRB(
+                            hPad, 0, hPad, context.bottomNavClearance),
                         physics: const BouncingScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: cols,
                           childAspectRatio: 0.7,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
+                          mainAxisSpacing: context.dp(12).clamp(8.0, 16.0),
+                          crossAxisSpacing: context.dp(12).clamp(8.0, 16.0),
                         ),
                         itemCount: _days.length,
                         itemBuilder: (context, i) => _FlowerCell(
@@ -137,8 +147,8 @@ class _FlowerCell extends StatelessWidget {
       onTap: onTap,
       child: GlassCard(
         dark: true,
-        radius: 20,
-        padding: const EdgeInsets.all(8),
+        radius: context.dp(20).clamp(14.0, 24.0),
+        padding: EdgeInsets.all(context.dp(8).clamp(6.0, 12.0)),
         child: Column(
           children: [
             Expanded(
@@ -151,11 +161,11 @@ class _FlowerCell extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: context.hp(4)),
             Text(
               '${day.day} ${months[day.month]}',
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
+                  fontSize: context.sp(11).clamp(9, 13),
                   fontWeight: FontWeight.w700,
                   color: _gold),
             ),
@@ -209,7 +219,8 @@ class _MemoryOverlayState extends State<_MemoryOverlay>
           child: GestureDetector(
             onTap: () {},
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: EdgeInsets.symmetric(
+                  horizontal: context.wp(28).clamp(20.0, 40.0)),
               child: GlassCard(
                 dark: true,
                 glow: true,
@@ -219,35 +230,35 @@ class _MemoryOverlayState extends State<_MemoryOverlay>
                     Text(
                       '${widget.day.day} de ${months[widget.day.month]}, ${widget.day.year}',
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
+                          fontSize: context.sp(12).clamp(10, 14),
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1,
                           color: _gold),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: context.hp(16)),
                     Text(
                       '"${inspiration.quote}"',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.playfairDisplay(
-                          fontSize: 18,
+                          fontSize: context.sp(18).clamp(15, 22),
                           fontStyle: FontStyle.italic,
                           height: 1.5,
                           color: _warmWhite),
                     ),
                     if (inspiration.author != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: EdgeInsets.only(top: context.hp(8)),
                         child: Text('— ${inspiration.author}',
                             style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
+                                fontSize: context.sp(12).clamp(10, 14),
                                 fontWeight: FontWeight.w700,
                                 color: _gold.withAlpha(200))),
                       ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.hp(20)),
                     Text(inspiration.greeting,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
-                            fontSize: 13,
+                            fontSize: context.sp(13).clamp(11, 15),
                             color: _warmWhite.withAlpha(180))),
                   ],
                 ),

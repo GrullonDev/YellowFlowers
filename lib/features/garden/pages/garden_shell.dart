@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yellow_flowers/core/notification_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
@@ -108,17 +109,24 @@ class _GlassBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final barH = context.hp(64).clamp(56.0, 72.0);
+    final itemW = context.wp(64).clamp(52.0, 80.0);
+    final iconSize = context.dp(22).clamp(18.0, 26.0);
+    final labelSize = context.sp(9).clamp(8.0, 11.0);
+    final hPad = context.wp(16).clamp(10.0, 24.0);
+    final bottomPad = MediaQuery.of(context).padding.bottom + context.hp(8);
+    final radius = context.dp(24).clamp(18.0, 28.0);
+
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-          16, 0, 16, MediaQuery.of(context).padding.bottom + 8),
+      padding: EdgeInsets.fromLTRB(hPad, 0, hPad, bottomPad),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(radius),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            height: 64,
+            height: barH,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(radius),
               color: Colors.white.withAlpha(18),
               border: Border.all(
                 color: const Color(0xFFFFE082).withAlpha(40),
@@ -134,30 +142,31 @@ class _GlassBottomBar extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onTap(i),
                   child: SizedBox(
-                    width: 64,
+                    width: itemW,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 250),
                           curve: Curves.easeOut,
-                          padding: const EdgeInsets.all(6),
+                          padding: EdgeInsets.all(context.dp(6)),
                           decoration: active
                               ? BoxDecoration(
                                   color: _gold.withAlpha(35),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(
+                                      context.dp(12)),
                                 )
                               : null,
                           child: Icon(icon,
-                              size: 22,
+                              size: iconSize,
                               color: active
                                   ? _gold
                                   : _warmWhite.withAlpha(120)),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: context.hp(2)),
                         Text(label,
                             style: GoogleFonts.plusJakartaSans(
-                                fontSize: 9,
+                                fontSize: labelSize,
                                 fontWeight:
                                     active ? FontWeight.w700 : FontWeight.w500,
                                 color: active
@@ -203,24 +212,27 @@ class _GardenDrawerState extends State<_GardenDrawer> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+              padding: EdgeInsets.fromLTRB(
+                  context.wp(20).clamp(14.0, 28.0), context.hp(24),
+                  context.wp(20).clamp(14.0, 28.0), context.hp(8)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Hola, $name',
                       style: GoogleFonts.playfairDisplay(
-                          fontSize: 26,
+                          fontSize: context.sp(26).clamp(20, 32),
                           fontWeight: FontWeight.w700,
                           color: _warmWhite)),
-                  const SizedBox(height: 4),
+                  SizedBox(height: context.hp(4)),
                   Text('Tu espacio de calma y flores',
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13, color: _warmWhite.withAlpha(150))),
+                          fontSize: context.sp(13).clamp(11, 15),
+                          color: _warmWhite.withAlpha(150))),
                 ],
               ),
             ),
             const Divider(color: Color(0x33FFD54F), indent: 20, endIndent: 20),
-            const SizedBox(height: 8),
+            SizedBox(height: context.hp(8)),
             _DrawerTile(
               icon: Icons.local_florist,
               label: 'Flores Amarillas',

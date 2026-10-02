@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:yellow_flowers/core/home_widget_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/flowers/models/daily_inspiration.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
@@ -113,6 +114,8 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final bloomedToday = _garden.hasBloomedToday;
+    final hPad = context.wp(20).clamp(14.0, 28.0);
+
     return Stack(
         children: [
           const Positioned.fill(child: LuminousBackground()),
@@ -121,73 +124,83 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
                 mood: Mood.calm, controller: _burst, density: 0.6),
           ),
           SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'Menú',
-                        icon: const Icon(Icons.menu_rounded, color: _warmWhite),
-                        onPressed: () =>
-                            Scaffold.of(context).openDrawer(),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        tooltip: 'Sonidos para leer',
-                        icon: const Icon(Icons.headphones_rounded,
-                            color: _warmWhite),
-                        onPressed: () => showAmbientSounds(context),
-                      ),
-                    ],
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        context.wp(8), context.hp(4), context.wp(8), 0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'Menú',
+                          icon: const Icon(Icons.menu_rounded,
+                              color: _warmWhite),
+                          onPressed: () =>
+                              Scaffold.of(context).openDrawer(),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          tooltip: 'Sonidos para leer',
+                          icon: const Icon(Icons.headphones_rounded,
+                              color: _warmWhite),
+                          onPressed: () => showAmbientSounds(context),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: Column(
-                    children: [
-                      Text('Mi Jardín',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w700,
-                            color: _warmWhite,
-                            shadows: [
-                              Shadow(
-                                  color: _gold.withAlpha(120), blurRadius: 24)
-                            ],
-                          )),
-                      const SizedBox(height: 4),
-                      Text('Cada frase que lees hace florecer algo nuevo',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              color: _warmWhite.withAlpha(170))),
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          _Stat(value: '${_days.length}', label: 'flores'),
-                          const SizedBox(width: 10),
-                          _Stat(
-                              value: '${_garden.currentStreak}',
-                              label: 'días seguidos'),
-                          const SizedBox(width: 10),
-                          _Stat(
-                              value: '${_garden.weeksGrowing}',
-                              label: 'semanas'),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _QuoteCard(
-                        inspiration: _inspiration,
-                        bloomedToday: bloomedToday,
-                        onRead: _plant,
-                      ),
-                    ],
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 0),
+                    child: Column(
+                      children: [
+                        Text('Mi Jardín',
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: context.sp(34).clamp(26, 40),
+                              fontWeight: FontWeight.w700,
+                              color: _warmWhite,
+                              shadows: [
+                                Shadow(
+                                    color: _gold.withAlpha(120),
+                                    blurRadius: 24)
+                              ],
+                            )),
+                        SizedBox(height: context.hp(4)),
+                        Text('Cada frase que lees hace florecer algo nuevo',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                                fontSize: context.sp(13).clamp(11, 15),
+                                color: _warmWhite.withAlpha(170))),
+                        SizedBox(height: context.hp(14)),
+                        Row(
+                          children: [
+                            _Stat(value: '${_days.length}', label: 'flores'),
+                            SizedBox(width: context.wp(8)),
+                            _Stat(
+                                value: '${_garden.currentStreak}',
+                                label: 'días seguidos'),
+                            SizedBox(width: context.wp(8)),
+                            _Stat(
+                                value: '${_garden.weeksGrowing}',
+                                label: 'semanas'),
+                          ],
+                        ),
+                        SizedBox(height: context.hp(12)),
+                        _QuoteCard(
+                          inspiration: _inspiration,
+                          bloomedToday: bloomedToday,
+                          onRead: _plant,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(child: _field()),
-              ],
+                  SizedBox(
+                    height: context.screenHeight * 0.38,
+                    child: _field(),
+                  ),
+                  SizedBox(height: context.bottomNavClearance),
+                ],
+              ),
             ),
           ),
         ],
@@ -294,16 +307,20 @@ class _Stat extends StatelessWidget {
     return Expanded(
       child: GlassCard(
         dark: true,
-        radius: 20,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        radius: context.dp(20).clamp(14.0, 24.0),
+        padding: EdgeInsets.symmetric(
+            vertical: context.hp(10).clamp(8.0, 14.0),
+            horizontal: context.wp(6).clamp(4.0, 10.0)),
         child: Column(
           children: [
             Text(value,
                 style: GoogleFonts.playfairDisplay(
-                    fontSize: 24, fontWeight: FontWeight.w700, color: _gold)),
+                    fontSize: context.sp(24).clamp(18, 28),
+                    fontWeight: FontWeight.w700,
+                    color: _gold)),
             Text(label,
                 style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11,
+                    fontSize: context.sp(11).clamp(9, 13),
                     fontWeight: FontWeight.w600,
                     color: _warmWhite.withAlpha(170))),
           ],
@@ -329,56 +346,59 @@ class _QuoteCard extends StatelessWidget {
     return GlassCard(
       dark: true,
       glow: !bloomedToday,
+      padding: EdgeInsets.all(context.dp(18).clamp(14.0, 24.0)),
       child: Column(
         children: [
           Text('TU FRASE DE HOY ☀️',
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 11,
+                  fontSize: context.sp(11).clamp(9, 13),
                   fontWeight: FontWeight.w800,
                   letterSpacing: 2,
                   color: _gold)),
-          const SizedBox(height: 10),
+          SizedBox(height: context.hp(8)),
           Text(inspiration.greeting,
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
+                  fontSize: context.sp(13).clamp(11, 15),
                   fontWeight: FontWeight.w600,
                   color: _warmWhite.withAlpha(200))),
-          const SizedBox(height: 10),
-          Text('“${inspiration.quote}”',
+          SizedBox(height: context.hp(8)),
+          Text('”${inspiration.quote}”',
               textAlign: TextAlign.center,
               style: GoogleFonts.playfairDisplay(
-                  fontSize: 17,
+                  fontSize: context.sp(17).clamp(14, 20),
                   fontStyle: FontStyle.italic,
                   height: 1.4,
                   color: _warmWhite)),
           if (inspiration.author != null)
             Padding(
-              padding: const EdgeInsets.only(top: 6),
+              padding: EdgeInsets.only(top: context.hp(5)),
               child: Text('— ${inspiration.author}',
                   style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
+                      fontSize: context.sp(12).clamp(10, 14),
                       fontWeight: FontWeight.w700,
                       color: _gold.withAlpha(200))),
             ),
-          const SizedBox(height: 16),
+          SizedBox(height: context.hp(12)),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: bloomedToday
                 ? Text('Hoy ya floreció tu flor 🌼 Vuelve mañana',
                     key: const ValueKey('done'),
                     style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
+                        fontSize: context.sp(13).clamp(11, 15),
                         fontWeight: FontWeight.w700,
                         color: _gold))
                 : GestureDetector(
                     key: const ValueKey('plant'),
                     onTap: onRead,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 26, vertical: 13),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: context.wp(24).clamp(18.0, 30.0),
+                          vertical: context.hp(12).clamp(10.0, 16.0)),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(
+                            context.dp(18).clamp(14.0, 22.0)),
                         gradient: const LinearGradient(
                             colors: [Color(0xFFFFE082), Color(0xFFFFB300)]),
                         boxShadow: [
@@ -388,6 +408,7 @@ class _QuoteCard extends StatelessWidget {
                       ),
                       child: Text('La leí · Plantar mi flor 🌱',
                           style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.sp(14).clamp(12, 16),
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF3E2723))),
                     ),

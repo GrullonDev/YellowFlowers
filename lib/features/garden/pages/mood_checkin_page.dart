@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/di/injector.dart';
+import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/widgets/glass_card.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
 
@@ -77,6 +78,8 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
   @override
   Widget build(BuildContext context) {
     final name = sl<PersonalizationService>().getUserName() ?? 'hermosa';
+    final hPad = context.wp(20).clamp(14.0, 28.0);
+
     return Stack(
       children: [
         const Positioned.fill(child: LuminousBackground()),
@@ -84,26 +87,28 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
           child: FadeTransition(
             opacity: CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+              padding: EdgeInsets.fromLTRB(
+                  hPad, context.hp(16), hPad, context.bottomNavClearance),
               physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   Text('¿Cómo te sientes hoy?',
                       style: GoogleFonts.playfairDisplay(
-                        fontSize: 28,
+                        fontSize: context.sp(28).clamp(22, 34),
                         fontWeight: FontWeight.w700,
                         color: _warmWhite,
                         shadows: [
                           Shadow(color: _gold.withAlpha(120), blurRadius: 24)
                         ],
                       )),
-                  const SizedBox(height: 6),
+                  SizedBox(height: context.hp(6)),
                   Text('Hola $name, elige tu estado de ánimo',
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13, color: _warmWhite.withAlpha(170))),
-                  const SizedBox(height: 28),
+                          fontSize: context.sp(13).clamp(11, 15),
+                          color: _warmWhite.withAlpha(170))),
+                  SizedBox(height: context.hp(24)),
                   ...DailyMood.values.map((m) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: EdgeInsets.only(bottom: context.hp(10)),
                         child: _MoodOption(
                           mood: m,
                           selected: _selected == m,
@@ -111,26 +116,27 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                         ),
                       )),
                   if (_saved && _selected != null) ...[
-                    const SizedBox(height: 20),
+                    SizedBox(height: context.hp(16)),
                     GlassCard(
                       dark: true,
                       glow: true,
                       child: Column(
                         children: [
                           Text(_responseEmoji(_selected!),
-                              style: const TextStyle(fontSize: 36)),
-                          const SizedBox(height: 12),
+                              style: TextStyle(
+                                  fontSize: context.sp(36).clamp(28, 44))),
+                          SizedBox(height: context.hp(12)),
                           Text(_responseMessage(_selected!, name),
                               textAlign: TextAlign.center,
                               style: GoogleFonts.playfairDisplay(
-                                  fontSize: 17,
+                                  fontSize: context.sp(17).clamp(14, 20),
                                   fontStyle: FontStyle.italic,
                                   height: 1.5,
                                   color: _warmWhite)),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: context.hp(12)),
                     _MoodHistory(),
                   ],
                 ],
@@ -161,9 +167,11 @@ class _MoodOption extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        padding: EdgeInsets.symmetric(
+            horizontal: context.wp(18).clamp(12.0, 22.0),
+            vertical: context.hp(14).clamp(10.0, 18.0)),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(context.dp(20).clamp(14.0, 24.0)),
           color: selected
               ? info.color.withAlpha(50)
               : Colors.white.withAlpha(15),
@@ -177,26 +185,28 @@ class _MoodOption extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(info.emoji, style: const TextStyle(fontSize: 28)),
-            const SizedBox(width: 14),
+            Text(info.emoji,
+                style: TextStyle(fontSize: context.sp(28).clamp(22, 34))),
+            SizedBox(width: context.wp(14).clamp(10.0, 18.0)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(info.label,
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
+                          fontSize: context.sp(16).clamp(13, 19),
                           fontWeight: FontWeight.w700,
                           color: selected ? info.color : _warmWhite)),
                   Text(info.subtitle,
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
+                          fontSize: context.sp(12).clamp(10, 14),
                           color: _warmWhite.withAlpha(140))),
                 ],
               ),
             ),
             if (selected)
-              Icon(Icons.check_circle_rounded, color: info.color, size: 24),
+              Icon(Icons.check_circle_rounded, color: info.color,
+                  size: context.dp(24).clamp(20.0, 28.0)),
           ],
         ),
       ),
@@ -211,20 +221,23 @@ class _MoodHistory extends StatelessWidget {
     final now = DateTime.now();
     final days = <String>['L', 'M', 'X', 'J', 'V', 'S', 'D'];
     final weekday = now.weekday;
+    final circleSize = context.dp(32).clamp(26.0, 40.0);
 
     return GlassCard(
       dark: true,
-      radius: 20,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      radius: context.dp(20).clamp(14.0, 24.0),
+      padding: EdgeInsets.symmetric(
+          vertical: context.hp(14).clamp(10.0, 18.0),
+          horizontal: context.wp(12).clamp(8.0, 16.0)),
       child: Column(
         children: [
           Text('TU SEMANA',
               style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
+                  fontSize: context.sp(10).clamp(8, 12),
                   fontWeight: FontWeight.w800,
                   letterSpacing: 2,
                   color: _gold)),
-          const SizedBox(height: 10),
+          SizedBox(height: context.hp(10)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(7, (i) {
@@ -246,13 +259,13 @@ class _MoodHistory extends StatelessWidget {
                 children: [
                   Text(days[i],
                       style: GoogleFonts.plusJakartaSans(
-                          fontSize: 10,
+                          fontSize: context.sp(10).clamp(8, 12),
                           fontWeight: FontWeight.w700,
                           color: _warmWhite.withAlpha(isToday ? 255 : 100))),
-                  const SizedBox(height: 6),
+                  SizedBox(height: context.hp(6)),
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: circleSize,
+                    height: circleSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: meta?.color.withAlpha(40) ??
@@ -264,7 +277,8 @@ class _MoodHistory extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       meta?.emoji ?? '·',
-                      style: TextStyle(fontSize: meta != null ? 16 : 12),
+                      style: TextStyle(
+                          fontSize: context.sp(meta != null ? 16 : 12).clamp(10, 20)),
                     ),
                   ),
                 ],
