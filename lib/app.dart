@@ -1,7 +1,14 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:provider/provider.dart';
 
+import 'package:yellow_flowers/core/launch_params.dart';
 import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
+import 'package:yellow_flowers/features/flowers/pages/flower_result_page.dart';
+import 'package:yellow_flowers/features/garden/pages/garden_page.dart';
 import 'package:yellow_flowers/features/home/pages/home_page.dart';
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
@@ -9,8 +16,55 @@ import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
 import 'package:yellow_flowers/theme/app_theme.dart';
 import 'package:yellow_flowers/theme/theme_controller.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+final navigatorKey = GlobalKey<NavigatorState>();
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, this.openGarden = false});
+
+  /// La app se abrió tocando el widget de la pantalla de inicio.
+  final bool openGarden;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  StreamSubscription<Uri?>? _widgetClicks;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb) {
+      // Toques en el widget con la app ya abierta -> "Mi Jardín"
+      _widgetClicks = HomeWidget.widgetClicked.listen((uri) {
+        if (uri?.host == 'garden') {
+          navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (_) => const GardenPage()));
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _widgetClicks?.cancel();
+    super.dispose();
+  }
+
+  /// Si la URL trae `?para=...`, abre directamente el regalo personalizado.
+  Widget _initialPage() {
+    final params = LaunchParams.fromUri(Uri.base);
+    if (params == null) {
+      return widget.openGarden ? const GardenPage() : const HomePage();
+    }
+    return FlowerResultPage(
+      sender: params.sender,
+      recipient: params.recipient,
+      dedication: params.message,
+      theme: params.theme,
+      mood: params.mood,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +78,13 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeController>(
         builder: (context, themeCtrl, _) => MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           title: 'Flores Amarillas',
           theme: buildLightTheme(),
           darkTheme: buildDarkTheme(),
           themeMode: themeCtrl.mode,
-          home: const HomePage(),
+          home: _initialPage(),
         ),
       ),
     );

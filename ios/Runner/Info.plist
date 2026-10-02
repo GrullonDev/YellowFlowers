@@ -88,5 +88,22 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Música en segundo plano con controles en la pantalla de bloqueo -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+	<!-- Esquema que usa el widget para abrir "Mi Jardín" (amarillas://garden) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.grullondev.amarillas</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>amarillas</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

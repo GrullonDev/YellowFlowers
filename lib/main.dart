@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 import 'package:yellow_flowers/app.dart';
+import 'package:yellow_flowers/core/home_widget_service.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
 import 'firebase_options.dart';
 
@@ -31,7 +33,19 @@ void main() async {
     // Initialize unified dependencies (legacy container removed)
     await di.initDependencies();
 
-    runApp(const MyApp());
+    // Widget de pantalla de inicio: publica la frase del día
+    final homeWidget = di.sl<HomeWidgetService>();
+    await homeWidget.init();
+    homeWidget.refresh(); // sin await: no bloquea el arranque
+
+    Uri? launchUri;
+    try {
+      launchUri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+    } catch (_) {
+      // Plataforma sin soporte (web): se ignora
+    }
+
+    runApp(MyApp(openGarden: launchUri?.host == 'garden'));
   } catch (e) {
     debugPrint('Error during app initialization: $e');
     runApp(MaterialApp(
