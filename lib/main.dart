@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
 import 'package:yellow_flowers/app.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
@@ -17,6 +18,15 @@ void main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
     }
+
+    // Música en segundo plano con controles en la notificación.
+    // Debe inicializarse antes de crear cualquier AudioPlayer.
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'com.grullondev.amarillas.audio',
+      androidNotificationChannelName: 'Música y sonidos',
+      androidNotificationOngoing: true,
+      androidNotificationIcon: 'mipmap/yellow_flowers_launcher',
+    );
 
     // Initialize unified dependencies (legacy container removed)
     await di.initDependencies();
