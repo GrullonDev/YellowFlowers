@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:yellow_flowers/core/launch_params.dart';
 import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_result_page.dart';
-import 'package:yellow_flowers/features/garden/pages/garden_page.dart';
+import 'package:yellow_flowers/features/garden/pages/garden_shell.dart';
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
 import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
       _widgetClicks = HomeWidget.widgetClicked.listen((uri) {
         if (uri?.host == 'garden') {
           navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (_) => const GardenPage()));
+              MaterialPageRoute(builder: (_) => const GardenShell()));
         }
       });
     }
@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
   Widget _initialPage() {
     final params = LaunchParams.fromUri(Uri.base);
     if (params == null) {
-      return const GardenPage();
+      return const GardenShell();
     }
     return FlowerResultPage(
       sender: params.sender,
