@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -7,6 +8,7 @@ import 'package:yellow_flowers/app.dart';
 import 'package:yellow_flowers/core/home_widget_service.dart';
 import 'package:yellow_flowers/core/notification_service.dart';
 import 'package:yellow_flowers/di/injector.dart' as di;
+
 import 'firebase_options.dart';
 
 void main() async {
