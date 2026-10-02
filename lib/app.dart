@@ -9,7 +9,6 @@ import 'package:yellow_flowers/core/launch_params.dart';
 import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_result_page.dart';
 import 'package:yellow_flowers/features/garden/pages/garden_page.dart';
-import 'package:yellow_flowers/features/home/pages/home_page.dart';
 import 'package:yellow_flowers/features/mood/mood_controller.dart';
 import 'package:yellow_flowers/features/wellness/wellness_controller.dart';
 import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
@@ -52,10 +51,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   /// Si la URL trae `?para=...`, abre directamente el regalo personalizado.
+  /// De lo contrario, el jardín diario es la pantalla principal.
   Widget _initialPage() {
     final params = LaunchParams.fromUri(Uri.base);
     if (params == null) {
-      return widget.openGarden ? const GardenPage() : const HomePage();
+      return const GardenPage();
     }
     return FlowerResultPage(
       sender: params.sender,
