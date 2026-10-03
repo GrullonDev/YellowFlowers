@@ -16,6 +16,7 @@ build/
 *.pem
 *.jar
 .DS_Store
+._*
 .apple
 .history
 .svn/
