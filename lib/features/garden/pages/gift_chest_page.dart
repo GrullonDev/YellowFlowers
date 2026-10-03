@@ -44,43 +44,50 @@ class _GiftChestPageState extends State<GiftChestPage>
         streakRequired: 3,
         icon: '🎁',
         title: 'Primera Sorpresa',
-        dedication: '¡$name, 3 días seguidos floreciendo! Eres constante como el sol que nunca falta.',
+        dedication:
+            '¡$name, 3 días seguidos floreciendo! Eres constante como el sol que nunca falta.',
       ),
       _Gift(
         streakRequired: 7,
         icon: '💎',
         title: 'Joya de la Semana',
-        dedication: 'Una semana entera, $name. Tu jardín brilla tanto como tú. Mereces cada pétalo.',
+        dedication:
+            'Una semana entera, $name. Tu jardín brilla tanto como tú. Mereces cada pétalo.',
       ),
       _Gift(
         streakRequired: 14,
         icon: '🌟',
         title: 'Estrella Dorada',
-        dedication: '14 días, $name. Tu dedicación es extraordinaria. Eres la flor más hermosa de tu propio jardín.',
+        dedication:
+            '14 días, $name. Tu dedicación es extraordinaria. Eres la flor más hermosa de tu propio jardín.',
       ),
       _Gift(
         streakRequired: 21,
         icon: '👑',
         title: 'Corona de Pétalos',
-        dedication: '¡21 días de constancia, $name! Has creado un hábito de amor propio que nadie te puede quitar.',
+        dedication:
+            '¡21 días de constancia, $name! Has creado un hábito de amor propio que nadie te puede quitar.',
       ),
       _Gift(
         streakRequired: 30,
         icon: '🏆',
         title: 'Trofeo del Mes',
-        dedication: 'Un mes entero floreciendo, $name. Eres la prueba viviente de que la belleza nace de la constancia.',
+        dedication:
+            'Un mes entero floreciendo, $name. Eres la prueba viviente de que la belleza nace de la constancia.',
       ),
       _Gift(
         streakRequired: 50,
         icon: '🦋',
         title: 'Mariposa Dorada',
-        dedication: '50 días… $name, te has transformado. Como la mariposa, tu belleza interior ha encontrado alas.',
+        dedication:
+            '50 días… $name, te has transformado. Como la mariposa, tu belleza interior ha encontrado alas.',
       ),
       _Gift(
         streakRequired: 100,
         icon: '🌻',
         title: 'Girasol Eterno',
-        dedication: '¡100 días, $name! Eres leyenda. Tu jardín es un monumento a lo que el amor propio puede lograr.',
+        dedication:
+            '¡100 días, $name! Eres leyenda. Tu jardín es un monumento a lo que el amor propio puede lograr.',
       ),
     ];
   }
@@ -280,9 +287,8 @@ class _GiftCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unlocked = streak >= gift.streakRequired;
-    final progress = unlocked
-        ? 1.0
-        : (streak / gift.streakRequired).clamp(0.0, 1.0);
+    final progress =
+        unlocked ? 1.0 : (streak / gift.streakRequired).clamp(0.0, 1.0);
 
     return GestureDetector(
       onTap: unlocked ? onTap : null,
@@ -339,13 +345,14 @@ class _GiftCard extends StatelessWidget {
                                 color: _warmWhite.withAlpha(100))),
                       ] else
                         Text(
-                          opened ? 'Toca para releer' : '¡Desbloqueado! Toca para abrir',
+                          opened
+                              ? 'Toca para releer'
+                              : '¡Desbloqueado! Toca para abrir',
                           style: GoogleFonts.plusJakartaSans(
                               fontSize: context.sp(12).clamp(10, 14),
                               fontWeight: FontWeight.w600,
-                              color: opened
-                                  ? _warmWhite.withAlpha(140)
-                                  : _gold),
+                              color:
+                                  opened ? _warmWhite.withAlpha(140) : _gold),
                         ),
                     ],
                   ),

@@ -73,7 +73,8 @@ class _GrowingFlowerPainter extends CustomPainter {
   final FlowerVariant v;
   final double sway;
 
-  static double _seg(double t, double a, double b, [Curve c = Curves.easeOut]) =>
+  static double _seg(double t, double a, double b,
+          [Curve c = Curves.easeOut]) =>
       c.transform(((t - a) / (b - a)).clamp(0.0, 1.0));
 
   @override
@@ -190,8 +191,8 @@ class _GrowingFlowerPainter extends CustomPainter {
           head,
           cr,
           Paint()
-            ..color = Color.lerp(
-                const Color(0xFF689F38), v.centerColor, _seg(progress, 0.6, 0.85))!,
+            ..color = Color.lerp(const Color(0xFF689F38), v.centerColor,
+                _seg(progress, 0.6, 0.85))!,
         );
         // Destello blanco del centro
         canvas.drawCircle(head.translate(-cr * 0.3, -cr * 0.3), cr * 0.25,
@@ -220,13 +221,37 @@ const _warmPalette = [
 /// Paletas por DailyMood.index: happy, calm, strong, reflective, loving.
 const _moodPalettes = <List<Color>>[
   // happy — amarillos brillantes y naranjas alegres
-  [Color(0xFFFFD54F), Color(0xFFFFAB00), Color(0xFFFF8F00), Color(0xFFFFCA28), Color(0xFFFFF176)],
+  [
+    Color(0xFFFFD54F),
+    Color(0xFFFFAB00),
+    Color(0xFFFF8F00),
+    Color(0xFFFFCA28),
+    Color(0xFFFFF176)
+  ],
   // calm — amarillos suaves y verdes claros
   _warmPalette,
   // strong — naranjas intensos y ámbar
-  [Color(0xFFF57C00), Color(0xFFFF9800), Color(0xFFFFB74D), Color(0xFFE65100), Color(0xFFFFCC80)],
+  [
+    Color(0xFFF57C00),
+    Color(0xFFFF9800),
+    Color(0xFFFFB74D),
+    Color(0xFFE65100),
+    Color(0xFFFFCC80)
+  ],
   // reflective — lilas y lavandas suaves
-  [Color(0xFFCE93D8), Color(0xFFBA68C8), Color(0xFFE1BEE7), Color(0xFFAB47BC), Color(0xFFD1C4E9)],
+  [
+    Color(0xFFCE93D8),
+    Color(0xFFBA68C8),
+    Color(0xFFE1BEE7),
+    Color(0xFFAB47BC),
+    Color(0xFFD1C4E9)
+  ],
   // loving — rosas y fucsias
-  [Color(0xFFF48FB1), Color(0xFFEC407A), Color(0xFFF8BBD0), Color(0xFFE91E63), Color(0xFFFCE4EC)],
+  [
+    Color(0xFFF48FB1),
+    Color(0xFFEC407A),
+    Color(0xFFF8BBD0),
+    Color(0xFFE91E63),
+    Color(0xFFFCE4EC)
+  ],
 ];

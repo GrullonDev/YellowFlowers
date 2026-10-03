@@ -15,7 +15,7 @@ void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Importante: En Android, si tienes el archivo google-services.json, 
+    // Importante: En Android, si tienes el archivo google-services.json,
     // Firebase ya se inicializa automáticamente en el lado nativo.
     // Usamos Firebase.apps.isEmpty para evitar el error [core/duplicate-app].
     if (Firebase.apps.isEmpty) {

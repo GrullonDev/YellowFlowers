@@ -23,14 +23,16 @@ class NotificationService {
 
     tz.initializeTimeZones();
 
-    const android = AndroidInitializationSettings('mipmap/yellow_flowers_launcher');
+    const android =
+        AndroidInitializationSettings('mipmap/yellow_flowers_launcher');
     const darwin = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: darwin, macOS: darwin),
+      const InitializationSettings(
+          android: android, iOS: darwin, macOS: darwin),
     );
 
     if (enabled) await scheduleDailyReminder();

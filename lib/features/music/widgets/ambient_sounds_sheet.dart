@@ -231,8 +231,7 @@ class _SoundTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              color: _warmWhite.withAlpha(150))),
+                              fontSize: 12, color: _warmWhite.withAlpha(150))),
                   ],
                 ),
               ),
@@ -263,7 +262,8 @@ class _NowPlayingBar extends StatelessWidget {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.skip_previous_rounded, color: _warmWhite),
+                icon:
+                    const Icon(Icons.skip_previous_rounded, color: _warmWhite),
                 onPressed: player.hasPrevious ? player.seekToPrevious : null,
               ),
               StreamBuilder<PlayerState>(
@@ -294,8 +294,8 @@ class _NowPlayingBar extends StatelessWidget {
                         fontWeight: FontWeight.w700, color: _warmWhite)),
               ),
               IconButton(
-                icon: Icon(Icons.stop_rounded,
-                    color: _warmWhite.withAlpha(170)),
+                icon:
+                    Icon(Icons.stop_rounded, color: _warmWhite.withAlpha(170)),
                 onPressed: player.stop,
               ),
             ],
