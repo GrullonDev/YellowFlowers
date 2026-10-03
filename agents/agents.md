@@ -55,6 +55,47 @@ Build commands: `fvm flutter run -d <device>`, `fvm flutter build apk --debug`, 
 Android release CI (`.github/workflows/android-release.yml`) fires on `v*.*.*` tags and publishes to Firebase App
 Distribution. Bump `version:` in `pubspec.yaml` before tagging.
 
+#### Release signing (Android)
+
+`android/app/build.gradle` resolves signing credentials through a three-level cascade. Later sources
+overwrite earlier ones, so the effective priority is:
+
+| Priority | Source | Typical use |
+|---|---|---|
+| 1 (highest) | Environment variables: `STORE_PASSWORD`, `KEY_PASSWORD`, `KEY_ALIAS`, `STORE_FILE`, `STORE_FILE_BASE64`, `KEY_DN` | CI, as masked repository secrets |
+| 2 | `.env` at the repository root | Local development machines |
+| 3 (lowest) | `android/key.properties` | Legacy setups, still supported |
+
+The legacy camelCase names (`storePassword`, `keyPassword`, `keyAlias`, `storeFile`) are mapped onto
+their uppercase equivalents, so an existing `key.properties` keeps working untouched.
+
+The keystore file is resolved separately, through three optional paths:
+
+- **`STORE_FILE_BASE64`** — decoded into `upload-keystore.jks` on the first build. Preferred for CI,
+  because it passes the key as a masked secret instead of committing a binary.
+- **`STORE_FILE`** — an absolute path, or one relative to `android/app/`.
+- **Neither, but the passwords are set** — the build shells out to `keytool` and generates
+  `upload-keystore.jks` (RSA 2048, 10000 days, alias `upload`, DN from `KEY_DN`). `keytool` resolves
+  through `JAVA_HOME/bin` first and `PATH` second, appending `.exe` on Windows, so an identical build
+  works on macOS and Windows without local configuration.
+
+Generation happens at build time and is cross-platform by design: a contributor who has only the
+passwords can produce a signed release build without hand-crafting a keystore.
+
+When signing is incomplete, the `release` build type falls back to `signingConfigs.debug` so local
+work is never blocked; an existing `.env` with missing values logs a warning instead of failing.
+
+**Risk — read before relying on generation.** Auto-generation is a convenience, not a safeguard
+against key loss. Any machine that holds the passwords but no keystore file will mint a *different*
+upload key, and uploading with it breaks the app's signing continuity with Play. Keep a durable
+backup of the original `upload-keystore.jks` outside the repository, and prefer `STORE_FILE_BASE64` in
+CI over the generator.
+
+**Never commit `.env`, `*.jks`, `*.keystore` or `key.properties`.** `.gitignore` enforces this today
+(`.env*` with a single `!.env.example` negation, plus `**/*.jks` and `**/*.keystore`). The template
+for new developers is `.env.example`: copy it to `.env`, fill in the values, and keep the real file
+local.
+
 ### 2.2 Layering
 
 ```
@@ -165,8 +206,10 @@ check-ins, and the entry to the growing garden. Nothing in the app is reachable 
   resolve in the bloc/controller, or inject via constructor. A widget must be usable in isolation.
 - `const` constructors wherever possible; `prefer_single_quotes`, `prefer_const_constructors` and
   `prefer_final_fields` are enforced by lint — run `fvm flutter analyze` before pushing and keep it at
-  **zero errors and zero new infos** (the current 8 `share_plus` deprecation infos are pre-existing; do not add
-  more, and prefer fixing them over silencing them).
+  **zero errors and zero infos**. The `share_plus` deprecations that used to be the only remaining
+  infos are fixed: all call sites go through `SharePlus.instance.share(ShareParams(...))`, and
+  `album_detail_page.dart`'s `// ignore: deprecated_member_use` is gone. Prefer fixing a deprecation
+  over silencing it.
 - BLoC/controllers must be `dispose()`d in the widget's `dispose()` (note: `BaseModelScaffold` owns the lifecycle
   of the model it creates).
 - **No navigation from a bloc.** A bloc may expose an event or a callback; the widget calls `Navigator`. The one
@@ -193,7 +236,8 @@ check-ins, and the entry to the growing garden. Nothing in the app is reachable 
 - **Permissions** (`permission_handler`) must be requested at the moment of need with an explanatory UI, never at
   startup.
 - New dependencies require a stated reason in the PR description. The project currently carries unused packages
-  (`file_picker`, `url_launcher`, `intl`, `package_info_plus`, `http`); do not add more without removing those.
+  (`file_picker`, `intl`, `package_info_plus`, `http`); do not add more without removing those. `url_launcher`
+  left this list: `garden_shell.dart` uses it for the beta signup tile.
 
 ### 4.3 Animation optimization
 
@@ -311,3 +355,11 @@ animation work, and flag every platform-specific difference (Android vs iOS).
   `FlutterTts` inside `special_messages_bloc.dart`.
 - Flutter warns that AGP 8.x support will be dropped (requires AGP ≥ 9.0.1). Migrating means adopting the AGP 9
   DSL in `android/build.gradle` — plan it, don't do it inside a feature PR.
+- `garden_shell.dart` `_openBetaSignup` still points at the placeholder
+  `https://forms.gle/REPLACE_WITH_YOUR_FORM_ID`. The tile ships a dead link until the real form ID
+  replaces it.
+- The share icons added to `garden_page.dart` and `mood_checkin_page.dart` are bare `GestureDetector`s
+  with no `Semantics` label, which does not satisfy §2.3. Add a label or tooltip.
+- `share_helper.dart` lives in `features/garden/widgets/` but is a function, not a widget, so it
+  breaks the one-public-widget-per-file convention in §4.1. Moving it to `features/garden/` would
+  also let the messages feature reuse it.
