@@ -99,6 +99,7 @@ key.properties
 # Secrets & Configs
 # ---------------------------------------------------------------------------
 .env*
+!.env.example
 firebase.json
 database.rules.json
 *.rules.json
