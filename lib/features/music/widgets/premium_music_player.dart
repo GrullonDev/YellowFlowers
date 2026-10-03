@@ -114,7 +114,6 @@ class _PremiumMusicPlayerState extends State<PremiumMusicPlayer>
 }
 
 class _WaveformPainter extends CustomPainter {
-
   _WaveformPainter({
     required this.animation,
     required this.color,

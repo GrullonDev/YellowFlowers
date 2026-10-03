@@ -49,7 +49,8 @@ class BackgroundLayer extends StatelessWidget {
           final seed = petalSeeds[i];
           final t = (petalAnimation.value + seed.phase) % 1.0;
           final y = (t * (screenHeight + 120)) - 60 + seed.startY * 40;
-          final x = seed.startX * screenWidth + math.sin(t * seed.swayFreq * 2 * math.pi) * (seed.swayAmp * 1.5);
+          final x = seed.startX * screenWidth +
+              math.sin(t * seed.swayFreq * 2 * math.pi) * (seed.swayAmp * 1.5);
           final rot = t * seed.rotationSpeed * 4 * math.pi;
 
           return Positioned(
@@ -115,33 +116,38 @@ class _MeshGradientPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = animation.value;
-    
+
     // Gradient Background base
     final baseGradient = LinearGradient(
       colors: [moodColor, moodColor.withAlpha(200), Colors.white],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..shader = baseGradient);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height),
+        Paint()..shader = baseGradient);
 
     // Simulated Mesh (Blurred Blobs)
     _drawBlob(canvas, size,
         color: PremiumDesign.mesh2.withAlpha(150),
-        offset: Offset(size.width * 0.1 + math.sin(t * 1.5) * 50, size.height * 0.2 + math.cos(t * 1.2) * 50),
+        offset: Offset(size.width * 0.1 + math.sin(t * 1.5) * 50,
+            size.height * 0.2 + math.cos(t * 1.2) * 50),
         radius: size.width * 0.8);
-    
+
     _drawBlob(canvas, size,
         color: PremiumDesign.mesh3.withAlpha(120),
-        offset: Offset(size.width * 0.8 + math.cos(t * 1.1) * 80, size.height * 0.5 + math.sin(t * 1.3) * 60),
+        offset: Offset(size.width * 0.8 + math.cos(t * 1.1) * 80,
+            size.height * 0.5 + math.sin(t * 1.3) * 60),
         radius: size.width * 0.9);
 
     _drawBlob(canvas, size,
         color: PremiumDesign.mesh4.withAlpha(100),
-        offset: Offset(size.width * 0.3 + math.cos(t * 1.4) * 60, size.height * 0.8 + math.sin(t * 1.6) * 70),
+        offset: Offset(size.width * 0.3 + math.cos(t * 1.4) * 60,
+            size.height * 0.8 + math.sin(t * 1.6) * 70),
         radius: size.width * 0.7);
   }
 
-  void _drawBlob(Canvas canvas, Size size, {required Color color, required Offset offset, required double radius}) {
+  void _drawBlob(Canvas canvas, Size size,
+      {required Color color, required Offset offset, required double radius}) {
     final paint = Paint()
       ..color = color
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.5);
@@ -160,12 +166,15 @@ class _LiquidParticlesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = animation.value;
-    final paint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20);
+    final paint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 20);
 
     for (int i = 0; i < 15; i++) {
       final rnd = math.Random(i * 123);
-      final x = (rnd.nextDouble() * size.width + math.sin(t * 2 * math.pi * 0.2 + rnd.nextDouble()) * 30);
-      final y = (rnd.nextDouble() * size.height + math.cos(t * 2 * math.pi * 0.15 + rnd.nextDouble()) * 40);
+      final x = (rnd.nextDouble() * size.width +
+          math.sin(t * 2 * math.pi * 0.2 + rnd.nextDouble()) * 30);
+      final y = (rnd.nextDouble() * size.height +
+          math.cos(t * 2 * math.pi * 0.15 + rnd.nextDouble()) * 40);
       final s = 40 + rnd.nextDouble() * 60;
       final o = 0.03 + rnd.nextDouble() * 0.08;
 

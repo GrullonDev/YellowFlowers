@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum Emotion { happy, relaxed, romantic, motivated, nostalgic }
 
-class WellnessController extends ChangeNotifier { // YYYY-MM-DD -> Emotion.name
+class WellnessController extends ChangeNotifier {
+  // YYYY-MM-DD -> Emotion.name
 
   WellnessController() {
     _load();

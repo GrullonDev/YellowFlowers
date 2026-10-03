@@ -165,7 +165,8 @@ class _FlowerOnboardingPageState extends State<FlowerOnboardingPage>
                         children: [
                           // Rarity Badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.black.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(20),
@@ -186,9 +187,9 @@ class _FlowerOnboardingPageState extends State<FlowerOnboardingPage>
                             onTap: _onFlowerTap,
                             child: ColorFiltered(
                               colorFilter: ColorFilter.mode(
-                                (hour >= 18 || hour < 6) 
-                                  ? Colors.amber.withValues(alpha: 0.2)
-                                  : Colors.transparent,
+                                (hour >= 18 || hour < 6)
+                                    ? Colors.amber.withValues(alpha: 0.2)
+                                    : Colors.transparent,
                                 BlendMode.colorBurn,
                               ),
                               child: SizedBox(

@@ -14,17 +14,17 @@ import 'package:yellow_flowers/widgets/animated_background.dart';
 
 // ─── Mood visual palettes ──────────────────────────────────────────────────────
 const _moodGradients = <Mood, List<Color>>{
-  Mood.happy:     [Color(0xFFFFF8E1), Color(0xFFFFD740)],
-  Mood.relaxed:   [Color(0xFFE8F5E9), Color(0xFF81C784)],
-  Mood.romantic:  [Color(0xFFFCE4EC), Color(0xFFF06292)],
+  Mood.happy: [Color(0xFFFFF8E1), Color(0xFFFFD740)],
+  Mood.relaxed: [Color(0xFFE8F5E9), Color(0xFF81C784)],
+  Mood.romantic: [Color(0xFFFCE4EC), Color(0xFFF06292)],
   Mood.motivated: [Color(0xFFE3F2FD), Color(0xFF64B5F6)],
   Mood.nostalgic: [Color(0xFFEDE7F6), Color(0xFF9575CD)],
 };
 
 const _moodDescriptions = <Mood, String>{
-  Mood.happy:     'Alegría y luz',
-  Mood.relaxed:   'Calma interior',
-  Mood.romantic:  'Corazón abierto',
+  Mood.happy: 'Alegría y luz',
+  Mood.relaxed: 'Calma interior',
+  Mood.romantic: 'Corazón abierto',
   Mood.motivated: 'Energía total',
   Mood.nostalgic: 'Recuerdos bellos',
 };
@@ -121,9 +121,8 @@ class _MusicLayoutState extends State<MusicLayout>
                 children: [
                   // ── Mood section label ────────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        PremiumDesign.s24, PremiumDesign.s12,
-                        PremiumDesign.s24, PremiumDesign.s8),
+                    padding: const EdgeInsets.fromLTRB(PremiumDesign.s24,
+                        PremiumDesign.s12, PremiumDesign.s24, PremiumDesign.s8),
                     child: Text(
                       'ELIGE TU ESTADO DE ÁNIMO',
                       style: PremiumDesign.sansLabel,
@@ -138,8 +137,7 @@ class _MusicLayoutState extends State<MusicLayout>
                       padding: const EdgeInsets.symmetric(
                           horizontal: PremiumDesign.s24),
                       itemCount: Mood.values.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(width: 10),
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
                       itemBuilder: (ctx, i) {
                         final mood = Mood.values[i];
                         return _MoodCard(
@@ -171,8 +169,10 @@ class _MusicLayoutState extends State<MusicLayout>
                                 opacity: _listCtrl,
                                 child: Padding(
                                   padding: const EdgeInsets.fromLTRB(
-                                      PremiumDesign.s24, 0,
-                                      PremiumDesign.s24, PremiumDesign.s16),
+                                      PremiumDesign.s24,
+                                      0,
+                                      PremiumDesign.s24,
+                                      PremiumDesign.s16),
                                   child: _FeaturedCard(
                                     song: model.dailyRecommendation!,
                                     isPlaying: model.currentSong?.id ==
@@ -192,8 +192,10 @@ class _MusicLayoutState extends State<MusicLayout>
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(
-                                  PremiumDesign.s24, 0,
-                                  PremiumDesign.s24, PremiumDesign.s12),
+                                  PremiumDesign.s24,
+                                  0,
+                                  PremiumDesign.s24,
+                                  PremiumDesign.s12),
                               child: Row(
                                 children: [
                                   Text(
@@ -230,8 +232,7 @@ class _MusicLayoutState extends State<MusicLayout>
                   ),
 
                   // ── Now-playing mini bar ──────────────────────────────────
-                  if (model.currentSong != null)
-                    _NowPlayingBar(model: model),
+                  if (model.currentSong != null) _NowPlayingBar(model: model),
                 ],
               ),
             ),
@@ -338,9 +339,7 @@ class _MoodCard extends StatelessWidget {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: isSelected
-                        ? Colors.white
-                        : PremiumDesign.softText,
+                    color: isSelected ? Colors.white : PremiumDesign.softText,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 1,
@@ -436,8 +435,7 @@ class _FeaturedCard extends StatelessWidget {
                           Row(
                             children: [
                               const Icon(Icons.auto_awesome_rounded,
-                                  size: 10,
-                                  color: Color(0xFFD4AF37)),
+                                  size: 10, color: Color(0xFFD4AF37)),
                               const SizedBox(width: 4),
                               Text(
                                 'CANCIÓN DEL DÍA',
@@ -502,9 +500,8 @@ class _FeaturedCard extends StatelessWidget {
                         isPlaying
                             ? Icons.pause_rounded
                             : Icons.play_arrow_rounded,
-                        color: isPlaying
-                            ? Colors.white
-                            : const Color(0xFFE91E8C),
+                        color:
+                            isPlaying ? Colors.white : const Color(0xFFE91E8C),
                         size: 30,
                       ),
                     ),
@@ -541,10 +538,8 @@ class _NowPlayingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final song = model.currentSong!;
-    final total =
-        song.duration.inSeconds > 0 ? song.duration.inSeconds : 1;
-    final progress =
-        (model.position.inSeconds / total).clamp(0.0, 1.0);
+    final total = song.duration.inSeconds > 0 ? song.duration.inSeconds : 1;
+    final progress = (model.position.inSeconds / total).clamp(0.0, 1.0);
 
     return ClipRect(
       child: BackdropFilter(
@@ -553,8 +548,7 @@ class _NowPlayingBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.88),
             border: Border(
-              top: BorderSide(
-                  color: Colors.black.withValues(alpha: 0.06)),
+              top: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
             ),
           ),
           child: Column(
@@ -569,8 +563,8 @@ class _NowPlayingBar extends StatelessWidget {
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 child: Row(
                   children: [
                     // Cover
@@ -582,8 +576,7 @@ class _NowPlayingBar extends StatelessWidget {
                               width: 42,
                               height: 42,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  _coverPlaceholder(),
+                              errorBuilder: (_, __, ___) => _coverPlaceholder(),
                             )
                           : _coverPlaceholder(),
                     ),

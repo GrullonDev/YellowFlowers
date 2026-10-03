@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum CyclePhase { period, premenstrual, fertile, other }
 
 class CycleController extends ChangeNotifier {
-
   CycleController() {
     _load();
   }
@@ -66,13 +65,33 @@ class CycleController extends ChangeNotifier {
   List<String> get phaseTips {
     switch (currentPhase) {
       case CyclePhase.period:
-        return ['Hidratate bien 💧', 'Movimiento suave 🧘', 'Date cariño 🛁', 'Descansa profundo 🌙'];
+        return [
+          'Hidratate bien 💧',
+          'Movimiento suave 🧘',
+          'Date cariño 🛁',
+          'Descansa profundo 🌙'
+        ];
       case CyclePhase.fertile:
-        return ['Conéctate 💬', 'Crea y expresa 🎨', 'Muévete 💃', 'Planifica ⭐'];
+        return [
+          'Conéctate 💬',
+          'Crea y expresa 🎨',
+          'Muévete 💃',
+          'Planifica ⭐'
+        ];
       case CyclePhase.premenstrual:
-        return ['Reduce el café ☕', 'Medita 🧘', 'Escribe cómo te sientes ✍️', 'Cuídate extra 🌿'];
+        return [
+          'Reduce el café ☕',
+          'Medita 🧘',
+          'Escribe cómo te sientes ✍️',
+          'Cuídate extra 🌿'
+        ];
       case CyclePhase.other:
-        return ['Aprende algo nuevo 📚', 'Aire libre 🌿', 'Planifica tu semana 📋', 'Comparte amor 💛'];
+        return [
+          'Aprende algo nuevo 📚',
+          'Aire libre 🌿',
+          'Planifica tu semana 📋',
+          'Comparte amor 💛'
+        ];
     }
   }
 

@@ -47,17 +47,17 @@ class DefaultFirebaseOptions {
     projectId: 'yellowflowers-58d52',
     authDomain: 'yellowflowers-58d52.firebaseapp.com',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
-    storageBucket: 'yellowflowers-58d52.appspot.com',
+    storageBucket: 'yellowflowers-58d52.firebasestorage.app',
     measurementId: 'G-P5VHBV07VQ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDCfR7Rc4iDP8RuBrDw0ZMVwUxrmcdukV4',
-    appId: '1:991471677738:android:9f3a4eb84a7f23735dee53',
+    appId: '1:991471677738:android:502d66c0157df7c05dee53',
     messagingSenderId: '991471677738',
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
-    storageBucket: 'yellowflowers-58d52.appspot.com',
+    storageBucket: 'yellowflowers-58d52.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -66,8 +66,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '991471677738',
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
-    storageBucket: 'yellowflowers-58d52.appspot.com',
-    iosBundleId: 'com.jorgegrullon.yellowFlowers',
+    storageBucket: 'yellowflowers-58d52.firebasestorage.app',
+    iosBundleId: 'com.grullondev.yellowFlowers',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -76,8 +76,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '991471677738',
     projectId: 'yellowflowers-58d52',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
-    storageBucket: 'yellowflowers-58d52.appspot.com',
-    iosBundleId: 'com.jorgegrullon.yellowFlowers',
+    storageBucket: 'yellowflowers-58d52.firebasestorage.app',
+    iosBundleId: 'com.grullondev.yellowFlowers',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -87,7 +87,7 @@ class DefaultFirebaseOptions {
     projectId: 'yellowflowers-58d52',
     authDomain: 'yellowflowers-58d52.firebaseapp.com',
     databaseURL: 'https://yellowflowers-58d52-default-rtdb.firebaseio.com',
-    storageBucket: 'yellowflowers-58d52.appspot.com',
+    storageBucket: 'yellowflowers-58d52.firebasestorage.app',
     measurementId: 'G-MNH3PE6N10',
   );
 }

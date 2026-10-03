@@ -56,7 +56,8 @@ class MusicList extends StatelessWidget {
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(PremiumDesign.s24, 0, PremiumDesign.s24, 80),
+          padding: const EdgeInsets.fromLTRB(
+              PremiumDesign.s24, 0, PremiumDesign.s24, 80),
           itemCount: model.songs.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
@@ -89,7 +90,8 @@ class _RetryButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: PremiumDesign.premiumGold.withValues(alpha: 0.5)),
+          border: Border.all(
+              color: PremiumDesign.premiumGold.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(

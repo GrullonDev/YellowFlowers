@@ -172,9 +172,7 @@ class MusicListTile extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isPlaying
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
+                  isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                   color: accent,
                   size: 26,
                 ),
@@ -256,8 +254,7 @@ class _BarsPainter extends CustomPainter {
 
     for (int i = 0; i < barCount; i++) {
       final phase = i * 0.6;
-      final h = 0.25 +
-          0.75 * math.sin((t * 2 * math.pi) + phase).abs();
+      final h = 0.25 + 0.75 * math.sin((t * 2 * math.pi) + phase).abs();
       final barH = size.height * h;
       final x = i * barW * 2 + barW / 2;
       canvas.drawLine(

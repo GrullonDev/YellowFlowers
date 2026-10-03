@@ -66,8 +66,8 @@ class _HomeLayoutState extends State<HomeLayout> with TickerProviderStateMixin {
                   controller: _staggerController,
                   index: 2,
                   child: const Padding(
-                    padding: EdgeInsets.fromLTRB(
-                        PremiumDesign.s24, PremiumDesign.s24, PremiumDesign.s24, 0),
+                    padding: EdgeInsets.fromLTRB(PremiumDesign.s24,
+                        PremiumDesign.s24, PremiumDesign.s24, 0),
                     child: _DailySection(),
                   ),
                 ),
@@ -80,13 +80,17 @@ class _HomeLayoutState extends State<HomeLayout> with TickerProviderStateMixin {
                   index: 3,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
-                        PremiumDesign.s24, PremiumDesign.s32, PremiumDesign.s24, PremiumDesign.s16),
+                        PremiumDesign.s24,
+                        PremiumDesign.s32,
+                        PremiumDesign.s24,
+                        PremiumDesign.s16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Tu jardín',
-                          style: PremiumDesign.serifHeading.copyWith(fontSize: 26),
+                          style:
+                              PremiumDesign.serifHeading.copyWith(fontSize: 26),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -233,8 +237,8 @@ class _EmotionalHeroState extends State<_EmotionalHero>
           child: SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  PremiumDesign.s24, PremiumDesign.s16, PremiumDesign.s24, PremiumDesign.s32),
+              padding: const EdgeInsets.fromLTRB(PremiumDesign.s24,
+                  PremiumDesign.s16, PremiumDesign.s24, PremiumDesign.s32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -363,7 +367,8 @@ class _FeaturedGem extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD4AF37).withValues(alpha: 0.1),
+                            color:
+                                const Color(0xFFD4AF37).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.star_rounded,
@@ -410,9 +415,9 @@ class _FeaturedGem extends StatelessWidget {
                         HapticFeedback.mediumImpact();
                         final model = context.read<HomeBloc>();
                         if (model.menuItems.isNotEmpty) {
-                           Navigator.of(context).push(
-                             PremiumTransitions.fadeThrough(model.menuItems[0].destination)
-                           );
+                          Navigator.of(context).push(
+                              PremiumTransitions.fadeThrough(
+                                  model.menuItems[0].destination));
                         }
                       },
                     ),
@@ -478,7 +483,8 @@ class _PremiumActionButtonState extends State<_PremiumActionButton> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 14),
+              const Icon(Icons.arrow_forward_rounded,
+                  color: Colors.white, size: 14),
             ],
           ),
         ),
@@ -764,7 +770,8 @@ class _QuickActionState extends State<_QuickAction> {
           decoration: BoxDecoration(
             color: widget.color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: widget.color.withValues(alpha: 0.2), width: 1),
+            border: Border.all(
+                color: widget.color.withValues(alpha: 0.2), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -801,7 +808,8 @@ class _ExperienceTile extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        Navigator.of(context).push(PremiumTransitions.fadeThrough(item.destination));
+        Navigator.of(context)
+            .push(PremiumTransitions.fadeThrough(item.destination));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -838,7 +846,8 @@ class _ExperienceTile extends StatelessWidget {
             // Texto
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: PremiumDesign.s20),
+                padding:
+                    const EdgeInsets.symmetric(vertical: PremiumDesign.s20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -922,11 +931,29 @@ _Greeting _greetingForTime(String name) {
 String _formattedDate() {
   final now = DateTime.now();
   const months = [
-    '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+    '',
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
   ];
   const days = [
-    '', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo',
+    '',
+    'lunes',
+    'martes',
+    'miércoles',
+    'jueves',
+    'viernes',
+    'sábado',
+    'domingo',
   ];
   final dayName = days[now.weekday];
   return '${dayName.substring(0, 1).toUpperCase()}${dayName.substring(1)}, '
@@ -1037,7 +1064,8 @@ void _affirmationDialog(BuildContext context) {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('✦', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 16)),
+          const Text('✦',
+              style: TextStyle(color: Color(0xFFD4AF37), fontSize: 16)),
           const SizedBox(width: 8),
           Text(
             'Tu afirmación',

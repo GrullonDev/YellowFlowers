@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "seed": "node seed_firestore.js",
+    "upload-music": "node upload_music.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.7.0",
+    "music-metadata": "^11.12.3"
+  }
+}

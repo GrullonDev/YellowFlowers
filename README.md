@@ -1,128 +1,168 @@
 # 🌸 Yellow Flowers — Premium Emotional Experience
 
 <div align="center">
-  <img src="assets/images/app_logo.png" width="128" height="128" alt="Yellow Flowers Logo">
+  <img src="assets/images/logo.png" width="160" height="160" alt="Yellow Flowers Logo">
   
-  **Una experiencia diseñada para conectar, emocionar y florecer.**
-  
-  [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-brightgreen.svg)](#)
-  [![Flutter](https://img.shields.io/badge/Flutter-3.24+-02569B.svg?logo=flutter)](#)
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+  <h3>Una experiencia diseñada para conectar, emocionar y florecer.</h3>
+
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-E74C3C?style=for-the-badge&logo=android)](#)
+[![Flutter](https://img.shields.io/badge/Flutter-3.24+-02569B?style=for-the-badge&logo=flutter)](#)
+[![License](https://img.shields.io/badge/License-MIT-F1C40F?style=for-the-badge)](#)
+
 </div>
 
 ---
 
 ## ✨ El Concepto
-**Yellow Flowers** no es solo una app; es un puente emocional. Permite a los usuarios crear tarjetas virtuales personalizadas con una estética de alta gama, animaciones fluidas y un diseño orientado al detalle. Perfecta para momentos especiales, compartiendo mensajes con elegancia y sutilidad.
+
+**Yellow Flowers** no es simplemente una aplicación; es un **puente emocional digital**. Diseñada con una estética minimalista y de alta gama, permite a los usuarios crear tarjetas virtuales personalizadas con animaciones orgánicas y una atención meticulosa al detalle.
+
+> _"Cada flor es un mensaje, cada pétalo una emoción."_
 
 ### 🌟 Funcionalidades Premium
-- **Jardín de Experiencias:** Un dashboard intuitivo y elegante que agrupa todas las funcionalidades.
-- **Mensajes con Alma:** Personalización profunda de tarjetas:
+
+- **🌿 Jardín de Experiencias:** Dashboard inmersivo que centraliza todas las interacciones con elegancia.
+- **💌 Mensajes con Alma:** Personalización profunda con algoritmos de color dinámicos.
   - **Temas Florales:** Daisy (Margarita), Rose (Rosa), Sunflower (Girasol).
-  - **Moods Dinámicos:** Joy (Alegría), Calm (Calma), Passion (Pasión) con gradientes calculados.
-- **Exportación 4K Ready:** Generación de imágenes en formato **1080×1920**, listas para Instagram Stories, con códigos QR inteligentes incorporados.
-- **Frase del Día (TTS):** Escucha mensajes inspiradores con una síntesis de voz natural y suave.
-- **Onboarding de Autor:** Una bienvenida cálida con ilustraciones personalizadas y captura de identidad.
+  - **Moods Dinámicos:** Joy (Alegría), Calm (Calma), Passion (Pasión).
+- **📸 Exportación Ultra-HD:** Generación de imágenes (1080×1920) optimizadas para Instagram y WhatsApp Stories, incluyendo códigos QR dinámicos.
+- **🎙️ Frase del Día (TTS):** Inspiración diaria narrada con síntesis de voz natural de alta fidelidad.
+- **✨ Onboarding de Autor:** Bienvenida personalizada con ilustraciones exclusivas y captura de identidad.
 
 ---
 
-## 📱 Plataformas Soportadas
-Esta aplicación ha sido optimizada **exclusivamente** para dispositivos móviles:
+## 🎨 Filosofía de Diseño
 
-*   **iOS:** 12.0 o superior.
-*   **Android:** API 21 (Android 5.0) o superior.
+El proyecto sigue principios de **Diseño Emocional** y **Micro-interacciones**:
+
+- **Animaciones Orgánicas:** Uso de `CustomPainter` y Lottie para simular el florecimiento y movimiento de pétalos.
+- **Paletas Curadas:** Colores basados en la psicología del color para cada "Mood".
+- **UX Fluida:** Transiciones suaves que mantienen al usuario en un estado de calma.
 
 ---
 
 ## 🛠️ Stack Tecnológico
-Arquitectura moderna pensada en la escalabilidad y el rendimiento:
 
-*   **Framework:** [Flutter](https://flutter.dev) (Dart 3.5+).
-*   **Gestión de Estado:** `Provider`.
-*   **Inyección de Dependencias:** `GetIt`.
-*   **UI/UX:** Custom Painters para animaciones de partículas (pétalos) y efectos visuales.
-*   **Persistencia:** Servicios de personalización inteligentes.
+Arquitectura robusta diseñada para la evolución constante:
+
+| Tecnología        | Propósito                                            |
+| :---------------- | :--------------------------------------------------- |
+| **Flutter 3.24+** | SDK Multiplataforma                                  |
+| **Provider**      | Gestión de Estado Reactiva                           |
+| **GetIt**         | Inyección de Dependencias (Service Locator)          |
+| **Just Audio**    | Motor de Experiencia Sonora                          |
+| **Firebase**      | Capa de Persistencia y Sync (Core & Cloud Firestore) |
+| **Lottie**        | Animaciones Vectoriales Complejas                    |
 
 ---
 
-## 🚀 Guía de Inicio
+## 🏗️ Arquitectura del Proyecto
+
+Implementamos una transición hacia **Clean Architecture** para garantizar testabilidad y desacoplamiento:
+
+```bash
+lib/
+├── 📂 core/           # Elementos transversales (Networking, Errors, Theme)
+├── 📂 di/             # Configuración de Inyección de Dependencias
+├── 📂 features/       # Módulos Funcionales (Dominio de negocio)
+│   └── 📂 <feature>/
+│       ├── 📂 data/        # Repositorios y fuentes de datos (Remote/Local)
+│       ├── 📂 domain/      # Entidades y Casos de Uso (Lógica pura)
+│       └── 📂 presentation/ # UI Widgets y BLoC/Providers
+└── 📍 main.dart       # Punto de entrada de la aplicación
+```
+
+---
+
+## 🚀 Guía de Instalación Rápida
 
 ### Requisitos Previos
-1. Tener instalado [Flutter](https://flutter.dev/docs/get-started/install).
-2. (Opcional) [FVM](https://fvm.app/) para gestión de versiones.
-3. Cocoapods para iOS (`sudo gem install cocoapods`).
 
-### Instalación
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) instalado.
+- [CocoadPods](https://cocoapods.org/) para el desarrollo en iOS.
+
+### Configuración del Entorno
+
 ```bash
 # 1. Clonar el repositorio
 git clone https://github.com/GrullonDev/YellowFlowers.git
 cd YellowFlowers
 
-# 2. Configurar Flutter (si usas FVM)
-fvm install
-fvm use
-
-# 3. Obtener dependencias
+# 2. Instalar dependencias
 flutter pub get
 
-# 4. Configurar iOS (solo en macOS)
-cd ios
-pod install
-cd ..
+# 3. Preparar iOS (Solo macOS)
+cd ios && pod install && cd ..
 ```
 
-### Ejecución
+### Ejecutar Desarrollo
+
 ```bash
-# Ejecutar en el dispositivo conectado
 flutter run
 ```
 
 ---
 
-## 📦 Generación de Builds
+## 📦 Despliegue y Compilación
 
-### Android (APK & App Bundle)
+### Android (APK / Bundle)
+
 ```bash
-# Generar APK de Lanzamiento
+# Para pruebas locales
 flutter build apk --release
 
-# Generar Bundle para la Play Store
+# Para publicación en Play Store
 flutter build appbundle --release
 ```
-> [!TIP]
-> Los archivos resultantes se encuentran en `build/app/outputs/flutter-apk/`.
 
 ### iOS (IPA)
+
 ```bash
-# Generar archivo de distribución
+# Preparar para App Store Connect
 flutter build ipa --release
 ```
-> [!IMPORTANT]
-> Requiere configuración previa de perfiles de aprovisionamiento en Xcode.
+
+### 🔢 Versionado
+
+La versión en `pubspec.yaml` sigue el formato `MAJOR.MINOR.PATCH+BUILD`.
+
+```bash
+# Release iOS: sube PATCH y BUILD automáticamente y genera el .ipa
+scripts/release_ios.sh            # 1.1.4+2 -> 1.1.5+3
+
+# Cuando quieras subir MINOR o MAJOR (PATCH vuelve a 0)
+scripts/release_ios.sh minor      # 1.1.5+3 -> 1.2.0+4
+scripts/release_ios.sh major      # 1.2.0+4 -> 2.0.0+5
+
+# Solo cambiar la versión, sin compilar
+scripts/bump_version.sh [patch|minor|major|build]
+```
+
+El número de BUILD siempre aumenta, porque App Store Connect rechaza un build repetido.
 
 ---
 
-## 🏗️ Arquitectura
-El proyecto se encuentra en una transición hacia **Arquitectura Limpia (Clean Architecture)**:
+## 🤝 Contribuciones
 
-```text
-lib/
-├── core/            # Modelos base, fallos y casos de uso genéricos.
-├── di/              # Inyección de dependencias (Clean Architecture).
-├── features/        # Módulos de la app (Music, Flowers, Personalization).
-│   ├── <feature>/
-│   │   ├── data/    # Implementación de repositorios y fuentes de datos.
-│   │   ├── domain/  # Entidades y contratos (Lógica de Negocio).
-│   │   └── bloc/    # Presentation logic (Capa de Vista).
-└── main.dart        # Punto de entrada.
-```
+¡Las contribuciones son lo que hacen a la comunidad de código abierto un lugar increíble!
+
+1. Haz un **Fork** del proyecto.
+2. Crea tu **Feature Branch** (`git checkout -b feature/AmazingFeature`).
+3. Haz **Commit** de tus cambios (`git commit -m 'Add: Amazing Feature'`).
+4. **Push** a la rama (`git push origin feature/AmazingFeature`).
+5. Abre un **Pull Request**.
 
 ---
 
 ## 📄 Licencia
-Este proyecto está bajo la licencia **MIT**. Siéntete libre de usarlo para inspirarte o extenderlo.
+
+Distribuido bajo la Licencia **MIT**. Vea `LICENSE` para más información.
 
 ---
+
 <div align="center">
-  Diseñado con ❤️ por <b>GrullonDev</b>
+  <p>Diseñado y desarrollado con ❤️ por <b>GrullonDev</b></p>
+  <a href="https://github.com/GrullonDev">
+    <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+  </a>
 </div>

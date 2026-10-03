@@ -52,7 +52,8 @@ class FlowerFieldView extends StatelessWidget {
         ...List.generate(
           flowerControllers.length,
           (index) => AnimatedBuilder(
-            animation: Listenable.merge([flowerControllers[index], entranceController]),
+            animation: Listenable.merge(
+                [flowerControllers[index], entranceController]),
             builder: (context, _) => _PositionedFlower(
               index: index,
               controller: flowerControllers[index],
@@ -91,7 +92,8 @@ class _Sparkle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final x = math.Random(index * 997).nextDouble() * screenWidth;
-    final y = screenHeight * 0.15 + math.Random(index * 1337).nextDouble() * (screenHeight * 0.35);
+    final y = screenHeight * 0.15 +
+        math.Random(index * 1337).nextDouble() * (screenHeight * 0.35);
 
     return AnimatedBuilder(
       animation: burstController,
@@ -100,7 +102,8 @@ class _Sparkle extends StatelessWidget {
         final baseOpacity = 0.2 + controller.value * 0.6;
         final burst = 1.0 + 0.8 * burstController.value;
         final sizeDot = baseSize * burst;
-        final opacity = (baseOpacity * (1.0 + 1.0 * burstController.value)).clamp(0.0, 1.0);
+        final opacity =
+            (baseOpacity * (1.0 + 1.0 * burstController.value)).clamp(0.0, 1.0);
 
         return Positioned(
           left: x,
@@ -147,13 +150,15 @@ class _PositionedFlower extends StatelessWidget {
   Widget build(BuildContext context) {
     final rnd = math.Random(index);
     final baseX = rnd.nextDouble() * screenWidth;
-    final targetY = screenHeight * 0.45 + rnd.nextDouble() * (screenHeight * 0.4);
+    final targetY =
+        screenHeight * 0.45 + rnd.nextDouble() * (screenHeight * 0.4);
 
     final tEntrance = entranceController.value;
     final entranceY = (1.0 - tEntrance) * 100;
     final entranceBlur = (1.0 - tEntrance) * 10;
     final entranceScale = 0.8 + 0.2 * tEntrance;
-    final entranceOpacity = const Interval(0.2, 1.0, curve: Curves.easeOut).transform(tEntrance);
+    final entranceOpacity =
+        const Interval(0.2, 1.0, curve: Curves.easeOut).transform(tEntrance);
 
     double scale = entranceScale;
     double angle = 0.0;
@@ -180,7 +185,8 @@ class _PositionedFlower extends StatelessWidget {
       left: baseX + swayX + parallaxX,
       top: targetY + entranceY,
       child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: entranceBlur, sigmaY: entranceBlur),
+        imageFilter:
+            ImageFilter.blur(sigmaX: entranceBlur, sigmaY: entranceBlur),
         child: Opacity(
           opacity: entranceOpacity,
           child: _InteractiveFlower(
@@ -233,8 +239,14 @@ class _InteractiveFlowerState extends State<_InteractiveFlower> {
         decoration: BoxDecoration(
           boxShadow: _isTouched
               ? [
-                  BoxShadow(color: Colors.white.withValues(alpha: 0.8), blurRadius: 30, spreadRadius: 5),
-                  BoxShadow(color: const Color(0xFFFFD54F).withValues(alpha: 0.5), blurRadius: 20, spreadRadius: 2),
+                  BoxShadow(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      blurRadius: 30,
+                      spreadRadius: 5),
+                  BoxShadow(
+                      color: const Color(0xFFFFD54F).withValues(alpha: 0.5),
+                      blurRadius: 20,
+                      spreadRadius: 2),
                 ]
               : null,
         ),

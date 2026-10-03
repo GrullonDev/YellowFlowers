@@ -106,8 +106,7 @@ class _CycleMusicPageState extends State<CycleMusicPage>
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: ChangeNotifierProvider.value(
           value: model,
           child: const _CycleConfigSheet(),
@@ -276,11 +275,12 @@ class _RingPainter extends CustomPainter {
   final double animationValue;
 
   List<_PhaseSegment> _segments() => [
-        const _PhaseSegment(0, 5, Color(0xFFE57373)),   // Menstrual
-        const _PhaseSegment(6, 11, Color(0xFFFFCA28)),  // Folicular
+        const _PhaseSegment(0, 5, Color(0xFFE57373)), // Menstrual
+        const _PhaseSegment(6, 11, Color(0xFFFFCA28)), // Folicular
         const _PhaseSegment(12, 16, Color(0xFFF9A825)), // Fértil
         _PhaseSegment(17, cycleLength - 6, const Color(0xFFBA68C8)), // Lútea
-        _PhaseSegment(cycleLength - 5, cycleLength - 1, const Color(0xFF7E57C2)), // Premenstrual
+        _PhaseSegment(cycleLength - 5, cycleLength - 1,
+            const Color(0xFF7E57C2)), // Premenstrual
       ];
 
   @override
@@ -392,8 +392,8 @@ class _AffirmationCard extends StatelessWidget {
         ),
         borderRadius: PremiumDesign.premiumRadius,
         boxShadow: PremiumDesign.softShadow,
-        border: Border.all(
-            color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,13 +461,12 @@ class _TipChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: const Color(0xFFE91E8C).withValues(alpha: 0.15)),
+        border:
+            Border.all(color: const Color(0xFFE91E8C).withValues(alpha: 0.15)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -653,8 +652,8 @@ class _CycleConfigSheetState extends State<_CycleConfigSheet> {
               DropdownButton<int>(
                 value: _length,
                 items: List.generate(15, (i) => 21 + i)
-                    .map((d) => DropdownMenuItem(
-                        value: d, child: Text('$d días')))
+                    .map((d) =>
+                        DropdownMenuItem(value: d, child: Text('$d días')))
                     .toList(),
                 onChanged: (v) => setState(() => _length = v ?? 28),
               ),

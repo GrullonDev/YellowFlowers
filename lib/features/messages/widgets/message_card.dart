@@ -30,7 +30,8 @@ class MessageCard extends StatefulWidget {
   State<MessageCard> createState() => _MessageCardState();
 }
 
-class _MessageCardState extends State<MessageCard> with TickerProviderStateMixin {
+class _MessageCardState extends State<MessageCard>
+    with TickerProviderStateMixin {
   late AnimationController _likeController;
   late AnimationController _pulseController;
   bool _isPlaying = false;
@@ -105,7 +106,8 @@ class _MessageCardState extends State<MessageCard> with TickerProviderStateMixin
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            padding: const EdgeInsets.all(PremiumDesign.s32), // Más padding interno
+            padding:
+                const EdgeInsets.all(PremiumDesign.s32), // Más padding interno
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: gradientColors,
@@ -133,10 +135,11 @@ class _MessageCardState extends State<MessageCard> with TickerProviderStateMixin
                       ),
                     ),
                     if (_isPlaying)
-                      _AudioWaves(controller: _pulseController, color: baseAccent),
+                      _AudioWaves(
+                          controller: _pulseController, color: baseAccent),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
 
                 Center(
@@ -145,7 +148,8 @@ class _MessageCardState extends State<MessageCard> with TickerProviderStateMixin
                     textAlign: TextAlign.center,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: widget.isLarge ? 26 : 20,
-                      fontWeight: widget.isLarge ? FontWeight.w800 : FontWeight.w600,
+                      fontWeight:
+                          widget.isLarge ? FontWeight.w800 : FontWeight.w600,
                       color: PremiumDesign.softText,
                       height: 1.5,
                       fontStyle: FontStyle.italic,
@@ -171,7 +175,8 @@ class _MessageCardState extends State<MessageCard> with TickerProviderStateMixin
                     const SizedBox(width: 16),
                     // Acciones Secundarias agrupadas
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(24),
@@ -239,17 +244,17 @@ class _PrimaryActionButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Icon(icon, color: Colors.white, size: 18),
-             const SizedBox(width: 8),
-             Text(
-               label,
-               style: GoogleFonts.plusJakartaSans(
-                 color: Colors.white,
-                 fontWeight: FontWeight.w800,
-                 fontSize: 14,
-                 letterSpacing: 0.3,
-               ),
-             ),
+            Icon(icon, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+                letterSpacing: 0.3,
+              ),
+            ),
           ],
         ),
       ),
@@ -271,8 +276,14 @@ class _SecondaryActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Animation<double> scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.4).chain(CurveTween(curve: Curves.easeOutBack)), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.4, end: 1.0).chain(CurveTween(curve: Curves.elasticIn)), weight: 60),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.0, end: 1.4)
+              .chain(CurveTween(curve: Curves.easeOutBack)),
+          weight: 40),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.4, end: 1.0)
+              .chain(CurveTween(curve: Curves.elasticIn)),
+          weight: 60),
     ]).animate(controller);
 
     return GestureDetector(
@@ -283,12 +294,18 @@ class _SecondaryActionButton extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: isFavorite ? Colors.red.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.6),
+            color: isFavorite
+                ? Colors.red.withValues(alpha: 0.1)
+                : Colors.white.withValues(alpha: 0.6),
             shape: BoxShape.circle,
           ),
           child: Icon(
-            isFavorite ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-            color: isFavorite ? Colors.redAccent : PremiumDesign.secondaryText.withValues(alpha: 0.4),
+            isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_outline_rounded,
+            color: isFavorite
+                ? Colors.redAccent
+                : PremiumDesign.secondaryText.withValues(alpha: 0.4),
             size: 20,
           ),
         ),
@@ -336,12 +353,16 @@ class _AudioButton extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isPlaying ? accentColor.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.6),
+              color: isPlaying
+                  ? accentColor.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.6),
               shape: BoxShape.circle,
             ),
             child: Icon(
               isPlaying ? Icons.pause_rounded : Icons.volume_up_rounded,
-              color: isPlaying ? accentColor : PremiumDesign.secondaryText.withValues(alpha: 0.4),
+              color: isPlaying
+                  ? accentColor
+                  : PremiumDesign.secondaryText.withValues(alpha: 0.4),
               size: 20,
             ),
           ),

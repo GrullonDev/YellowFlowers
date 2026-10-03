@@ -9,10 +9,35 @@ plugins {
 }
 
 android {
-    namespace = "com.jorgegrullon.yellowflowers"
-    compileSdk = 36 // Android 16 (API 36) - Change to 37 when SDK is installed
-    ndkVersion = "27.0.12077973"
+    namespace = "com.grullondev.amarillas"
+    compileSdk = 37
+    ndkVersion = "28.2.13676358"
 
+
+    // --- Signing properties (optional) ---
+    // If you create a file at android/key.properties (NOT committed) with:
+    // storePassword=XXXXX
+    // keyPassword=XXXXX
+    // keyAlias=upload
+    // storeFile=../app/upload-keystore.jks
+    // then a proper release signing config will be applied automatically.
+    def keystoreProperties = new Properties()
+    def keystoreFile = rootProject.file("key.properties")
+    if (keystoreFile.exists()) {
+        keystoreFile.withInputStream { stream -> keystoreProperties.load(stream) }
+    }
+
+    // Define signingConfigs (release only if key properties present)
+    signingConfigs {
+        if (keystoreFile.exists() && keystoreProperties['storeFile']) {
+            release {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
 
     // --- Automated versioning for APKs ---
     // Priority order:
@@ -56,6 +81,8 @@ android {
         // Use Java 21 (LTS in 2026). Required for modern Android SDKs (API 36+).
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        // Required by flutter_local_notifications (and any java.time API below API 26)
+        coreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -65,11 +92,11 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.jorgegrullon.yellowflowers"
+        applicationId = "com.grullondev.amarillas"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 30
-        targetSdk = 36 // Android 16 (API 36) - Future ready for 37
+        minSdk = 29
+        targetSdk = 37
         multiDexEnabled true
         versionCode = dynamicVersionCode
         // Keep base name from pubspec and append dynamic code for traceability
@@ -78,9 +105,8 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            // Use release signing if defined, otherwise fall back to debug to avoid blocking local builds.
+            signingConfig signingConfigs.findByName('release') ?: signingConfigs.debug
             // Name the APK with version info to ease Firebase/App Distribution uploads
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
@@ -88,7 +114,7 @@ android {
                     def vCode = variant.versionCode
                     def flavor = variant.flavorName ? "-${variant.flavorName}" : ""
                     def buildType = variant.buildType.name
-                    outputFileName = "yellowflowers-${buildType}${flavor}-v${vName}(${vCode}).apk"
+                    outputFileName = "amarillas-${buildType}${flavor}-v${vName}(${vCode}).apk"
                 }
             }
         }
@@ -101,6 +127,11 @@ android {
             println("Resolved versionName: ${flutter.versionName}+${dynamicVersionCode}")
         }
     }
+}
+
+dependencies {
+    implementation "androidx.core:core-splashscreen:1.2.0"
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 }
 
 flutter {

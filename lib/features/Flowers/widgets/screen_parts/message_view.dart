@@ -29,23 +29,19 @@ class MessageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = sl<PersonalizationService>().getUserName();
-    final finalMessage = (message.trim().isEmpty) ? DefaultMessages.getRandom(name) : message;
+    final finalMessage =
+        (message.trim().isEmpty) ? DefaultMessages.getRandom(name) : message;
 
     return Column(
       children: [
         const SizedBox(height: PremiumDesign.s16),
-
         _EmotionalHeader(controller: entranceController),
-
         const SizedBox(height: PremiumDesign.s24),
-
         _MoodStatusBubble(
           mood: mood,
           controller: entranceController,
         ),
-
         const SizedBox(height: PremiumDesign.s48),
-
         _GiftMessageCard(
           recipientName: recipientName,
           message: finalMessage,
@@ -64,9 +60,14 @@ class _EmotionalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fade = CurvedAnimation(parent: controller, curve: const Interval(0.0, 0.4, curve: Curves.easeOut));
-    final slide = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(parent: controller, curve: const Interval(0.0, 0.6, curve: Curves.easeOutQuart)),
+    final fade = CurvedAnimation(
+        parent: controller,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut));
+    final slide =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(
+          parent: controller,
+          curve: const Interval(0.0, 0.6, curve: Curves.easeOutQuart)),
     );
 
     return FadeTransition(
@@ -85,7 +86,11 @@ class _EmotionalHeader extends StatelessWidget {
               height: 2,
               width: 40,
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [Colors.transparent, PremiumDesign.radiantGold.withAlpha(100), Colors.transparent]),
+                gradient: LinearGradient(colors: [
+                  Colors.transparent,
+                  PremiumDesign.radiantGold.withAlpha(100),
+                  Colors.transparent
+                ]),
               ),
             ),
             const SizedBox(height: 12),
@@ -114,13 +119,16 @@ class _MoodStatusBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final moodInfo = _getMoodInfo(mood);
     final scale = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: controller, curve: const Interval(0.2, 0.6, curve: Curves.elasticOut)),
+      CurvedAnimation(
+          parent: controller,
+          curve: const Interval(0.2, 0.6, curve: Curves.elasticOut)),
     );
 
     return ScaleTransition(
       scale: scale,
       child: FadeTransition(
-        opacity: CurvedAnimation(parent: controller, curve: const Interval(0.2, 0.5)),
+        opacity: CurvedAnimation(
+            parent: controller, curve: const Interval(0.2, 0.5)),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
@@ -135,8 +143,10 @@ class _MoodStatusBubble extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 8, height: 8,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: moodInfo.color),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: moodInfo.color),
               ),
               const SizedBox(width: 8),
               Text(
@@ -156,9 +166,12 @@ class _MoodStatusBubble extends StatelessWidget {
 
   ({Color color, String label}) _getMoodInfo(Mood mood) {
     switch (mood) {
-      case Mood.joy: return (color: PremiumDesign.radiantGold, label: 'Alegre ☀️');
-      case Mood.calm: return (color: Colors.purple.withAlpha(150), label: 'Relajada 🕊️');
-      case Mood.passion: return (color: Colors.red.withAlpha(150), label: 'Pasión ❤️');
+      case Mood.joy:
+        return (color: PremiumDesign.radiantGold, label: 'Alegre ☀️');
+      case Mood.calm:
+        return (color: Colors.purple.withAlpha(150), label: 'Relajada 🕊️');
+      case Mood.passion:
+        return (color: Colors.red.withAlpha(150), label: 'Pasión ❤️');
     }
   }
 }
@@ -180,9 +193,14 @@ class _GiftMessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fade = CurvedAnimation(parent: entrance, curve: const Interval(0.4, 0.9, curve: Curves.easeOut));
-    final slide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
-      CurvedAnimation(parent: entrance, curve: const Interval(0.4, 1.0, curve: Curves.easeOutBack)),
+    final fade = CurvedAnimation(
+        parent: entrance,
+        curve: const Interval(0.4, 0.9, curve: Curves.easeOut));
+    final slide =
+        Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(
+      CurvedAnimation(
+          parent: entrance,
+          curve: const Interval(0.4, 1.0, curve: Curves.easeOutBack)),
     );
 
     return FadeTransition(
@@ -195,7 +213,10 @@ class _GiftMessageCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(32),
             boxShadow: PremiumDesign.deepShadow,
             gradient: LinearGradient(
-              colors: [Colors.white.withAlpha(210), Colors.white.withAlpha(180)],
+              colors: [
+                Colors.white.withAlpha(210),
+                Colors.white.withAlpha(180)
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -265,7 +286,11 @@ class _GiftMessageCard extends StatelessWidget {
 }
 
 class _PremiumActionButton extends StatelessWidget {
-  const _PremiumActionButton({required this.icon, required this.label, this.isPrimary = false, required this.onPressed});
+  const _PremiumActionButton(
+      {required this.icon,
+      required this.label,
+      this.isPrimary = false,
+      required this.onPressed});
   final IconData icon;
   final String label;
   final bool isPrimary;
@@ -278,15 +303,24 @@ class _PremiumActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isPrimary ? PremiumDesign.softText : Colors.white.withAlpha(100),
+          color:
+              isPrimary ? PremiumDesign.softText : Colors.white.withAlpha(100),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: isPrimary ? PremiumDesign.isDarkMode(context) ? null : PremiumDesign.softShadow : null,
-          border: isPrimary ? null : Border.all(color: PremiumDesign.softText.withAlpha(20)),
+          boxShadow: isPrimary
+              ? PremiumDesign.isDarkMode(context)
+                  ? null
+                  : PremiumDesign.softShadow
+              : null,
+          border: isPrimary
+              ? null
+              : Border.all(color: PremiumDesign.softText.withAlpha(20)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: isPrimary ? Colors.white : PremiumDesign.softText),
+            Icon(icon,
+                size: 16,
+                color: isPrimary ? Colors.white : PremiumDesign.softText),
             const SizedBox(width: 8),
             Text(
               label,
