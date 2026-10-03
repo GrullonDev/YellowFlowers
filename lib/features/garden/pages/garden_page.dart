@@ -13,6 +13,7 @@ import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/particle_layer.dart';
 import 'package:yellow_flowers/features/garden/data/garden_service.dart';
 import 'package:yellow_flowers/features/garden/widgets/growing_flower.dart';
+import 'package:yellow_flowers/features/garden/widgets/share_helper.dart';
 import 'package:yellow_flowers/features/music/widgets/ambient_sounds_sheet.dart';
 import 'package:yellow_flowers/widgets/glass_card.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
@@ -62,12 +63,18 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
     // DailyMood: 0=happy, 1=calm, 2=strong, 3=reflective, 4=loving
     // Mood: joy, calm, passion
     switch (index) {
-      case 0: return Mood.joy;
-      case 1: return Mood.calm;
-      case 2: return Mood.passion;
-      case 3: return Mood.calm;
-      case 4: return Mood.passion;
-      default: return Mood.calm;
+      case 0:
+        return Mood.joy;
+      case 1:
+        return Mood.calm;
+      case 2:
+        return Mood.passion;
+      case 3:
+        return Mood.calm;
+      case 4:
+        return Mood.passion;
+      default:
+        return Mood.calm;
     }
   }
 
@@ -107,6 +114,40 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
     _sway.dispose();
     _burst.dispose();
     super.dispose();
+  }
+
+  void _shareQuote() {
+    captureAndShare(
+      context,
+      card: _QuoteShareCard(inspiration: _inspiration),
+      shareText: '✨ Descubre tu frase diaria en Amarillas 🌻',
+    );
+  }
+
+  void _shareGarden() {
+    final streak = _garden.currentStreak;
+    if (streak < 5) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF2A1A3A),
+        content: Text(
+          'Desbloquea esta opción alcanzando 5 días de constancia 🌻',
+          style: GoogleFonts.plusJakartaSans(
+              color: _warmWhite, fontWeight: FontWeight.w600),
+        ),
+      ));
+      return;
+    }
+    captureAndShare(
+      context,
+      card: _GardenShareCard(
+        totalFlowers: _days.length,
+        streak: streak,
+        weeks: _garden.weeksGrowing,
+      ),
+      shareText:
+          '🌻 Mi jardín tiene ${_days.length} flores y llevo $streak días seguidos. ¡Cultiva el tuyo en Amarillas!',
+    );
   }
 
   Future<void> _plant() async {
@@ -158,8 +199,8 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
       children: [
         const Positioned.fill(child: LuminousBackground()),
         Positioned.fill(
-          child: ParticleLayer(
-              mood: Mood.calm, controller: _burst, density: 0.6),
+          child:
+              ParticleLayer(mood: Mood.calm, controller: _burst, density: 0.6),
         ),
         // Ground + flowers anchored to the very bottom of the screen
         Positioned(
@@ -205,8 +246,7 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
                             color: _warmWhite,
                             shadows: [
                               Shadow(
-                                  color: _gold.withAlpha(120),
-                                  blurRadius: 24)
+                                  color: _gold.withAlpha(120), blurRadius: 24)
                             ],
                           )),
                       SizedBox(height: context.hp(2)),
@@ -235,6 +275,9 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
                           inspiration: _inspiration,
                           bloomedToday: bloomedToday,
                           onRead: _plant,
+                          onShareQuote: _shareQuote,
+                          onShareGarden: _shareGarden,
+                          gardenUnlocked: _garden.currentStreak >= 5,
                         ),
                       ),
                     ],
@@ -383,11 +426,17 @@ class _QuoteCard extends StatelessWidget {
     required this.inspiration,
     required this.bloomedToday,
     required this.onRead,
+    required this.onShareQuote,
+    required this.onShareGarden,
+    required this.gardenUnlocked,
   });
 
   final DailyInspiration inspiration;
   final bool bloomedToday;
   final VoidCallback onRead;
+  final VoidCallback onShareQuote;
+  final VoidCallback onShareGarden;
+  final bool gardenUnlocked;
 
   @override
   Widget build(BuildContext context) {
@@ -398,12 +447,37 @@ class _QuoteCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('TU FRASE DE HOY ☀️',
-              style: GoogleFonts.plusJakartaSans(
-                  fontSize: context.sp(11).clamp(9, 13),
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 2,
-                  color: _gold)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+              Text('TU FRASE DE HOY ☀️',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: context.sp(11).clamp(9, 13),
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 2,
+                      color: _gold)),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: onShareQuote,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _gold.withAlpha(30),
+                        border: Border.all(color: _gold.withAlpha(60)),
+                      ),
+                      child: Icon(Icons.share_rounded,
+                          color: _gold,
+                          size: context.dp(16).clamp(14.0, 20.0)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: context.hp(8)),
           Text(inspiration.greeting,
               textAlign: TextAlign.center,
@@ -432,12 +506,65 @@ class _QuoteCard extends StatelessWidget {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: bloomedToday
-                ? Text('Hoy ya floreció tu flor 🌼 Vuelve mañana',
+                ? Column(
                     key: const ValueKey('done'),
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: context.sp(13).clamp(11, 15),
-                        fontWeight: FontWeight.w700,
-                        color: _gold))
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Hoy ya floreció tu flor 🌼',
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.sp(13).clamp(11, 15),
+                              fontWeight: FontWeight.w700,
+                              color: _gold)),
+                      SizedBox(height: context.hp(8)),
+                      GestureDetector(
+                        onTap: onShareGarden,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: context.wp(14).clamp(10.0, 20.0),
+                              vertical: context.hp(8).clamp(6.0, 12.0)),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                                context.dp(16).clamp(12.0, 20.0)),
+                            color: gardenUnlocked
+                                ? _gold.withAlpha(30)
+                                : Colors.white.withAlpha(10),
+                            border: Border.all(
+                              color: gardenUnlocked
+                                  ? _gold.withAlpha(100)
+                                  : Colors.white.withAlpha(30),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                gardenUnlocked
+                                    ? Icons.park_rounded
+                                    : Icons.lock_rounded,
+                                color: gardenUnlocked
+                                    ? _gold
+                                    : _warmWhite.withAlpha(100),
+                                size: context.dp(16).clamp(14.0, 20.0),
+                              ),
+                              SizedBox(width: context.wp(4)),
+                              Text(
+                                gardenUnlocked
+                                    ? 'Compartir mi jardín 🌻'
+                                    : 'Alcanza 5 días para compartir',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: context.sp(11).clamp(9, 13),
+                                  fontWeight: FontWeight.w700,
+                                  color: gardenUnlocked
+                                      ? _gold
+                                      : _warmWhite.withAlpha(100),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
                 : GestureDetector(
                     key: const ValueKey('plant'),
                     onTap: onRead,
@@ -451,8 +578,7 @@ class _QuoteCard extends StatelessWidget {
                         gradient: const LinearGradient(
                             colors: [Color(0xFFFFE082), Color(0xFFFFB300)]),
                         boxShadow: [
-                          BoxShadow(
-                              color: _gold.withAlpha(110), blurRadius: 22)
+                          BoxShadow(color: _gold.withAlpha(110), blurRadius: 22)
                         ],
                       ),
                       child: Text('La leí · Plantar mi flor 🌱',
@@ -469,3 +595,181 @@ class _QuoteCard extends StatelessWidget {
   }
 }
 
+// ─── Share cards (rendered offscreen for image export) ───
+
+class _QuoteShareCard extends StatelessWidget {
+  const _QuoteShareCard({required this.inspiration});
+  final DailyInspiration inspiration;
+
+  static const _bg = Color(0xFF0B0820);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1080,
+      padding: const EdgeInsets.all(64),
+      decoration: BoxDecoration(
+        color: _bg,
+        border: Border.all(color: _gold.withAlpha(80), width: 3),
+        borderRadius: BorderRadius.circular(48),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🌻', style: TextStyle(fontSize: 64)),
+          const SizedBox(height: 24),
+          Text('FRASE DEL DÍA',
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 3,
+                  color: _gold)),
+          const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 36),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(12),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: _gold.withAlpha(40)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  '”${inspiration.quote}”',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 28,
+                    fontStyle: FontStyle.italic,
+                    height: 1.5,
+                    color: _warmWhite,
+                  ),
+                ),
+                if (inspiration.author != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    '— ${inspiration.author}',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: _gold,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 48),
+          Container(width: 60, height: 1.5, color: _gold.withAlpha(60)),
+          const SizedBox(height: 24),
+          Text(
+            'Descubre tu frase diaria en Amarillas 🌻',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _warmWhite.withAlpha(140),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GardenShareCard extends StatelessWidget {
+  const _GardenShareCard({
+    required this.totalFlowers,
+    required this.streak,
+    required this.weeks,
+  });
+  final int totalFlowers, streak, weeks;
+
+  static const _bg = Color(0xFF0B0820);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1080,
+      padding: const EdgeInsets.all(64),
+      decoration: BoxDecoration(
+        color: _bg,
+        border: Border.all(color: _gold.withAlpha(80), width: 3),
+        borderRadius: BorderRadius.circular(48),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('🌻🌼🌸',
+              style: TextStyle(fontSize: 56)),
+          const SizedBox(height: 24),
+          Text('MI JARDÍN',
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 3,
+                  color: _gold)),
+          const SizedBox(height: 40),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _shareStatColumn('$totalFlowers', 'flores'),
+              Container(width: 1.5, height: 60, color: _gold.withAlpha(40)),
+              _shareStatColumn('$streak', 'días seguidos'),
+              Container(width: 1.5, height: 60, color: _gold.withAlpha(40)),
+              _shareStatColumn('$weeks', 'semanas'),
+            ],
+          ),
+          const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 28),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(12),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: _gold.withAlpha(40)),
+            ),
+            child: Text(
+              'Cada día leo una frase y planto una flor.\n¡Ya llevo $streak días sin fallar!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 24,
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+                color: _warmWhite,
+              ),
+            ),
+          ),
+          const SizedBox(height: 48),
+          Container(width: 60, height: 1.5, color: _gold.withAlpha(60)),
+          const SizedBox(height: 24),
+          Text(
+            'Cultiva tu propio jardín en Amarillas 🌻',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _warmWhite.withAlpha(140),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _shareStatColumn(String value, String label) {
+    return Column(
+      children: [
+        Text(value,
+            style: GoogleFonts.playfairDisplay(
+                fontSize: 42,
+                fontWeight: FontWeight.w700,
+                color: _gold)),
+        const SizedBox(height: 4),
+        Text(label,
+            style: GoogleFonts.plusJakartaSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: _warmWhite.withAlpha(170))),
+      ],
+    );
+  }
+}
