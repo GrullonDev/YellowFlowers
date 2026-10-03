@@ -78,8 +78,8 @@ class _LuminousPainter extends CustomPainter {
 
     // Horizonte cálido
     final pulse = 0.85 + 0.15 * math.sin(t * 2);
-    final horizon =
-        Rect.fromCenter(center: Offset(w / 2, h * 1.02), width: w * 1.8, height: h * 0.55);
+    final horizon = Rect.fromCenter(
+        center: Offset(w / 2, h * 1.02), width: w * 1.8, height: h * 0.55);
     canvas.drawOval(
       horizon,
       Paint()

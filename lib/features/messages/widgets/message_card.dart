@@ -168,7 +168,8 @@ class _MessageCardState extends State<MessageCard>
                       child: _PrimaryActionButton(
                         icon: Icons.ios_share_rounded,
                         label: 'Compartir 💛',
-                        onTap: () async => await Share.share(widget.text),
+                        onTap: () async => await SharePlus.instance
+                            .share(ShareParams(text: widget.text)),
                         accentColor: baseAccent,
                       ),
                     ),

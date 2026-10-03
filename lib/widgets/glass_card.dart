@@ -55,7 +55,10 @@ class GlassCard extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: dark
                     ? [Colors.white.withAlpha(34), Colors.white.withAlpha(10)]
-                    : [Colors.white.withAlpha(225), Colors.white.withAlpha(170)],
+                    : [
+                        Colors.white.withAlpha(225),
+                        Colors.white.withAlpha(170)
+                      ],
               ),
               border: Border.all(
                 color: dark

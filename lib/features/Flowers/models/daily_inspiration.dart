@@ -16,11 +16,20 @@ class DailyInspiration {
 
   static const List<(String, String?)> _quotes = [
     ('Florece donde te planten, y hazlo con todo tu brillo.', null),
-    ('La felicidad no es algo hecho. Proviene de tus propias acciones.', 'Dalái Lama'),
+    (
+      'La felicidad no es algo hecho. Proviene de tus propias acciones.',
+      'Dalái Lama'
+    ),
     ('Donde florece el amor, florece la vida.', null),
     ('Cada día es una nueva oportunidad para florecer.', null),
-    ('Mantén tu rostro hacia el sol y las sombras caerán detrás de ti.', 'Walt Whitman'),
-    ('Eres más valiente de lo que crees y más fuerte de lo que pareces.', 'A. A. Milne'),
+    (
+      'Mantén tu rostro hacia el sol y las sombras caerán detrás de ti.',
+      'Walt Whitman'
+    ),
+    (
+      'Eres más valiente de lo que crees y más fuerte de lo que pareces.',
+      'A. A. Milne'
+    ),
     ('Las flores no compiten con las demás; simplemente florecen.', 'Zen Shin'),
     ('Lo que hoy siembras con cariño, mañana será tu jardín.', null),
     ('La vida es la flor de la cual el amor es la miel.', 'Victor Hugo'),

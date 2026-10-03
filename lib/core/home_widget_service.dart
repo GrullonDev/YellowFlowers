@@ -40,8 +40,7 @@ class HomeWidgetService {
 
       for (var i = 0; i < _daysAhead; i++) {
         final day = DateTime(today.year, today.month, today.day + i);
-        final insp =
-            DailyInspiration.forToday(name, mood: Mood.calm, now: day);
+        final insp = DailyInspiration.forToday(name, mood: Mood.calm, now: day);
         final key = _fmt(day);
         futures
           ..add(HomeWidget.saveWidgetData<String>('quote_$key', insp.quote))
@@ -52,7 +51,8 @@ class HomeWidgetService {
       final todayInsp = DailyInspiration.forToday(name, mood: Mood.calm);
       // Valores numéricos como texto para leerlos igual en Kotlin y Swift.
       futures
-        ..add(HomeWidget.saveWidgetData<String>('quote_fallback', todayInsp.quote))
+        ..add(HomeWidget.saveWidgetData<String>(
+            'quote_fallback', todayInsp.quote))
         ..add(HomeWidget.saveWidgetData<String>(
             'flowers', '${_garden.totalFlowers}'))
         ..add(HomeWidget.saveWidgetData<String>(

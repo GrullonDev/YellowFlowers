@@ -8,9 +8,9 @@ import 'package:yellow_flowers/features/music/data/model/song.dart';
 extension SongAudioSource on Song {
   MediaItem get mediaItem => MediaItem(
         id: id.isEmpty ? audioUrl : id,
-        title: title.isEmpty ? 'Flores Amarillas' : title,
+        title: title.isEmpty ? 'Amarillas' : title,
         artist: artist.isEmpty ? null : artist,
-        album: 'Flores Amarillas',
+        album: 'Amarillas',
         duration: duration == Duration.zero ? null : duration,
         artUri: coverUrl.isEmpty ? null : Uri.tryParse(coverUrl),
       );
