@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
+import 'package:yellow_flowers/features/garden/pages/garden_page.dart';
 import 'package:yellow_flowers/features/home/model/menu_item.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
@@ -19,6 +20,12 @@ class HomeBloc extends BaseModel {
           icon: Icons.local_florist,
           destination: const FlowerOnboardingPage(),
           description: 'Un detalle con flores y un mensaje especial 💛',
+        ),
+        MenuItem(
+          title: 'Mi Jardín',
+          icon: Icons.yard_rounded,
+          destination: const GardenPage(),
+          description: 'Lee tu frase diaria y mira florecer tu jardín 🌱',
         ),
         MenuItem(
           title: 'Galería de Momentos',

@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:yellow_flowers/core/design_system.dart';
+import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/story_card.dart';
 import 'package:yellow_flowers/utils/constants.dart';
@@ -156,13 +157,13 @@ class _FlowerScreenState extends State<FlowerScreen>
   }
 
   Future<void> _initAudio() async {
-    _audioPlayer = AudioPlayer();
+    // just_audio_background admite un solo AudioPlayer: usamos el compartido
+    _audioPlayer = sl<AudioPlayer>();
     await _audioPlayer.setLoopMode(LoopMode.one);
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
     _timer.cancel();
     for (final c in _flowerControllers) {
       c.dispose();

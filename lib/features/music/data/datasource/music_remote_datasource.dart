@@ -3,6 +3,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:yellow_flowers/data/music_service/firebase_music_service.dart';
 import 'package:yellow_flowers/features/music/domain/entities/mood.dart';
 import 'package:yellow_flowers/features/music/data/model/song.dart';
+import 'package:yellow_flowers/features/music/data/model/song_audio_source.dart';
 
 abstract class MusicRemoteDataSource {
   Future<List<Song>> getSongs(String genre);
@@ -43,7 +44,8 @@ class MusicRemoteDataSourceImpl implements MusicRemoteDataSource {
 
   @override
   Future<void> playSong(Song song) async {
-    await _audioPlayer.setUrl(song.audioUrl);
+    // Fuente con MediaItem: habilita los controles en la notificación
+    await _audioPlayer.setAudioSource(song.audioSource);
     await _audioPlayer.play();
   }
 
