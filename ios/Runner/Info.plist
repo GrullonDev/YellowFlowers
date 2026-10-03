@@ -46,6 +46,12 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceder a tu cámara para tomar fotos de tus recuerdos bonitos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceder al micrófono cuando grabas un video para tus recuerdos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Necesitamos acceder a tu galería para elegir y guardar recuerdos bonitos.</string>
 	<key>UIApplicationSceneManifest</key>
