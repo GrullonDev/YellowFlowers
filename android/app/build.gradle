@@ -10,8 +10,8 @@ plugins {
 
 android {
     namespace = "com.grullondev.amarillas"
-    compileSdk = 37
-    ndkVersion = "28.2.13676358"
+    compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
 
     // --- Signing properties (optional) ---
@@ -81,8 +81,6 @@ android {
         // Use Java 21 (LTS in 2026). Required for modern Android SDKs (API 36+).
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-        // Required by flutter_local_notifications (and any java.time API below API 26)
-        coreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -96,7 +94,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 29
-        targetSdk = 37
+        targetSdk = 36
         multiDexEnabled true
         versionCode = dynamicVersionCode
         // Keep base name from pubspec and append dynamic code for traceability
@@ -131,7 +129,6 @@ android {
 
 dependencies {
     implementation "androidx.core:core-splashscreen:1.2.0"
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 }
 
 flutter {
