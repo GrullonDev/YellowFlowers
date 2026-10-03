@@ -73,6 +73,7 @@ test_driver/
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/output.zip
 **/*.keystore
 **/*.jks
 key.properties
