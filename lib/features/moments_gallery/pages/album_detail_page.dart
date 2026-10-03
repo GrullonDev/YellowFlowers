@@ -44,11 +44,10 @@ class AlbumDetailPage extends StatelessWidget {
                         .take(6)
                         .map((m) => p.join(base, m.fileName))
                         .toList();
-                    // ignore: deprecated_member_use
-                    await Share.shareXFiles(
-                      paths.map((e) => XFile(e)).toList(),
+                    await SharePlus.instance.share(ShareParams(
+                      files: paths.map((e) => XFile(e)).toList(),
                       text: 'Algunos recuerdos de ${album.label} 💛',
-                    );
+                    ));
                   },
                 ),
             ],

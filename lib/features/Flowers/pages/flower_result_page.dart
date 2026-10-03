@@ -1,22 +1,25 @@
-import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:yellow_flowers/core/design_system.dart';
-import 'package:yellow_flowers/features/flowers/models/personalization.dart';
-import 'package:yellow_flowers/features/flowers/widgets/screen_parts/background_layer.dart';
-import 'package:yellow_flowers/features/flowers/models/default_messages.dart';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:yellow_flowers/di/injector.dart';
+import 'package:share_plus/share_plus.dart';
+
+import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/flowers/models/daily_inspiration.dart';
+import 'package:yellow_flowers/features/flowers/models/default_messages.dart';
+import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/memory_box.dart';
+import 'package:yellow_flowers/features/flowers/widgets/screen_parts/background_layer.dart';
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/particle_layer.dart';
-import 'package:yellow_flowers/features/home/pages/home_page.dart';
 import 'package:yellow_flowers/features/garden/widgets/growing_flower.dart';
+import 'package:yellow_flowers/features/home/pages/home_page.dart';
 import 'package:yellow_flowers/widgets/glass_card.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
 
@@ -123,35 +126,35 @@ class _FlowerResultPageState extends State<FlowerResultPage>
   Future<void> _exportImage() async {
     try {
       final shareKey = GlobalKey();
-      final overlay = OverlayEntry(builder: (_) => Positioned(
-        left: -2000,
-        top: -2000,
-        child: Opacity(
-          opacity: 0.01,
-          child: RepaintBoundary(
-            key: shareKey,
-            child: Material(
-              color: Colors.transparent,
-              child: _ShareCard(
-                recipient: widget.recipient,
-                sender: widget.sender,
-                dedication: _finalDedication,
-                inspiration: _inspiration,
-              ),
-            ),
-          ),
-        ),
-      ));
+      final overlay = OverlayEntry(
+          builder: (_) => Positioned(
+                left: -2000,
+                top: -2000,
+                child: Opacity(
+                  opacity: 0.01,
+                  child: RepaintBoundary(
+                    key: shareKey,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: _ShareCard(
+                        recipient: widget.recipient,
+                        sender: widget.sender,
+                        dedication: _finalDedication,
+                        inspiration: _inspiration,
+                      ),
+                    ),
+                  ),
+                ),
+              ));
       Overlay.of(context).insert(overlay);
 
       await Future.delayed(const Duration(milliseconds: 300));
       await WidgetsBinding.instance.endOfFrame;
 
-      final boundary = shareKey.currentContext!
-          .findRenderObject() as RenderRepaintBoundary;
+      final boundary =
+          shareKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
       overlay.remove();
 
@@ -161,8 +164,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
           .create();
       await imagePath.writeAsBytes(pngBytes);
 
-      await Share.shareXFiles([XFile(imagePath.path)],
-          text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛');
+      await SharePlus.instance.share(ShareParams(files: [XFile(imagePath.path)], text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛' ));
     } catch (e) {
       debugPrint('Export Error: $e');
     }
@@ -174,8 +176,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
     if (nav.canPop()) {
       nav.pop();
     } else {
-      nav.pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage()));
+      nav.pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
     }
   }
 
@@ -230,16 +231,16 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                 const Positioned.fill(child: LuminousBackground())
               else
                 BackgroundLayer(
-                topColor: widget.mood == Mood.passion
-                    ? const Color(0xFFFFCCBC)
-                    : widget.mood == Mood.calm
-                        ? const Color(0xFFD1C4E9)
-                        : PremiumDesign.mesh1,
-                bottomColor: Colors.white,
-                bgAnimation: _bgController,
-                petalAnimation: _petalController,
-                petalSeeds: _petalSeeds,
-              ),
+                  topColor: widget.mood == Mood.passion
+                      ? const Color(0xFFFFCCBC)
+                      : widget.mood == Mood.calm
+                          ? const Color(0xFFD1C4E9)
+                          : PremiumDesign.mesh1,
+                  bottomColor: Colors.white,
+                  bgAnimation: _bgController,
+                  petalAnimation: _petalController,
+                  petalSeeds: _petalSeeds,
+                ),
               ParticleLayer(mood: widget.mood, controller: _burst),
               SafeArea(
                 child: SingleChildScrollView(
@@ -268,7 +269,8 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                       _StaggeredItem(
                         index: 2,
                         controller: _entranceController,
-                        child: _DailyQuoteCard(inspiration: _inspiration, dark: dark),
+                        child: _DailyQuoteCard(
+                            inspiration: _inspiration, dark: dark),
                       ),
                       const SizedBox(height: PremiumDesign.s24),
                       _StaggeredItem(
@@ -292,7 +294,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                             Opacity(
                                 opacity: 0.4,
                                 child: Text(
-                                  'flores amarillas • tu jardín emocional',
+                                  'amarillas • tu jardín emocional',
                                   style: GoogleFonts.playfairDisplay(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
@@ -357,8 +359,8 @@ class _GrowingBouquet extends StatelessWidget {
               child: GrowingFlower(
                 variant: _variants[i],
                 // La flor central arranca primero; las laterales después
-                progress: ((progress - [0.12, 0.0, 0.2][i]) / 0.8)
-                    .clamp(0.0, 1.0),
+                progress:
+                    ((progress - [0.12, 0.0, 0.2][i]) / 0.8).clamp(0.0, 1.0),
                 sway: sway * (i.isEven ? 1 : -0.7),
               ),
             ),
@@ -612,7 +614,7 @@ class _ShareCard extends StatelessWidget {
           Opacity(
             opacity: 0.35,
             child: Text(
-              'flores amarillas • tu jardín emocional 🌻',
+              'amarillas • tu jardín emocional 🌻',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

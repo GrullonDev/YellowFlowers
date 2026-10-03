@@ -444,7 +444,8 @@ class _FeaturedMessageCardState extends State<_FeaturedMessageCard>
             icon: Icons.ios_share_rounded,
             label: 'Enviar ahora 💛',
             accentColor: widget.accentColor,
-            onTap: () async => await Share.share(featured.text),
+            onTap: () async => await SharePlus.instance
+                .share(ShareParams(text: featured.text)),
           ),
         ],
       ),
