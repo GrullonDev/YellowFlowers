@@ -1,0 +1,162 @@
+# Automatización de publicación para App Store Connect (TestFlight) y Google Play Console.
+#
+# Uso local (desde la raíz del proyecto):
+#   bundle exec fastlane ios beta                 # compila y sube a TestFlight
+#   bundle exec fastlane android deploy           # compila y sube a la pista "internal"
+#   bundle exec fastlane android deploy track:beta
+#   bundle exec fastlane android promote from:internal to:production
+#
+# Credenciales (variables de entorno, ver docs/RELEASE.md):
+#   iOS:     ASC_KEY_ID, ASC_ISSUER_ID y ASC_KEY_PATH (ruta al .p8) o ASC_KEY_P8_BASE64
+#   Android: PLAY_JSON_KEY_PATH (JSON de la cuenta de servicio) y android/key.properties
+#
+# Versión: MAJOR.MINOR.PATCH se toma de pubspec.yaml (scripts/bump_version.sh).
+# El número de build se calcula como el mayor entre el de pubspec.yaml y
+# (último build en la tienda + 1), para que nunca se repita.
+
+require "base64"
+require "tmpdir"
+
+ROOT = File.expand_path("..", __dir__)
+
+opt_out_usage
+skip_docs
+default_platform(:ios)
+
+def flutter_cmd
+  return ENV["FLUTTER"].split if ENV["FLUTTER"]
+  system("command -v fvm > /dev/null 2>&1") ? %w[fvm flutter] : %w[flutter]
+end
+
+def run_flutter(*args)
+  Dir.chdir(ROOT) { sh(*flutter_cmd, *args) }
+end
+
+# Devuelve [version_name, build_number] de pubspec.yaml.
+def pubspec_version
+  line = File.read(File.join(ROOT, "pubspec.yaml"))[/^version:\s*(\S+)/, 1]
+  UI.user_error!("No se encontró 'version:' en pubspec.yaml") unless line
+  name, build = line.split("+")
+  [name, build.to_i]
+end
+
+# Primer número entero de un build number ("57" -> 57, "1.1.4" -> 1).
+def leading_int(value)
+  value.to_s.split(".").first.to_i
+end
+
+platform :ios do
+  def asc_key_path
+    return ENV["ASC_KEY_PATH"] if ENV["ASC_KEY_PATH"]
+    encoded = ENV["ASC_KEY_P8_BASE64"]
+    UI.user_error!("Define ASC_KEY_PATH o ASC_KEY_P8_BASE64") if encoded.to_s.empty?
+    path = File.join(Dir.tmpdir, "AuthKey_#{ENV.fetch('ASC_KEY_ID')}.p8")
+    File.write(path, Base64.decode64(encoded))
+    path
+  end
+
+  def asc_api_key
+    @asc_api_key ||= app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: asc_key_path
+    )
+  end
+
+  desc "Compila la app y la sube a TestFlight"
+  lane :beta do
+    version_name, pubspec_build = pubspec_version
+    api_key = asc_api_key
+
+    latest = latest_testflight_build_number(
+      api_key: api_key,
+      version: version_name,
+      initial_build_number: 0
+    )
+    build_number = [leading_int(latest) + 1, pubspec_build].max
+    UI.message("Versión #{version_name} (#{build_number})")
+
+    run_flutter("build", "ios", "--release", "--no-codesign",
+                "--build-name=#{version_name}", "--build-number=#{build_number}")
+
+    # Firma automática en la nube: Xcode crea o descarga el certificado y el
+    # perfil de distribución con la API key (rol Admin en App Store Connect).
+    auth_xcargs = [
+      "-allowProvisioningUpdates",
+      "-authenticationKeyPath #{asc_key_path}",
+      "-authenticationKeyID #{ENV.fetch('ASC_KEY_ID')}",
+      "-authenticationKeyIssuerID #{ENV.fetch('ASC_ISSUER_ID')}"
+    ].join(" ")
+
+    ipa = build_app(
+      workspace: File.join(ROOT, "ios/Runner.xcworkspace"),
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        signingStyle: "automatic",
+        teamID: CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+      },
+      xcargs: auth_xcargs,
+      export_xcargs: auth_xcargs,
+      output_directory: File.join(ROOT, "build/ios/fastlane"),
+      output_name: "Amarillas.ipa"
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      ipa: ipa,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
+
+platform :android do
+  def latest_play_version_code
+    %w[internal alpha beta production].map do |track|
+      google_play_track_version_codes(track: track).max.to_i
+    rescue StandardError
+      0
+    end.max
+  end
+
+  desc "Compila el App Bundle y lo sube a Google Play (track: internal por defecto)"
+  lane :deploy do |options|
+    track = options[:track] || "internal"
+    release_status = options[:status] || "completed"
+    version_name, pubspec_build = pubspec_version
+
+    version_code = [latest_play_version_code + 1, pubspec_build].max
+    UI.message("Versión #{version_name} (#{version_code}) -> #{track}")
+
+    # android/app/build.gradle toma el versionCode de BUILD_NUMBER.
+    ENV["BUILD_NUMBER"] = version_code.to_s
+    run_flutter("build", "appbundle", "--release",
+                "--build-name=#{version_name}", "--build-number=#{version_code}")
+
+    upload_to_play_store(
+      track: track,
+      release_status: release_status,
+      aab: File.join(ROOT, "build/app/outputs/bundle/release/app-release.aab"),
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Promueve la última versión de un track a otro (internal -> production por defecto)"
+  lane :promote do |options|
+    upload_to_play_store(
+      track: options[:from] || "internal",
+      track_promote_to: options[:to] || "production",
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
