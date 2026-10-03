@@ -14,27 +14,132 @@ android {
     ndkVersion = "28.2.13676358"
 
 
-    // --- Signing properties (optional) ---
-    // If you create a file at android/key.properties (NOT committed) with:
-    // storePassword=XXXXX
-    // keyPassword=XXXXX
-    // keyAlias=upload
-    // storeFile=../app/upload-keystore.jks
-    // then a proper release signing config will be applied automatically.
-    def keystoreProperties = new Properties()
-    def keystoreFile = rootProject.file("key.properties")
-    if (keystoreFile.exists()) {
-        keystoreFile.withInputStream { stream -> keystoreProperties.load(stream) }
+    // --- Signing configuration ---
+    // Reads credentials from (in priority order):
+    //   1. Environment variables (STORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS, etc.)
+    //   2. .env file at project root
+    //   3. android/key.properties (legacy)
+    // The keystore file is resolved from:
+    //   A. STORE_FILE_BASE64 → decoded to upload-keystore.jks
+    //   B. STORE_FILE path (absolute or relative to android/app/)
+    //   C. If neither exists and passwords are set → auto-generated via keytool
+
+    def signingProps = new Properties()
+
+    // --- Helper: parse .env files (handles # comments, quotes, blank lines) ---
+    def parseEnvFile = { File f ->
+        f.eachLine('UTF-8') { line ->
+            line = line.trim()
+            if (line.isEmpty() || line.startsWith('#')) return
+            def eqIdx = line.indexOf('=')
+            if (eqIdx <= 0) return
+            def key = line.substring(0, eqIdx).trim()
+            def val = line.substring(eqIdx + 1).trim()
+            // Strip surrounding quotes if present
+            if ((val.startsWith('"') && val.endsWith('"')) ||
+                (val.startsWith("'") && val.endsWith("'"))) {
+                val = val.substring(1, val.length() - 1)
+            }
+            if (!val.isEmpty()) signingProps[key] = val
+        }
     }
 
-    // Define signingConfigs (release only if key properties present)
+    // Legacy key.properties support
+    def legacyKeyProps = rootProject.file("key.properties")
+    if (legacyKeyProps.exists()) {
+        legacyKeyProps.withInputStream { stream -> signingProps.load(stream) }
+    }
+
+    // .env file (overrides key.properties)
+    def envFile = rootProject.file("../.env")
+    if (envFile.exists()) {
+        parseEnvFile(envFile)
+    }
+
+    // Environment variables (highest priority)
+    ['STORE_PASSWORD', 'KEY_PASSWORD', 'KEY_ALIAS',
+     'STORE_FILE', 'STORE_FILE_BASE64', 'KEY_DN'].each { key ->
+        def val = System.getenv(key)
+        if (val != null && !val.isEmpty()) signingProps[key] = val
+    }
+
+    // Map legacy key.properties names
+    if (!signingProps['STORE_PASSWORD'] && signingProps['storePassword'])
+        signingProps['STORE_PASSWORD'] = signingProps['storePassword']
+    if (!signingProps['KEY_PASSWORD'] && signingProps['keyPassword'])
+        signingProps['KEY_PASSWORD'] = signingProps['keyPassword']
+    if (!signingProps['KEY_ALIAS'] && signingProps['keyAlias'])
+        signingProps['KEY_ALIAS'] = signingProps['keyAlias']
+    if (!signingProps['STORE_FILE'] && signingProps['storeFile'])
+        signingProps['STORE_FILE'] = signingProps['storeFile']
+
+    // Resolve keystore file
+    def resolvedKeystorePath = signingProps['STORE_FILE'] ?: 'upload-keystore.jks'
+    def keystoreResolved = file(resolvedKeystorePath)
+    def hasPasswords = signingProps['STORE_PASSWORD'] && signingProps['KEY_PASSWORD']
+
+    // Decode from base64 if provided and file doesn't exist
+    if (!keystoreResolved.exists() && signingProps['STORE_FILE_BASE64'] && hasPasswords) {
+        logger.lifecycle("[Signing] Decoding keystore from STORE_FILE_BASE64...")
+        keystoreResolved.parentFile.mkdirs()
+        keystoreResolved.bytes = Base64.decoder.decode(
+            signingProps['STORE_FILE_BASE64'].replaceAll("\\s", ""))
+        logger.lifecycle("[Signing] Keystore written to ${keystoreResolved.absolutePath}")
+    }
+
+    // Auto-generate keystore if it still doesn't exist
+    if (!keystoreResolved.exists() && hasPasswords) {
+        def alias = signingProps['KEY_ALIAS'] ?: 'upload'
+        def dn = signingProps['KEY_DN'] ?: 'CN=Amarillas, OU=Dev, O=GrullonDev, L=City, ST=State, C=DO'
+        logger.lifecycle("[Signing] Keystore not found — generating ${keystoreResolved.absolutePath} ...")
+        keystoreResolved.parentFile.mkdirs()
+
+        // Resolve keytool path: JAVA_HOME/bin/keytool takes priority, then PATH
+        def keytoolBin = 'keytool'
+        def javaHome = System.getenv('JAVA_HOME')
+        if (javaHome) {
+            def sep = File.separator
+            def candidate = new File("${javaHome}${sep}bin${sep}keytool${org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.exe' : ''}")
+            if (candidate.exists()) keytoolBin = candidate.absolutePath
+        }
+
+        def cmd = [
+            keytoolBin, '-genkeypair',
+            '-alias', alias,
+            '-keyalg', 'RSA', '-keysize', '2048',
+            '-validity', '10000',
+            '-keystore', keystoreResolved.absolutePath,
+            '-storepass', signingProps['STORE_PASSWORD'],
+            '-keypass', signingProps['KEY_PASSWORD'],
+            '-dname', dn,
+        ]
+        def proc = cmd.execute()
+        def stderr = new StringBuilder()
+        proc.consumeProcessErrorStream(stderr)
+        proc.waitFor()
+        if (proc.exitValue() != 0) {
+            logger.error("[Signing] keytool failed: ${stderr}")
+            throw new GradleException("Failed to auto-generate keystore (exit ${proc.exitValue()}). " +
+                "Ensure keytool is on PATH or JAVA_HOME is set.")
+        }
+        logger.lifecycle("[Signing] Keystore auto-generated successfully.")
+    }
+
+    def hasReleaseSigning = keystoreResolved.exists() && hasPasswords
+
+    if (hasReleaseSigning) {
+        logger.lifecycle("[Signing] Release signing configured (alias: ${signingProps['KEY_ALIAS'] ?: 'upload'})")
+    } else if (envFile.exists()) {
+        logger.warn("[Signing] .env found but signing incomplete — check STORE_PASSWORD, KEY_PASSWORD, and keystore file.")
+    }
+
     signingConfigs {
-        if (keystoreFile.exists() && keystoreProperties['storeFile']) {
+        if (hasReleaseSigning) {
             release {
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreResolved
+                storePassword signingProps['STORE_PASSWORD']
+                keyAlias signingProps['KEY_ALIAS'] ?: 'upload'
+                keyPassword signingProps['KEY_PASSWORD']
             }
         }
     }
@@ -106,7 +211,7 @@ android {
     buildTypes {
         release {
             // Use release signing if defined, otherwise fall back to debug to avoid blocking local builds.
-            signingConfig signingConfigs.findByName('release') ?: signingConfigs.debug
+            signingConfig hasReleaseSigning ? signingConfigs.release : signingConfigs.debug
             // Name the APK with version info to ease Firebase/App Distribution uploads
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
