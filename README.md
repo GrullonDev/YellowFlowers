@@ -122,6 +122,24 @@ flutter build appbundle --release
 flutter build ipa --release
 ```
 
+### 🔢 Versionado
+
+La versión en `pubspec.yaml` sigue el formato `MAJOR.MINOR.PATCH+BUILD`.
+
+```bash
+# Release iOS: sube PATCH y BUILD automáticamente y genera el .ipa
+scripts/release_ios.sh            # 1.1.4+2 -> 1.1.5+3
+
+# Cuando quieras subir MINOR o MAJOR (PATCH vuelve a 0)
+scripts/release_ios.sh minor      # 1.1.5+3 -> 1.2.0+4
+scripts/release_ios.sh major      # 1.2.0+4 -> 2.0.0+5
+
+# Solo cambiar la versión, sin compilar
+scripts/bump_version.sh [patch|minor|major|build]
+```
+
+El número de BUILD siempre aumenta, porque App Store Connect rechaza un build repetido.
+
 ---
 
 ## 🤝 Contribuciones
