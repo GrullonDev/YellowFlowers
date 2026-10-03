@@ -71,7 +71,8 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
         moodColor: meta.color,
         message: message,
       ),
-      shareText: '${meta.emoji} Mi momento de hoy: ${meta.label}. Descubre el tuyo en Amarillas 🌻',
+      shareText:
+          '${meta.emoji} Mi momento de hoy: ${meta.label}. Descubre el tuyo en Amarillas 🌻',
     );
   }
 
@@ -147,8 +148,8 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: _gold.withAlpha(30),
-                                  border: Border.all(
-                                      color: _gold.withAlpha(60)),
+                                  border:
+                                      Border.all(color: _gold.withAlpha(60)),
                                 ),
                                 child: Icon(Icons.share_rounded,
                                     color: _gold,

@@ -164,7 +164,9 @@ class _FlowerResultPageState extends State<FlowerResultPage>
           .create();
       await imagePath.writeAsBytes(pngBytes);
 
-      await SharePlus.instance.share(ShareParams(files: [XFile(imagePath.path)], text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛' ));
+      await SharePlus.instance.share(ShareParams(
+          files: [XFile(imagePath.path)],
+          text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛'));
     } catch (e) {
       debugPrint('Export Error: $e');
     }

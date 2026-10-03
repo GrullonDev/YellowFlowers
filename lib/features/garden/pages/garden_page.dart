@@ -470,8 +470,7 @@ class _QuoteCard extends StatelessWidget {
                         border: Border.all(color: _gold.withAlpha(60)),
                       ),
                       child: Icon(Icons.share_rounded,
-                          color: _gold,
-                          size: context.dp(16).clamp(14.0, 20.0)),
+                          color: _gold, size: context.dp(16).clamp(14.0, 20.0)),
                     ),
                   ),
                 ),
@@ -699,8 +698,7 @@ class _GardenShareCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🌻🌼🌸',
-              style: TextStyle(fontSize: 56)),
+          const Text('🌻🌼🌸', style: TextStyle(fontSize: 56)),
           const SizedBox(height: 24),
           Text('MI JARDÍN',
               style: GoogleFonts.plusJakartaSans(
@@ -760,9 +758,7 @@ class _GardenShareCard extends StatelessWidget {
       children: [
         Text(value,
             style: GoogleFonts.playfairDisplay(
-                fontSize: 42,
-                fontWeight: FontWeight.w700,
-                color: _gold)),
+                fontSize: 42, fontWeight: FontWeight.w700, color: _gold)),
         const SizedBox(height: 4),
         Text(label,
             style: GoogleFonts.plusJakartaSans(
