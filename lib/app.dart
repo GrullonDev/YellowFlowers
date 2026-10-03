@@ -38,8 +38,8 @@ class _MyAppState extends State<MyApp> {
       // Toques en el widget con la app ya abierta -> "Mi Jardín"
       _widgetClicks = HomeWidget.widgetClicked.listen((uri) {
         if (uri?.host == 'garden') {
-          navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (_) => const GardenShell()));
+          navigatorKey.currentState
+              ?.push(MaterialPageRoute(builder: (_) => const GardenShell()));
         }
       });
     }
@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp> {
         builder: (context, themeCtrl, _) => MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
-          title: 'Flores Amarillas',
+          title: 'Amarillas',
           theme: buildLightTheme(),
           darkTheme: buildDarkTheme(),
           themeMode: themeCtrl.mode,

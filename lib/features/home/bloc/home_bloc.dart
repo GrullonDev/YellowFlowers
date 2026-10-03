@@ -16,7 +16,7 @@ class HomeBloc extends BaseModel {
 
   List<MenuItem> get menuItems => [
         MenuItem(
-          title: 'Flores Amarillas',
+          title: 'Amarillas',
           icon: Icons.local_florist,
           destination: const FlowerOnboardingPage(),
           description: 'Un detalle con flores y un mensaje especial 💛',
