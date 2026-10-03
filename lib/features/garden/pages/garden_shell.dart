@@ -17,6 +17,7 @@ import 'package:yellow_flowers/features/garden/pages/mood_checkin_page.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yellow_flowers/features/onboarding/pages/storytelling_onboarding.dart';
 
 const _gold = Color(0xFFFFD54F);
@@ -153,15 +154,14 @@ class _GlassBottomBar extends StatelessWidget {
                           decoration: active
                               ? BoxDecoration(
                                   color: _gold.withAlpha(35),
-                                  borderRadius: BorderRadius.circular(
-                                      context.dp(12)),
+                                  borderRadius:
+                                      BorderRadius.circular(context.dp(12)),
                                 )
                               : null,
                           child: Icon(icon,
                               size: iconSize,
-                              color: active
-                                  ? _gold
-                                  : _warmWhite.withAlpha(120)),
+                              color:
+                                  active ? _gold : _warmWhite.withAlpha(120)),
                         ),
                         SizedBox(height: context.hp(2)),
                         Text(label,
@@ -213,8 +213,10 @@ class _GardenDrawerState extends State<_GardenDrawer> {
           children: [
             Padding(
               padding: EdgeInsets.fromLTRB(
-                  context.wp(20).clamp(14.0, 28.0), context.hp(24),
-                  context.wp(20).clamp(14.0, 28.0), context.hp(8)),
+                  context.wp(20).clamp(14.0, 28.0),
+                  context.hp(24),
+                  context.wp(20).clamp(14.0, 28.0),
+                  context.hp(8)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -235,7 +237,7 @@ class _GardenDrawerState extends State<_GardenDrawer> {
             SizedBox(height: context.hp(8)),
             _DrawerTile(
               icon: Icons.local_florist,
-              label: 'Flores Amarillas',
+              label: 'Amarillas',
               color: const Color(0xFFFFB300),
               onTap: () => _navigate(context, const FlowerOnboardingPage()),
             ),
@@ -264,6 +266,58 @@ class _GardenDrawerState extends State<_GardenDrawer> {
               onTap: () => _navigate(context, const CycleMusicPage()),
             ),
             const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: GestureDetector(
+                onTap: () => _openBetaSignup(context),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(colors: [
+                      const Color(0xFFFFE082).withAlpha(25),
+                      const Color(0xFFFFB300).withAlpha(15),
+                    ]),
+                    border: Border.all(color: _gold.withAlpha(60)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: _gold.withAlpha(30),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.science_rounded,
+                            color: _gold, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Únete a la Beta',
+                                style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: _gold)),
+                            Text('Prueba Amarillas antes que nadie',
+                                style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    color: _warmWhite.withAlpha(130))),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.open_in_new_rounded,
+                          color: _gold.withAlpha(140), size: 18),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -298,6 +352,14 @@ class _GardenDrawerState extends State<_GardenDrawer> {
     Navigator.of(context).pop();
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
   }
+
+  Future<void> _openBetaSignup(BuildContext context) async {
+    const betaUrl = 'https://forms.gle/REPLACE_WITH_YOUR_FORM_ID';
+    final uri = Uri.parse(betaUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 }
 
 class _DrawerTile extends StatelessWidget {
@@ -326,9 +388,7 @@ class _DrawerTile extends StatelessWidget {
       ),
       title: Text(label,
           style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: _warmWhite)),
+              fontSize: 15, fontWeight: FontWeight.w600, color: _warmWhite)),
       trailing: Icon(Icons.chevron_right_rounded,
           color: _warmWhite.withAlpha(60), size: 20),
       onTap: () {
