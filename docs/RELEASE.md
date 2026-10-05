@@ -16,6 +16,24 @@ el último build que hay en la tienda más uno. Así nunca se repite.
 
 ---
 
+## iOS sin Mac (GitHub Actions)
+
+El workflow **Store Release** corre en las Mac de GitHub, así que no necesitas la tuya.
+Cada push a `main` que cambie `pubspec.yaml` (es decir, una versión nueva) compila
+la app y la sube a TestFlight. También puedes ejecutarlo a mano desde **Actions**.
+
+Solo necesitas una API key de App Store Connect, que se crea desde el navegador:
+1. En **App Store Connect → Usuarios y acceso → Integraciones → API de App Store Connect**,
+   crea una clave de equipo con rol **Administrador** y descarga el `.p8`.
+2. En GitHub, en **Settings → Secrets and variables → Actions**, crea `ASC_KEY_ID`,
+   `ASC_ISSUER_ID` y `ASC_KEY_P8`. En `ASC_KEY_P8` pega el contenido del `.p8`; lo
+   puedes abrir con cualquier editor de texto.
+
+No hacen falta certificados ni perfiles: Xcode los crea en la nube con esa key.
+Usa **o** GitHub Actions **o** Xcode Cloud. Si activas los dos, cada versión se sube dos veces.
+
+---
+
 ## 0. iOS con Xcode Cloud (deploy automático con cada push)
 
 Es el mismo esquema de PersonalFinance. Xcode Cloud compila y sube a TestFlight
@@ -78,7 +96,7 @@ Se configuran en **Settings → Secrets and variables → Actions → New reposi
 | --- | --- |
 | `ASC_KEY_ID` | Key ID de la API key |
 | `ASC_ISSUER_ID` | Issuer ID (aparece arriba de la lista de keys) |
-| `ASC_KEY_P8_BASE64` | El archivo `.p8` en base64: `base64 -i AuthKey_XXXX.p8 \| pbcopy` |
+| `ASC_KEY_P8` | Contenido del archivo `.p8` tal cual, incluidas las líneas `-----BEGIN PRIVATE KEY-----` y `-----END PRIVATE KEY-----`. También se acepta `ASC_KEY_P8_BASE64` con el archivo en base64. |
 
 Para crear la key: **App Store Connect → Usuarios y acceso → Integraciones →
 API de App Store Connect → Claves del equipo → +**, con rol **Administrador**.

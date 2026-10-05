@@ -1,8 +1,12 @@
 name: Store Release (App Store Connect + Google Play)
 
-# Se ejecuta a mano desde la pestaña Actions de GitHub.
+# iOS se publica solo en TestFlight cuando cambia la versión en pubspec.yaml
+# dentro de main. También se puede ejecutar a mano desde la pestaña Actions.
 # Los secrets necesarios están en docs/RELEASE.md.
 on:
+  push:
+    branches: [main]
+    paths: [pubspec.yaml]
   workflow_dispatch:
     inputs:
       platform:
@@ -27,12 +31,13 @@ concurrency:
 
 jobs:
   ios:
-    if: ${{ inputs.platform == 'both' || inputs.platform == 'ios' }}
+    if: ${{ github.event_name == 'push' || inputs.platform == 'both' || inputs.platform == 'ios' }}
     runs-on: macos-latest
     timeout-minutes: 60
     env:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
       ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +70,7 @@ jobs:
           if-no-files-found: ignore
 
   android:
-    if: ${{ inputs.platform == 'both' || inputs.platform == 'android' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.platform == 'both' || inputs.platform == 'android') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:

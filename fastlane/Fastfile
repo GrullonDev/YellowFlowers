@@ -7,7 +7,8 @@
 #   bundle exec fastlane android promote from:internal to:production
 #
 # Credenciales (variables de entorno, ver docs/RELEASE.md):
-#   iOS:     ASC_KEY_ID, ASC_ISSUER_ID y ASC_KEY_PATH (ruta al .p8) o ASC_KEY_P8_BASE64
+#   iOS:     ASC_KEY_ID, ASC_ISSUER_ID y una de: ASC_KEY_PATH (ruta al .p8),
+#            ASC_KEY_P8 (contenido del .p8 tal cual) o ASC_KEY_P8_BASE64
 #   Android: PLAY_JSON_KEY_PATH (JSON de la cuenta de servicio) y android/key.properties
 #
 # Versión: MAJOR.MINOR.PATCH se toma de pubspec.yaml (scripts/bump_version.sh).
@@ -47,11 +48,16 @@ end
 
 platform :ios do
   def asc_key_path
-    return ENV["ASC_KEY_PATH"] if ENV["ASC_KEY_PATH"]
-    encoded = ENV["ASC_KEY_P8_BASE64"]
-    UI.user_error!("Define ASC_KEY_PATH o ASC_KEY_P8_BASE64") if encoded.to_s.empty?
+    return ENV["ASC_KEY_PATH"] if ENV["ASC_KEY_PATH"].to_s != ""
+    content =
+      if ENV["ASC_KEY_P8"].to_s.strip != ""
+        ENV["ASC_KEY_P8"]
+      elsif ENV["ASC_KEY_P8_BASE64"].to_s.strip != ""
+        Base64.decode64(ENV["ASC_KEY_P8_BASE64"])
+      end
+    UI.user_error!("Define ASC_KEY_PATH, ASC_KEY_P8 o ASC_KEY_P8_BASE64") unless content
     path = File.join(Dir.tmpdir, "AuthKey_#{ENV.fetch('ASC_KEY_ID')}.p8")
-    File.write(path, Base64.decode64(encoded))
+    File.write(path, content.strip + "\n")
     path
   end
 
