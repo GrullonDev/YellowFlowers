@@ -39,6 +39,10 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
       ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      # Con Swift Package Manager, `xcodebuild -showBuildSettings` resuelve los
+      # paquetes y tarda más que el timeout por defecto de fastlane (3 s).
+      FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "180"
+      FASTLANE_XCODEBUILD_SETTINGS_RETRIES: "3"
     steps:
       - uses: actions/checkout@v4
 
