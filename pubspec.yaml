@@ -2,7 +2,7 @@ name: yellow_flowers
 description: "Flores Amarillas: mensajes personalizados con flores y animaciones sutiles, para compartir."
 publish_to: "none"
 
-version: 1.1.4+2
+version: 1.1.6+4
 
 environment:
   sdk: ^3.5.1

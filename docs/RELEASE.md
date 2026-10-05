@@ -16,6 +16,31 @@ el último build que hay en la tienda más uno. Así nunca se repite.
 
 ---
 
+## 0. iOS con Xcode Cloud (deploy automático con cada push)
+
+Es el mismo esquema de PersonalFinance. Xcode Cloud compila y sube a TestFlight
+cada vez que haces push a la rama que elijas. El script
+`ios/ci_scripts/ci_post_clone.sh` hace lo siguiente:
+- instala Flutter (la versión de `.fvmrc`),
+- ejecuta `flutter pub get` y `pod install`,
+- usa `CI_BUILD_NUMBER` de Xcode Cloud como número de build, para que nunca se repita.
+
+Configuración, una sola vez, desde Xcode en tu Mac:
+1. Abre `ios/Runner.xcworkspace` → **Product → Xcode Cloud → Create Workflow**.
+2. Elige el producto **Runner** y da acceso a GitHub al repo `GrullonDev/YellowFlowers`.
+3. **Start Condition:** *Branch Changes* en `main`, o en la rama de la que quieras publicar.
+4. **Actions:** *Archive* (iOS), con *Distribution Preparation* en **App Store Connect**.
+5. **Post-Actions:** *TestFlight Internal Testing*, y elige tu grupo de testers.
+6. Opcional, en **Environment:** `FLUTTER_VERSION` si quieres otra versión de Flutter distinta a la de `.fvmrc`.
+
+Para publicar una versión nueva:
+1. Sube la versión en `pubspec.yaml`, por ejemplo con `scripts/bump_version.sh patch`.
+2. Haz commit y push a la rama del workflow.
+
+Xcode Cloud compila y la sube a TestFlight.
+
+---
+
 ## 1. Ejecutar desde GitHub Actions
 
 En **Actions → Store Release → Run workflow** elige:
