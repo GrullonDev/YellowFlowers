@@ -39,8 +39,14 @@ class FirebaseMessagingService {
       await _createAndroidChannel();
     }
 
-    final token = await _messaging.getToken();
-    debugPrint('[FCM] Token: $token');
+    // En iOS getToken() lanza "apns-token-not-set" si la app no tiene el
+    // entitlement de Push Notifications o APNs aún no entregó el token.
+    if (Platform.isIOS && await _messaging.getAPNSToken() == null) {
+      debugPrint('[FCM] APNs token not available, skipping FCM token');
+    } else {
+      final token = await _messaging.getToken();
+      debugPrint('[FCM] Token: $token');
+    }
 
     _messaging.onTokenRefresh.listen((newToken) {
       debugPrint('[FCM] Token refreshed: $newToken');
