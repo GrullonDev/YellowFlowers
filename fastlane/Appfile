@@ -1,0 +1,9 @@
+for_platform :ios do
+  app_identifier("com.grullondev.yellowFlowers")
+  team_id("7CK75YX2YB")
+end
+
+for_platform :android do
+  package_name("com.grullondev.amarillas")
+  json_key_file(ENV["PLAY_JSON_KEY_PATH"] || "fastlane/play-service-account.json")
+end

@@ -140,6 +140,13 @@ scripts/bump_version.sh [patch|minor|major|build]
 
 El número de BUILD siempre aumenta, porque App Store Connect rechaza un build repetido.
 
+### 🚀 Publicación automática (fastlane)
+
+Las subidas a TestFlight y Google Play están automatizadas con fastlane, desde
+GitHub Actions (**Actions → Store Release**) o desde tu Mac
+(`bundle exec fastlane ios beta` / `bundle exec fastlane android deploy`).
+Los pasos de configuración y los secrets necesarios están en [docs/RELEASE.md](docs/RELEASE.md).
+
 ---
 
 ## 🤝 Contribuciones
