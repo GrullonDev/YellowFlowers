@@ -106,7 +106,9 @@ platform :ios do
       team_id: team_id,
       git_url: ENV.fetch("MATCH_GIT_URL"),
       git_basic_authorization: match_git_auth,
-      readonly: ENV["MATCH_READONLY"] == "true"
+      # setup_ci define MATCH_READONLY=true; aquí se fuerza false para que match
+      # pueda crear el certificado y el perfil la primera vez (y renovarlos).
+      readonly: false
     )
     profile_name = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING][bundle_id]
 
