@@ -39,6 +39,10 @@ jobs:
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
       ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+      # fastlane match: repo privado con el certificado y el perfil de distribución.
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_GIT_TOKEN: ${{ secrets.MATCH_GIT_TOKEN }}
       # Con Swift Package Manager, `xcodebuild -showBuildSettings` resuelve los
       # paquetes y tarda más que el timeout por defecto de fastlane (3 s).
       FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: "180"

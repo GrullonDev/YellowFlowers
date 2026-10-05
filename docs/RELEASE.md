@@ -29,7 +29,15 @@ Solo necesitas una API key de App Store Connect, que se crea desde el navegador:
    `ASC_ISSUER_ID` y `ASC_KEY_P8`. En `ASC_KEY_P8` pega el contenido del `.p8`; lo
    puedes abrir con cualquier editor de texto.
 
-No hacen falta certificados ni perfiles: Xcode los crea en la nube con esa key.
+La firma usa **fastlane match**: un certificado *Apple Distribution* y un perfil
+*App Store* guardados cifrados en un repositorio privado. match los crea la primera
+vez con la API key, sin necesidad de Mac. Para eso también necesitas:
+3. Un repositorio **privado** vacío, por ejemplo `GrullonDev/certificates`.
+4. Los secrets `MATCH_GIT_URL` (por ejemplo `https://github.com/GrullonDev/certificates.git`),
+   `MATCH_PASSWORD` (una contraseña que elijas para cifrar los certificados) y
+   `MATCH_GIT_TOKEN` (un token personal de GitHub con permiso *Contents: read and write*
+   sobre ese repositorio).
+
 Usa **o** GitHub Actions **o** Xcode Cloud. Si activas los dos, cada versión se sube dos veces.
 
 ---
@@ -101,10 +109,14 @@ Se configuran en **Settings → Secrets and variables → Actions → New reposi
 Para crear la key: **App Store Connect → Usuarios y acceso → Integraciones →
 API de App Store Connect → Claves del equipo → +**, con rol **Administrador**.
 
-El rol Administrador es necesario porque la firma es **automática en la nube**:
-Xcode crea o descarga el certificado y el perfil de distribución usando esta key,
-así que no hace falta subir certificados `.p12` ni perfiles. El `.p8` solo se
-puede descargar una vez; guárdalo en un lugar seguro.
+| `MATCH_GIT_URL` | URL HTTPS del repositorio privado de certificados |
+| `MATCH_PASSWORD` | Contraseña con la que match cifra el certificado y el perfil |
+| `MATCH_GIT_TOKEN` | Token personal de GitHub con acceso de lectura y escritura al repo de certificados |
+
+El rol Administrador es necesario para que match pueda crear el certificado de
+distribución y el perfil de App Store con la API key. El `.p8` solo se puede
+descargar una vez; guárdalo en un lugar seguro. Si pierdes `MATCH_PASSWORD`,
+borra el repo de certificados y match los vuelve a crear.
 
 ### Android (Google Play)
 
