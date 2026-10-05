@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:yellow_flowers/core/share_origin.dart';
 
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
@@ -124,6 +125,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
   }
 
   Future<void> _exportImage() async {
+    final origin = shareOrigin(context);
     try {
       final shareKey = GlobalKey();
       final overlay = OverlayEntry(
@@ -166,7 +168,8 @@ class _FlowerResultPageState extends State<FlowerResultPage>
 
       await SharePlus.instance.share(ShareParams(
           files: [XFile(imagePath.path)],
-          text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛'));
+          text: '✨ Un momento cultivado para ti: ${widget.recipient} 💛',
+          sharePositionOrigin: origin));
     } catch (e) {
       debugPrint('Export Error: $e');
     }

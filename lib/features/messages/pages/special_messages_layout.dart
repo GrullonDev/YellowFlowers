@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:yellow_flowers/core/share_origin.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/messages/bloc/special_messages_bloc.dart';
 import 'package:yellow_flowers/features/messages/model/message_models.dart';
@@ -444,8 +445,9 @@ class _FeaturedMessageCardState extends State<_FeaturedMessageCard>
             icon: Icons.ios_share_rounded,
             label: 'Enviar ahora 💛',
             accentColor: widget.accentColor,
-            onTap: () async => await SharePlus.instance
-                .share(ShareParams(text: featured.text)),
+            onTap: () async => await SharePlus.instance.share(ShareParams(
+                text: featured.text,
+                sharePositionOrigin: shareOrigin(context))),
           ),
         ],
       ),
