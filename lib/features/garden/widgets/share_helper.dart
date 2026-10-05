@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:yellow_flowers/core/share_origin.dart';
 
 Future<void> captureAndShare(
   BuildContext context, {
   required Widget card,
   required String shareText,
 }) async {
+  final origin = shareOrigin(context);
   final shareKey = GlobalKey();
   final overlay = OverlayEntry(
     builder: (_) => Positioned(
@@ -45,6 +47,7 @@ Future<void> captureAndShare(
     await SharePlus.instance.share(ShareParams(
       files: [XFile(file.path)],
       text: shareText,
+      sharePositionOrigin: origin,
     ));
   } catch (e) {
     debugPrint('Share error: $e');

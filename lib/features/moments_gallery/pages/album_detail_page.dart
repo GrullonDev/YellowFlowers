@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:yellow_flowers/core/share_origin.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -38,6 +39,7 @@ class AlbumDetailPage extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.ios_share),
                   onPressed: () async {
+                    final origin = shareOrigin(context);
                     final dir = await getApplicationDocumentsDirectory();
                     final base = p.join(dir.path, 'memories');
                     final paths = list
@@ -47,6 +49,7 @@ class AlbumDetailPage extends StatelessWidget {
                     await SharePlus.instance.share(ShareParams(
                       files: paths.map((e) => XFile(e)).toList(),
                       text: 'Algunos recuerdos de ${album.label} 💛',
+                      sharePositionOrigin: origin,
                     ));
                   },
                 ),
