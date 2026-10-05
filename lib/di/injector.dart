@@ -1,15 +1,18 @@
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:yellow_flowers/core/analytics_service.dart';
+import 'package:yellow_flowers/core/firebase_messaging_service.dart';
+import 'package:yellow_flowers/core/firestore_sync_service.dart';
 import 'package:yellow_flowers/core/home_widget_service.dart';
 import 'package:yellow_flowers/core/notification_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
-import 'package:yellow_flowers/features/garden/data/garden_service.dart';
-import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
-
 import 'package:yellow_flowers/core/tts/tts_service.dart';
 import 'package:yellow_flowers/data/music_service/firebase_music_service.dart';
+import 'package:yellow_flowers/features/garden/data/garden_service.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
+import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
 import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_remote_repository.dart';
 import 'package:yellow_flowers/features/music/data/repository/music_repository_impl.dart';
@@ -34,6 +37,10 @@ Future<void> initDependencies() async {
   sl.registerSingleton<HomeWidgetService>(
       HomeWidgetService(sl<PersonalizationService>(), sl<GardenService>()));
   sl.registerSingleton<NotificationService>(NotificationService(prefs));
+  sl.registerSingleton<AnalyticsService>(AnalyticsService());
+  sl.registerSingleton<FirebaseMessagingService>(
+      FirebaseMessagingService(sl<NotificationService>().plugin));
+  sl.registerLazySingleton<FirestoreSyncService>(() => FirestoreSyncService());
 
   // Services
   sl.registerLazySingleton<FirebaseMusicService>(() => FirebaseMusicService());

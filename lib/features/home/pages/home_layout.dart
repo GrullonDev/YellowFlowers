@@ -247,7 +247,7 @@ class _EmotionalHeroState extends State<_EmotionalHero>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'flores amarillas',
+                        'amarillas',
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 13,
                           letterSpacing: 1.5,

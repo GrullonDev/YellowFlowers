@@ -96,7 +96,7 @@ class StoryCard extends StatelessWidget {
                 child: Opacity(
                   opacity: 0.4,
                   child: Text(
-                    'flores amarillas • tu jardín emocional',
+                    'amarillas • tu jardín emocional',
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,

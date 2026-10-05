@@ -197,7 +197,10 @@ class _FlowerScreenState extends State<FlowerScreen>
       final path =
           '${dir.path}/mensaje_flores_${DateTime.now().millisecondsSinceEpoch}.png';
       await File(path).writeAsBytes(bytes);
-      await Share.shareXFiles([XFile(path)], text: 'Un regalo para ti 💛');
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(path)],
+        text: 'Un regalo para ti 💛',
+      ));
     }
     setState(() => _exportActive = false);
   }

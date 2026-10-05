@@ -86,8 +86,8 @@ class _MemoryBoxSheetState extends State<_MemoryBoxSheet> {
                   ? '¡Abriste todos los sobres! 💛'
                   : 'Toca un sobre para abrirlo · ${_opened.length}/${_reasons.length}',
               textAlign: TextAlign.center,
-              style: PremiumDesign.sansBody.copyWith(
-                  fontSize: 13, color: PremiumDesign.secondaryText),
+              style: PremiumDesign.sansBody
+                  .copyWith(fontSize: 13, color: PremiumDesign.secondaryText),
             ),
             const SizedBox(height: 20),
             GridView.builder(
