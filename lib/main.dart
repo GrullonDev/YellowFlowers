@@ -27,21 +27,22 @@ void main() async {
 
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-    await JustAudioBackground.init(
-      androidNotificationChannelId: 'com.grullondev.amarillas.audio',
-      androidNotificationChannelName: 'Música y sonidos',
-      androidNotificationOngoing: true,
-      androidNotificationIcon: 'mipmap/yellow_flowers_launcher',
-    );
+    // Si algún servicio opcional falla o se queda esperando, la app debe
+    // arrancar igual: una excepción antes de runApp deja la pantalla en blanco.
+    await _safe('JustAudioBackground', () => JustAudioBackground.init(
+          androidNotificationChannelId: 'com.grullondev.amarillas.audio',
+          androidNotificationChannelName: 'Música y sonidos',
+          androidNotificationOngoing: true,
+          androidNotificationIcon: 'mipmap/yellow_flowers_launcher',
+        ));
 
     await di.initDependencies();
 
     final homeWidget = di.sl<HomeWidgetService>();
-    await homeWidget.init();
+    await _safe('HomeWidget', homeWidget.init);
     homeWidget.refresh();
 
-    await di.sl<NotificationService>().init();
-    await di.sl<FirebaseMessagingService>().init();
+    await _safe('Notifications', di.sl<NotificationService>().init);
 
     Uri? launchUri;
     try {
@@ -49,7 +50,24 @@ void main() async {
     } catch (_) {}
 
     runApp(MyApp(openGarden: launchUri?.host == 'garden'));
+
+    // Pide permiso de notificaciones después del primer frame, sin bloquear.
+    unawaited(_safe('FCM', di.sl<FirebaseMessagingService>().init,
+        timeout: const Duration(seconds: 30)));
   }, (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
   });
+}
+
+Future<void> _safe(
+  String name,
+  Future<void> Function() init, {
+  Duration timeout = const Duration(seconds: 10),
+}) async {
+  try {
+    await init().timeout(timeout);
+  } catch (e, stack) {
+    debugPrint('[startup] $name failed: $e');
+    FirebaseCrashlytics.instance.recordError(e, stack, reason: '$name init');
+  }
 }
