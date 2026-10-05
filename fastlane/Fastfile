@@ -90,10 +90,8 @@ platform :ios do
     build_number = [leading_int(latest) + 1, pubspec_build].max
     UI.message("Versión #{version_name} (#{build_number})")
 
-    run_flutter("build", "ios", "--release", "--no-codesign",
-                "--build-name=#{version_name}", "--build-number=#{build_number}")
-
-    # Firma con fastlane match: un certificado "Apple Distribution" y un perfil
+    # Firma con fastlane match (antes de compilar, para fallar rápido si faltan
+    # los secrets): un certificado "Apple Distribution" y un perfil
     # App Store guardados cifrados en un repo privado (MATCH_GIT_URL). La firma
     # en la nube con -allowProvisioningUpdates no sirve aquí: los scripts que
     # firman Flutter.framework y los pods necesitan el certificado instalado.
@@ -111,6 +109,9 @@ platform :ios do
       readonly: ENV["MATCH_READONLY"] == "true"
     )
     profile_name = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING][bundle_id]
+
+    run_flutter("build", "ios", "--release", "--no-codesign",
+                "--build-name=#{version_name}", "--build-number=#{build_number}")
 
     update_code_signing_settings(
       path: File.join(ROOT, "ios/Runner.xcodeproj"),
