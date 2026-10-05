@@ -61,6 +61,10 @@ jobs:
           ruby-version: "3.3"
           bundler-cache: true
 
+      # Todos los plugins por CocoaPods, igual que en Xcode Cloud: mezclar
+      # Swift Package Manager y CocoaPods duplica dependencias (gRPC/Firebase).
+      - run: flutter config --no-enable-swift-package-manager
+
       - run: flutter pub get
 
       - name: Build and upload to TestFlight
