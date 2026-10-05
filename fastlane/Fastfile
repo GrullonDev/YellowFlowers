@@ -103,8 +103,9 @@ platform :ios do
         signingStyle: "automatic",
         teamID: CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
       },
+      # gym también pasa xcargs al export; repetirlo en export_xcargs duplica
+      # -authenticationKeyPath y xcodebuild lo rechaza.
       xcargs: auth_xcargs,
-      export_xcargs: auth_xcargs,
       output_directory: File.join(ROOT, "build/ios/fastlane"),
       output_name: "Amarillas.ipa"
     )
