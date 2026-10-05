@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/core/responsive.dart';
+import 'package:yellow_flowers/features/garden/widgets/share_helper.dart';
 import 'package:yellow_flowers/widgets/glass_card.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
 
@@ -57,6 +58,22 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
         _saved = true;
       }
     }
+  }
+
+  void _shareMood(DailyMood mood, String name) {
+    final meta = _moodMeta(mood);
+    final message = _responseMessage(mood, name);
+    captureAndShare(
+      context,
+      card: _MoodShareCard(
+        emoji: _responseEmoji(mood),
+        moodLabel: meta.label,
+        moodColor: meta.color,
+        message: message,
+      ),
+      shareText:
+          '${meta.emoji} Mi momento de hoy: ${meta.label}. Descubre el tuyo en Amarillas 🌻',
+    );
   }
 
   Future<void> _select(DailyMood mood) async {
@@ -122,6 +139,24 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                       glow: true,
                       child: Column(
                         children: [
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: GestureDetector(
+                              onTap: () => _shareMood(_selected!, name),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _gold.withAlpha(30),
+                                  border:
+                                      Border.all(color: _gold.withAlpha(60)),
+                                ),
+                                child: Icon(Icons.share_rounded,
+                                    color: _gold,
+                                    size: context.dp(16).clamp(14.0, 20.0)),
+                              ),
+                            ),
+                          ),
                           Text(_responseEmoji(_selected!),
                               style: TextStyle(
                                   fontSize: context.sp(36).clamp(28, 44))),
@@ -172,9 +207,8 @@ class _MoodOption extends StatelessWidget {
             vertical: context.hp(14).clamp(10.0, 18.0)),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(context.dp(20).clamp(14.0, 24.0)),
-          color: selected
-              ? info.color.withAlpha(50)
-              : Colors.white.withAlpha(15),
+          color:
+              selected ? info.color.withAlpha(50) : Colors.white.withAlpha(15),
           border: Border.all(
             color: selected ? info.color : Colors.white.withAlpha(25),
             width: selected ? 2 : 1,
@@ -205,8 +239,8 @@ class _MoodOption extends StatelessWidget {
               ),
             ),
             if (selected)
-              Icon(Icons.check_circle_rounded, color: info.color,
-                  size: context.dp(24).clamp(20.0, 28.0)),
+              Icon(Icons.check_circle_rounded,
+                  color: info.color, size: context.dp(24).clamp(20.0, 28.0)),
           ],
         ),
       ),
@@ -270,15 +304,15 @@ class _MoodHistory extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: meta?.color.withAlpha(40) ??
                           Colors.white.withAlpha(10),
-                      border: isToday
-                          ? Border.all(color: _gold, width: 2)
-                          : null,
+                      border:
+                          isToday ? Border.all(color: _gold, width: 2) : null,
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       meta?.emoji ?? '·',
                       style: TextStyle(
-                          fontSize: context.sp(meta != null ? 16 : 12).clamp(10, 20)),
+                          fontSize:
+                              context.sp(meta != null ? 16 : 12).clamp(10, 20)),
                     ),
                   ),
                 ],
@@ -346,5 +380,75 @@ String _responseMessage(DailyMood mood, String name) {
       return 'Está bien sentirse así, $name. Los momentos de reflexión nos ayudan a crecer. Tu jardín te abraza.';
     case DailyMood.loving:
       return 'El amor te rodea, $name. Hoy tu jardín floreció con un brillo especial, justo como tú.';
+  }
+}
+
+class _MoodShareCard extends StatelessWidget {
+  const _MoodShareCard({
+    required this.emoji,
+    required this.moodLabel,
+    required this.moodColor,
+    required this.message,
+  });
+  final String emoji, moodLabel, message;
+  final Color moodColor;
+
+  static const _bg = Color(0xFF0B0820);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1080,
+      padding: const EdgeInsets.all(64),
+      decoration: BoxDecoration(
+        color: _bg,
+        border: Border.all(color: moodColor.withAlpha(80), width: 3),
+        borderRadius: BorderRadius.circular(48),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 72)),
+          const SizedBox(height: 24),
+          Text(moodLabel.toUpperCase(),
+              style: GoogleFonts.plusJakartaSans(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 3,
+                  color: moodColor)),
+          const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 36),
+            decoration: BoxDecoration(
+              color: moodColor.withAlpha(15),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: moodColor.withAlpha(40)),
+            ),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 26,
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+                color: _warmWhite,
+              ),
+            ),
+          ),
+          const SizedBox(height: 48),
+          Container(width: 60, height: 1.5, color: _gold.withAlpha(60)),
+          const SizedBox(height: 24),
+          Text(
+            'Descubre cómo te sientes hoy en Amarillas 🌻',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _warmWhite.withAlpha(140),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

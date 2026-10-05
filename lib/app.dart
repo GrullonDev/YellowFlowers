@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:provider/provider.dart';
 
+import 'package:yellow_flowers/core/analytics_service.dart';
 import 'package:yellow_flowers/core/launch_params.dart';
+import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/cycle/cycle_controller.dart';
 import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_result_page.dart';
@@ -38,8 +40,8 @@ class _MyAppState extends State<MyApp> {
       // Toques en el widget con la app ya abierta -> "Mi Jardín"
       _widgetClicks = HomeWidget.widgetClicked.listen((uri) {
         if (uri?.host == 'garden') {
-          navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (_) => const GardenShell()));
+          navigatorKey.currentState
+              ?.push(MaterialPageRoute(builder: (_) => const GardenShell()));
         }
       });
     }
@@ -80,8 +82,9 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<ThemeController>(
         builder: (context, themeCtrl, _) => MaterialApp(
           navigatorKey: navigatorKey,
+          navigatorObservers: [sl<AnalyticsService>().observer],
           debugShowCheckedModeBanner: false,
-          title: 'Flores Amarillas',
+          title: 'Amarillas',
           theme: buildLightTheme(),
           darkTheme: buildDarkTheme(),
           themeMode: themeCtrl.mode,

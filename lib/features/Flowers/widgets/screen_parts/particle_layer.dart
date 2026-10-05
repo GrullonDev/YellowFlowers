@@ -165,7 +165,8 @@ class _ParticleLayerState extends State<ParticleLayer>
         return _Particle(
           kind: kind,
           pos: Offset(x, _rnd.nextDouble() * h),
-          vel: Offset((_rnd.nextDouble() - 0.5) * 6, -2 - _rnd.nextDouble() * 6),
+          vel:
+              Offset((_rnd.nextDouble() - 0.5) * 6, -2 - _rnd.nextDouble() * 6),
           size: 2 + _rnd.nextDouble() * 3.5,
           color: Colors.white,
           phase: _rnd.nextDouble() * math.pi * 2,
@@ -297,7 +298,8 @@ class _ParticlePainter extends CustomPainter {
           canvas.drawPath(_heartPath(p.size * pulse), _paint);
           canvas.restore();
         case ParticleKind.sparkle:
-          final twinkle = 0.35 + 0.65 * (0.5 + 0.5 * math.sin(p.age * 4 + p.phase));
+          final twinkle =
+              0.35 + 0.65 * (0.5 + 0.5 * math.sin(p.age * 4 + p.phase));
           final r = p.size * twinkle;
           _paint
             ..color = Colors.white.withValues(alpha: 0.35 * twinkle * fade)

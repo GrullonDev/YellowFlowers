@@ -114,8 +114,8 @@ class _GreenhousePageState extends State<GreenhousePage>
                           index: i,
                           onTap: () {
                             HapticFeedback.selectionClick();
-                            setState(() =>
-                                _selectedIndex = _selectedIndex == i ? null : i);
+                            setState(() => _selectedIndex =
+                                _selectedIndex == i ? null : i);
                           },
                         ),
                       ),
@@ -151,8 +151,19 @@ class _FlowerCell extends StatelessWidget {
         day.year * 10000 + day.month * 100 + day.day,
         moodIndex: _moodForDay(day));
     final months = [
-      '', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
+      '',
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
     ];
     return GestureDetector(
       onTap: onTap,
@@ -201,8 +212,8 @@ class _MemoryOverlayState extends State<_MemoryOverlay>
   late final AnimationController _ctrl = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 500))
     ..forward();
-  late final Animation<double> _scale = CurvedAnimation(
-      parent: _ctrl, curve: Curves.easeOutBack);
+  late final Animation<double> _scale =
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack);
 
   @override
   void dispose() {
@@ -216,8 +227,19 @@ class _MemoryOverlayState extends State<_MemoryOverlay>
     final inspiration =
         DailyInspiration.forToday(name, mood: Mood.calm, now: widget.day);
     final months = [
-      '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+      '',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
 
     return GestureDetector(
