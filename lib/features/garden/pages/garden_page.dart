@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yellow_flowers/core/home_widget_service.dart';
+import 'package:yellow_flowers/core/notification_service.dart';
 import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/di/injector.dart';
@@ -154,6 +155,8 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
     final planted = await _garden.plantToday();
     if (!planted || !mounted) return;
     sl<HomeWidgetService>().refresh(); // el widget muestra la nueva flor
+    // Racha activada: quita los recordatorios que faltaban hoy.
+    sl<NotificationService>().reschedule();
     HapticFeedback.mediumImpact();
     setState(() {
       _justPlanted = true;
