@@ -1,10 +1,9 @@
 name: Android Release (APK + Firebase App Distribution)
 
+# Solo manual: los tags v*.*.* marcan releases de iOS y no deben disparar
+# este workflow (usa Java 17 y Flutter 3.35.2, que ya no coinciden con el proyecto).
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*.*.*'
 
 jobs:
   build-release:

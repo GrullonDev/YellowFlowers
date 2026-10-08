@@ -123,3 +123,13 @@ service-account*.json
 # Explicitly ignore the problematic file:
 yellowflowers-58d52-firebase-adminsdk-*.json
 serviceAccountKey.json
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/play-service-account.json
+*.p8
+*.ipa
+*.aab
+vendor/bundle/

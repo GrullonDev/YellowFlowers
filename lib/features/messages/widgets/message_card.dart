@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:yellow_flowers/core/share_origin.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 
 class MessageCard extends StatefulWidget {
@@ -169,7 +170,9 @@ class _MessageCardState extends State<MessageCard>
                         icon: Icons.ios_share_rounded,
                         label: 'Compartir 💛',
                         onTap: () async => await SharePlus.instance
-                            .share(ShareParams(text: widget.text)),
+                            .share(ShareParams(
+                                text: widget.text,
+                                sharePositionOrigin: shareOrigin(context))),
                         accentColor: baseAccent,
                       ),
                     ),

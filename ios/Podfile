@@ -65,6 +65,15 @@ post_install do |installer|
         'PERMISSION_CRITICAL_ALERTS=0',
         'PERMISSION_ASSISTANT=0',
       ]
+
+      # Bundles de recursos de los pods (p. ej. el de gRPC-C++ dentro de
+      # grpcpp.framework): si Xcode los firma por separado, el export para App
+      # Store deja el framework con firma inválida (ITMS-90035). Sin firma
+      # propia, quedan sellados por la firma del framework que los contiene.
+      if target.respond_to?(:product_type) && target.product_type == 'com.apple.product-type.bundle'
+        config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+      end
     end
   end
 end

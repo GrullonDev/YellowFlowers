@@ -36,7 +36,8 @@ Future<void> initDependencies() async {
   sl.registerSingleton<GardenService>(GardenService(prefs));
   sl.registerSingleton<HomeWidgetService>(
       HomeWidgetService(sl<PersonalizationService>(), sl<GardenService>()));
-  sl.registerSingleton<NotificationService>(NotificationService(prefs));
+  sl.registerSingleton<NotificationService>(
+      NotificationService(prefs, sl<GardenService>()));
   sl.registerSingleton<AnalyticsService>(AnalyticsService());
   sl.registerSingleton<FirebaseMessagingService>(
       FirebaseMessagingService(sl<NotificationService>().plugin));

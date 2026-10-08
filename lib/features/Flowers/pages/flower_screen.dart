@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:yellow_flowers/core/share_origin.dart';
 
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/di/injector.dart';
@@ -188,6 +189,7 @@ class _FlowerScreenState extends State<FlowerScreen>
   }
 
   Future<void> _shareCard() async {
+    final origin = shareOrigin(context);
     setState(() => _exportActive = true);
     await Future.delayed(const Duration(milliseconds: 100));
     final bytes =
@@ -200,6 +202,7 @@ class _FlowerScreenState extends State<FlowerScreen>
       await SharePlus.instance.share(ShareParams(
         files: [XFile(path)],
         text: 'Un regalo para ti 💛',
+        sharePositionOrigin: origin,
       ));
     }
     setState(() => _exportActive = false);
