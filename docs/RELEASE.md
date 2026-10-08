@@ -120,24 +120,43 @@ borra el repo de certificados y match los vuelve a crear.
 
 ### Android (Google Play)
 
+Con estos secrets, cada push a `main` que cambie `pubspec.yaml` también sube el
+App Bundle a la pista **internal** de Google Play. Sin ellos, el job de Android
+se omite con un aviso y iOS se publica igual. Desde **Actions → Store Release →
+Run workflow** puedes elegir otra pista (`alpha`, `beta`, `production`).
+
 | Secret | Qué es |
 | --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | Keystore de subida en base64: `base64 -i upload-keystore.jks \| pbcopy` |
-| `ANDROID_KEYSTORE_PASSWORD` | Contraseña del keystore (`storePassword`) |
-| `ANDROID_KEY_ALIAS` | Alias de la llave (`keyAlias`) |
-| `ANDROID_KEY_PASSWORD` | Contraseña de la llave (`keyPassword`) |
+| `ANDROID_KEYSTORE_BASE64` | Keystore de carga (`android/app/upload-keystore.jks`) en base64 |
+| `ANDROID_KEYSTORE_PASSWORD` | Contraseña del keystore (`STORE_PASSWORD` del `.env`) |
+| `ANDROID_KEY_PASSWORD` | Contraseña de la llave (`KEY_PASSWORD` del `.env`) |
+| `ANDROID_KEY_ALIAS` | Opcional. Alias de la llave; por defecto `upload` |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Contenido completo del JSON de la cuenta de servicio |
 
-Para crear la cuenta de servicio:
-1. En **Google Cloud Console** crea una cuenta de servicio en el proyecto vinculado a
-   Play Console y descarga una clave JSON.
-2. En **Play Console → Usuarios y permisos → Invitar usuarios**, invita el correo de
-   la cuenta de servicio y dale permisos sobre la app "Amarillas" (publicar en pistas
-   de prueba y producción).
-3. Pega el contenido del JSON en el secret `PLAY_SERVICE_ACCOUNT_JSON`.
+Para sacar el base64 del keystore, sin saltos de línea:
+- Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("android\app\upload-keystore.jks")) | Set-Clipboard`
+- Mac: `base64 -i android/app/upload-keystore.jks | pbcopy`
 
-> La **primera** subida de una app nueva a Google Play debe hacerse a mano desde
-> Play Console. A partir de la segunda, fastlane puede subirla.
+No uses `certutil -encode`: agrega encabezados que rompen el archivo.
+
+Antes de compilar, el workflow comprueba que la SHA-1 del keystore sea la del
+certificado de carga registrado en Play Console (`UPLOAD_CERT_SHA1` en
+`.github/workflows/store-release.yml`). Si algún día se cambia la llave de carga,
+actualiza ese valor.
+
+Para crear la cuenta de servicio:
+1. En **Google Cloud Console**, en el proyecto de Firebase de la app, ve a
+   **IAM y administración → Cuentas de servicio → Crear cuenta de servicio**.
+   No necesita roles de Cloud. Después, en **Claves → Agregar clave → JSON**,
+   descarga la clave.
+2. Habilita la **Google Play Android Developer API** en ese mismo proyecto.
+3. En **Play Console → Usuarios y permisos → Invitar usuarios**, invita el correo de
+   la cuenta de servicio y dale permisos sobre la app (ver la app, administrar
+   versiones de prueba y de producción).
+4. Pega el contenido del JSON en el secret `PLAY_SERVICE_ACCOUNT_JSON`.
+
+El `versionCode` lo calcula fastlane: es el mayor entre el número de build de
+`pubspec.yaml` y el último `versionCode` en Play más uno.
 
 ---
 
@@ -147,5 +166,5 @@ Para crear la cuenta de servicio:
   cuenta de servicio. Ya están en `.gitignore`.
 - En Android, `android/app/build.gradle` toma el `versionCode` de la variable
   `BUILD_NUMBER`, que el lane `android deploy` define antes de compilar.
-- El workflow anterior `android-release.yml` (Firebase App Distribution) sigue igual
-  y es independiente de este.
+- El workflow `android-release.yml` (Firebase App Distribution) solo se ejecuta a
+  mano y es independiente de este.
