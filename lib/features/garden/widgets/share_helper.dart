@@ -5,6 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:yellow_flowers/core/share_origin.dart';
+import 'package:yellow_flowers/utils/constants.dart';
+import 'package:yellow_flowers/widgets/share_canvas.dart';
 
 Future<void> captureAndShare(
   BuildContext context, {
@@ -15,13 +17,21 @@ Future<void> captureAndShare(
   final shareKey = GlobalKey();
   final overlay = OverlayEntry(
     builder: (_) => Positioned(
-      left: -2000,
-      top: -2000,
+      left: -4000,
+      top: -4000,
       child: Opacity(
         opacity: 0.01,
         child: RepaintBoundary(
           key: shareKey,
-          child: Material(color: Colors.transparent, child: card),
+          child: Material(
+            color: Colors.transparent,
+            child: ShareCanvas(
+              width: kShareImageWidth,
+              height: kShareImageHeight,
+              backgroundColor: kShareCanvasBackground,
+              child: card,
+            ),
+          ),
         ),
       ),
     ),
@@ -34,7 +44,10 @@ Future<void> captureAndShare(
   try {
     final boundary =
         shareKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    final image = await boundary.toImage(pixelRatio: 3.0);
+    // The boundary is already sized at the exact target pixel dimensions
+    // (kShareImageWidth x kShareImageHeight), so pixelRatio stays at 1.0 —
+    // multiplying it further was the cause of the oversized export bug.
+    final image = await boundary.toImage(pixelRatio: 1.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
@@ -51,6 +64,12 @@ Future<void> captureAndShare(
     ));
   } catch (e) {
     debugPrint('Share error: $e');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('No pudimos compartir la imagen. Intenta de nuevo.')),
+      );
+    }
   } finally {
     overlay.remove();
   }

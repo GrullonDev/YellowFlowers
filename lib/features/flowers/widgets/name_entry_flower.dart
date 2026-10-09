@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/features/flowers/bloc/flower_bloc.dart';
+import 'package:yellow_flowers/features/flowers/models/default_messages.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_result_page.dart';
 import 'package:yellow_flowers/widgets/animated_background.dart';
@@ -89,6 +90,16 @@ class _NameEntryFlowerState extends State<NameEntryFlower> {
                       label: 'Tu mensaje (opcional)',
                       hint: 'Escribe algo desde el corazón...',
                       maxLines: 3,
+                    ),
+                    const SizedBox(height: PremiumDesign.s12),
+
+                    // Frases sugeridas: opcionales, un toque las escribe
+                    // directamente en el campo de dedicatoria de arriba.
+                    const _SectionHeader(label: 'O elige una frase sugerida'),
+                    const SizedBox(height: 12),
+                    _SuggestedPhrases(
+                      onSelected: (phrase) =>
+                          model.dedicationController.text = phrase,
                     ),
 
                     const SizedBox(height: PremiumDesign.s32),
@@ -311,6 +322,71 @@ class _StyleChip extends StatelessWidget {
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
             color: isSelected ? Colors.white : PremiumDesign.secondaryText,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Horizontally scrollable list of ready-made dedications. Tapping one
+/// writes it straight into the dedication field above — a visible,
+/// user-chosen alternative to the silent random fallback that used to be
+/// the only way [DefaultMessages] ever reached the user.
+class _SuggestedPhrases extends StatelessWidget {
+  const _SuggestedPhrases({required this.onSelected});
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 76,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: DefaultMessages.poeticMessages.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final phrase = DefaultMessages.poeticMessages[index];
+          return _SuggestedPhraseChip(
+            phrase: phrase,
+            onTap: () => onSelected(phrase),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SuggestedPhraseChip extends StatelessWidget {
+  const _SuggestedPhraseChip({required this.phrase, required this.onTap});
+  final String phrase;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Usar frase sugerida: $phrase',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 220,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+          ),
+          child: Text(
+            phrase,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: PremiumDesign.secondaryText,
+            ),
           ),
         ),
       ),

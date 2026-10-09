@@ -1,17 +1,32 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:yellow_flowers/core/tts/tts_service.dart';
+import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/messages/model/message_models.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
 
 class SpecialMessagesBloc extends BaseModel {
-  SpecialMessagesBloc();
+  SpecialMessagesBloc({
+    TtsService? ttsService,
+    bool Function()? isMusicPlaying,
+    Future<void> Function()? pauseMusic,
+    Future<void> Function()? resumeMusic,
+  })  : _ttsService = ttsService ?? sl<TtsService>(),
+        _isMusicPlaying = isMusicPlaying ?? (() => sl<AudioPlayer>().playing),
+        _pauseMusic = pauseMusic ?? (() => sl<AudioPlayer>().pause()),
+        _resumeMusic = resumeMusic ?? (() => sl<AudioPlayer>().play());
 
   final TextEditingController controller = TextEditingController();
 
-  final FlutterTts _tts = FlutterTts();
+  final TtsService _ttsService;
+  final bool Function() _isMusicPlaying;
+  final Future<void> Function() _pauseMusic;
+  final Future<void> Function() _resumeMusic;
 
   MessageCategory selected = MessageCategory.love;
   String name = '';
@@ -135,21 +150,45 @@ class SpecialMessagesBloc extends BaseModel {
 
   Future<void> speak(int index) async {
     if (index < 0 || index >= _messages.length) return;
-    try {
-      await _tts.setLanguage('es-ES');
-      await _tts.setPitch(1.0);
-      await _tts.setSpeechRate(0.48);
-      await _tts.speak(_messages[index].text);
-    } catch (_) {}
+    await _speak(_messages[index].text);
   }
 
   Future<void> speakMessage(SpecialMessage msg) async {
+    await _speak(msg.text);
+  }
+
+  /// Ducks whatever music is already playing for the duration of the
+  /// narration, then resumes it once speech actually finishes (not just
+  /// once the `speak` call returns — flutter_tts reports completion
+  /// asynchronously via [TtsService.stateNotifier]).
+  Future<void> _speak(String text) async {
+    final wasPlaying = _isMusicPlaying();
     try {
-      await _tts.setLanguage('es-ES');
-      await _tts.setPitch(1.0);
-      await _tts.setSpeechRate(0.48);
-      await _tts.speak(msg.text);
-    } catch (_) {}
+      if (wasPlaying) {
+        await _pauseMusic();
+      }
+      await _ttsService.speak(text);
+      await _awaitSpeechEnd();
+    } catch (_) {
+    } finally {
+      if (wasPlaying) {
+        await _resumeMusic();
+      }
+    }
+  }
+
+  Future<void> _awaitSpeechEnd() async {
+    if (_ttsService.state != TtsState.speaking) return;
+    final completer = Completer<void>();
+    void listener() {
+      if (_ttsService.state != TtsState.speaking) {
+        _ttsService.stateNotifier.removeListener(listener);
+        if (!completer.isCompleted) completer.complete();
+      }
+    }
+
+    _ttsService.stateNotifier.addListener(listener);
+    await completer.future;
   }
 
   String _categoryEmoji(MessageCategory c) => c.emoji;
@@ -160,7 +199,10 @@ class SpecialMessagesBloc extends BaseModel {
   void dispose() {
     controller.dispose();
     try {
-      _tts.stop();
+      // sl<TtsService>() is a shared singleton (unless a fake was injected
+      // for a test) — stop any speech this bloc started, but never
+      // dispose() it, other screens may still rely on it.
+      _ttsService.stop();
     } catch (_) {}
     super.dispose();
   }

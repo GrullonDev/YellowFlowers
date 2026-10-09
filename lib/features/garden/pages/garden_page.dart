@@ -463,7 +463,10 @@ class _QuoteCard extends StatelessWidget {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: GestureDetector(
+                  child: Semantics(
+                    button: true,
+                    label: 'Compartir frase del día',
+                    child: GestureDetector(
                     onTap: onShareQuote,
                     child: Container(
                       padding: const EdgeInsets.all(6),
@@ -474,6 +477,7 @@ class _QuoteCard extends StatelessWidget {
                       ),
                       child: Icon(Icons.share_rounded,
                           color: _gold, size: context.dp(16).clamp(14.0, 20.0)),
+                    ),
                     ),
                   ),
                 ),
@@ -518,7 +522,12 @@ class _QuoteCard extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               color: _gold)),
                       SizedBox(height: context.hp(8)),
-                      GestureDetector(
+                      Semantics(
+                        button: true,
+                        label: gardenUnlocked
+                            ? 'Compartir mi jardín'
+                            : 'Alcanza 5 días para compartir tu jardín',
+                        child: GestureDetector(
                         onTap: onShareGarden,
                         child: Container(
                           padding: EdgeInsets.symmetric(
@@ -563,6 +572,7 @@ class _QuoteCard extends StatelessWidget {
                               ),
                             ],
                           ),
+                        ),
                         ),
                       ),
                     ],

@@ -141,19 +141,23 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                         children: [
                           Align(
                             alignment: Alignment.topRight,
-                            child: GestureDetector(
-                              onTap: () => _shareMood(_selected!, name),
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _gold.withAlpha(30),
-                                  border:
-                                      Border.all(color: _gold.withAlpha(60)),
+                            child: Semantics(
+                              button: true,
+                              label: 'Compartir mi estado de ánimo',
+                              child: GestureDetector(
+                                onTap: () => _shareMood(_selected!, name),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _gold.withAlpha(30),
+                                    border: Border.all(
+                                        color: _gold.withAlpha(60)),
+                                  ),
+                                  child: Icon(Icons.share_rounded,
+                                      color: _gold,
+                                      size: context.dp(16).clamp(14.0, 20.0)),
                                 ),
-                                child: Icon(Icons.share_rounded,
-                                    color: _gold,
-                                    size: context.dp(16).clamp(14.0, 20.0)),
                               ),
                             ),
                           ),
@@ -197,7 +201,11 @@ class _MoodOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final info = _moodMeta(mood);
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: info.label,
+      child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -243,6 +251,7 @@ class _MoodOption extends StatelessWidget {
                   color: info.color, size: context.dp(24).clamp(20.0, 28.0)),
           ],
         ),
+      ),
       ),
     );
   }

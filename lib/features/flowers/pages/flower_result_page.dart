@@ -21,8 +21,9 @@ import 'package:yellow_flowers/features/flowers/widgets/screen_parts/background_
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/particle_layer.dart';
 import 'package:yellow_flowers/features/garden/widgets/growing_flower.dart';
 import 'package:yellow_flowers/features/home/pages/home_page.dart';
-import 'package:yellow_flowers/widgets/glass_card.dart';
+import 'package:yellow_flowers/utils/constants.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
+import 'package:yellow_flowers/widgets/share_canvas.dart';
 
 class FlowerResultPage extends StatefulWidget {
   const FlowerResultPage({
@@ -51,6 +52,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
   late final AnimationController _bgController;
   late final AnimationController _petalController;
   final GlobalKey _boundaryKey = GlobalKey();
+  final GlobalKey _shareBoundaryKey = GlobalKey();
 
   late final List<PetalSeed> _petalSeeds;
   late final String _finalDedication;
@@ -124,41 +126,20 @@ class _FlowerResultPageState extends State<FlowerResultPage>
     super.dispose();
   }
 
+  /// Captures the on-screen "VISTA PREVIA" card exactly as shown, so what
+  /// gets shared always matches what the user just previewed. The boundary
+  /// is scaled up to [kShareImageWidth] on export regardless of the device's
+  /// actual screen size, since it's displayed on screen at a smaller,
+  /// device-dependent size via [AspectRatio] + [FittedBox].
   Future<void> _exportImage() async {
     final origin = shareOrigin(context);
     try {
-      final shareKey = GlobalKey();
-      final overlay = OverlayEntry(
-          builder: (_) => Positioned(
-                left: -2000,
-                top: -2000,
-                child: Opacity(
-                  opacity: 0.01,
-                  child: RepaintBoundary(
-                    key: shareKey,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: _ShareCard(
-                        recipient: widget.recipient,
-                        sender: widget.sender,
-                        dedication: _finalDedication,
-                        inspiration: _inspiration,
-                      ),
-                    ),
-                  ),
-                ),
-              ));
-      Overlay.of(context).insert(overlay);
-
-      await Future.delayed(const Duration(milliseconds: 300));
-      await WidgetsBinding.instance.endOfFrame;
-
-      final boundary =
-          shareKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 3.0);
+      final boundary = _shareBoundaryKey.currentContext!.findRenderObject()
+          as RenderRepaintBoundary;
+      final pixelRatio = kShareImageWidth / boundary.size.width;
+      final image = await boundary.toImage(pixelRatio: pixelRatio);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
-      overlay.remove();
 
       final directory = await getTemporaryDirectory();
       final imagePath = await File(
@@ -172,6 +153,13 @@ class _FlowerResultPageState extends State<FlowerResultPage>
           sharePositionOrigin: origin));
     } catch (e) {
       debugPrint('Export Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('No pudimos compartir tu flor. Intenta de nuevo.')),
+        );
+      }
     }
   }
 
@@ -256,6 +244,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                     children: [
                       const SizedBox(height: PremiumDesign.s16),
                       _GrowingBouquet(
+                        theme: widget.theme,
                         progress: _growController.value,
                         sway: math.sin(_petalController.value * 8 * math.pi),
                       ),
@@ -263,23 +252,41 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                       _StaggeredItem(
                         index: 1,
                         controller: _entranceController,
-                        child: _GiftCard(
-                          dark: dark,
-                          recipient: widget.recipient,
-                          sender: widget.sender,
-                          dedication: _finalDedication,
+                        child: Column(
+                          children: [
+                            Text('VISTA PREVIA',
+                                style: PremiumDesign.sansLabel
+                                    .copyWith(color: iconColor)),
+                            const SizedBox(height: PremiumDesign.s12),
+                            AspectRatio(
+                              aspectRatio: kShareImageWidth / kShareImageHeight,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child: RepaintBoundary(
+                                  key: _shareBoundaryKey,
+                                  child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: ShareCanvas(
+                                      width: kShareImageWidth,
+                                      height: kShareImageHeight,
+                                      backgroundColor: kShareCanvasBackground,
+                                      child: _ShareCard(
+                                        recipient: widget.recipient,
+                                        sender: widget.sender,
+                                        dedication: _finalDedication,
+                                        inspiration: _inspiration,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: PremiumDesign.s16),
-                      _StaggeredItem(
-                        index: 2,
-                        controller: _entranceController,
-                        child: _DailyQuoteCard(
-                            inspiration: _inspiration, dark: dark),
                       ),
                       const SizedBox(height: PremiumDesign.s24),
                       _StaggeredItem(
-                        index: 3,
+                        index: 2,
                         controller: _entranceController,
                         child: Column(
                           children: [
@@ -322,13 +329,10 @@ class _FlowerResultPageState extends State<FlowerResultPage>
   }
 }
 
-/// Ramo de tres flores que crecen desde el suelo, una tras otra.
-class _GrowingBouquet extends StatelessWidget {
-  const _GrowingBouquet({required this.progress, required this.sway});
-  final double progress;
-  final double sway;
-
-  static const _variants = [
+/// Flower palettes per [FlowerTheme], so the style chosen in
+/// [NameEntryFlower] actually shows up in the grown bouquet.
+const Map<FlowerTheme, List<FlowerVariant>> _bouquetVariantsByTheme = {
+  FlowerTheme.sunflower: [
     FlowerVariant(
         petalColor: Color(0xFFFFE082),
         centerColor: Color(0xFF8D4F12),
@@ -347,161 +351,79 @@ class _GrowingBouquet extends StatelessWidget {
         petalCount: 6,
         heightFactor: 0.7,
         lean: 0.9),
-  ];
+  ],
+  FlowerTheme.daisy: [
+    FlowerVariant(
+        petalColor: Color(0xFFFFFDF7),
+        centerColor: Color(0xFFFFC107),
+        petalCount: 13,
+        heightFactor: 0.78,
+        lean: -0.8),
+    FlowerVariant(
+        petalColor: Color(0xFFFFFDF7),
+        centerColor: Color(0xFFFFB300),
+        petalCount: 15,
+        heightFactor: 1.0,
+        lean: 0.1),
+    FlowerVariant(
+        petalColor: Color(0xFFFFFDF7),
+        centerColor: Color(0xFFFFCA28),
+        petalCount: 12,
+        heightFactor: 0.7,
+        lean: 0.9),
+  ],
+  FlowerTheme.rose: [
+    FlowerVariant(
+        petalColor: Color(0xFFEF9A9A),
+        centerColor: Color(0xFFB71C1C),
+        petalCount: 6,
+        heightFactor: 0.78,
+        lean: -0.8),
+    FlowerVariant(
+        petalColor: Color(0xFFE57373),
+        centerColor: Color(0xFF8E0000),
+        petalCount: 7,
+        heightFactor: 1.0,
+        lean: 0.1),
+    FlowerVariant(
+        petalColor: Color(0xFFFFCDD2),
+        centerColor: Color(0xFFC62828),
+        petalCount: 5,
+        heightFactor: 0.7,
+        lean: 0.9),
+  ],
+};
+
+/// Ramo de tres flores que crecen desde el suelo, una tras otra.
+class _GrowingBouquet extends StatelessWidget {
+  const _GrowingBouquet(
+      {required this.theme, required this.progress, required this.sway});
+  final FlowerTheme theme;
+  final double progress;
+  final double sway;
 
   @override
   Widget build(BuildContext context) {
+    final variants =
+        _bouquetVariantsByTheme[theme] ?? _bouquetVariantsByTheme.values.first;
     return SizedBox(
       height: 260,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          for (var i = 0; i < _variants.length; i++)
+          for (var i = 0; i < variants.length; i++)
             SizedBox(
               width: i == 1 ? 110 : 90,
               height: 260,
               child: GrowingFlower(
-                variant: _variants[i],
+                variant: variants[i],
                 // La flor central arranca primero; las laterales después
                 progress:
                     ((progress - [0.12, 0.0, 0.2][i]) / 0.8).clamp(0.0, 1.0),
                 sway: sway * (i.isEven ? 1 : -0.7),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DailyQuoteCard extends StatelessWidget {
-  const _DailyQuoteCard({required this.inspiration, required this.dark});
-  final DailyInspiration inspiration;
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) {
-    final main = dark ? const Color(0xFFFFF8E1) : PremiumDesign.softText;
-    final soft = dark
-        ? const Color(0xFFFFF8E1).withAlpha(200)
-        : PremiumDesign.secondaryText;
-    final gold = dark ? const Color(0xFFFFD54F) : PremiumDesign.radiantGold;
-    return GlassCard(
-      dark: dark,
-      child: Column(
-        children: [
-          Text('FRASE DEL DÍA ☀️',
-              style: PremiumDesign.sansLabel.copyWith(color: gold)),
-          const SizedBox(height: 12),
-          Text(
-            inspiration.greeting,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: main,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '“${inspiration.quote}”',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 17,
-              fontStyle: FontStyle.italic,
-              height: 1.4,
-              color: soft,
-            ),
-          ),
-          if (inspiration.author != null) ...[
-            const SizedBox(height: 8),
-            Text(
-              '— ${inspiration.author}',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: gold,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _GiftCard extends StatelessWidget {
-  const _GiftCard(
-      {required this.recipient,
-      required this.sender,
-      required this.dedication,
-      required this.dark});
-  final String recipient, sender, dedication;
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) {
-    final main = dark ? const Color(0xFFFFF8E1) : PremiumDesign.softText;
-    final soft = dark
-        ? const Color(0xFFFFF8E1).withAlpha(210)
-        : PremiumDesign.secondaryText;
-    final gold = dark ? const Color(0xFFFFD54F) : PremiumDesign.radiantGold;
-    return GlassCard(
-      dark: dark,
-      glow: true,
-      radius: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('PARA ALGUIEN ESPECIAL 💛',
-              style: PremiumDesign.sansLabel.copyWith(color: gold)),
-          const SizedBox(height: 24),
-          Text(
-            '$recipient,',
-            style: PremiumDesign.serifDisplay.copyWith(
-              fontSize: 32,
-              color: main,
-              shadows: dark
-                  ? [Shadow(color: gold.withAlpha(110), blurRadius: 20)]
-                  : null,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              dedication,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 18,
-                fontStyle: FontStyle.italic,
-                height: 1.45,
-                color: soft,
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(width: 20, height: 1, color: gold.withAlpha(80)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  'De: $sender',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: gold,
-                  ),
-                ),
-              ),
-              Container(width: 20, height: 1, color: gold.withAlpha(80)),
-            ],
-          ),
         ],
       ),
     );
