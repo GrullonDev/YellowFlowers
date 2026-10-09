@@ -20,10 +20,11 @@ import 'package:yellow_flowers/features/flowers/widgets/memory_box.dart';
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/background_layer.dart';
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/particle_layer.dart';
 import 'package:yellow_flowers/features/garden/widgets/growing_flower.dart';
+import 'package:yellow_flowers/features/garden/widgets/share_helper.dart'
+    show showShareFailureSnackBar;
 import 'package:yellow_flowers/features/home/pages/home_page.dart';
 import 'package:yellow_flowers/utils/constants.dart';
 import 'package:yellow_flowers/widgets/luminous_background.dart';
-import 'package:yellow_flowers/widgets/share_canvas.dart';
 
 class FlowerResultPage extends StatefulWidget {
   const FlowerResultPage({
@@ -154,11 +155,7 @@ class _FlowerResultPageState extends State<FlowerResultPage>
     } catch (e) {
       debugPrint('Export Error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('No pudimos compartir tu flor. Intenta de nuevo.')),
-        );
+        showShareFailureSnackBar(context);
       }
     }
   }
@@ -259,17 +256,21 @@ class _FlowerResultPageState extends State<FlowerResultPage>
                                     .copyWith(color: iconColor)),
                             const SizedBox(height: PremiumDesign.s12),
                             AspectRatio(
+                              // Locks the captured boundary to the export
+                              // aspect ratio; _exportImage scales this up
+                              // to kShareImageWidth regardless of its
+                              // actual on-screen size, so _ShareCard stays
+                              // authored at a comfortable, legible scale
+                              // instead of a 1080-logical-pixel one that
+                              // would have to be shrunk ~3x on screen.
                               aspectRatio: kShareImageWidth / kShareImageHeight,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(24),
                                 child: RepaintBoundary(
                                   key: _shareBoundaryKey,
-                                  child: FittedBox(
-                                    fit: BoxFit.contain,
-                                    child: ShareCanvas(
-                                      width: kShareImageWidth,
-                                      height: kShareImageHeight,
-                                      backgroundColor: kShareCanvasBackground,
+                                  child: Container(
+                                    color: kShareCanvasBackground,
+                                    child: Center(
                                       child: _ShareCard(
                                         recipient: widget.recipient,
                                         sender: widget.sender,
@@ -446,50 +447,53 @@ class _ShareCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Authored at a comfortable, directly-legible on-screen scale (not a
+    // 1080-logical-pixel one) — the AspectRatio + dynamic pixelRatio in
+    // _exportImage take care of scaling this up to a high-res export.
     return Container(
-      width: 1080,
-      padding: const EdgeInsets.all(64),
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: _bg,
-        border: Border.all(color: _gold.withAlpha(80), width: 3),
-        borderRadius: BorderRadius.circular(48),
+        border: Border.all(color: _gold.withAlpha(80), width: 1.5),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🌻', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: 32),
+          const Text('🌻', style: TextStyle(fontSize: 32)),
+          const SizedBox(height: 14),
           Text(
             '$recipient,',
             textAlign: TextAlign.center,
             style: GoogleFonts.playfairDisplay(
-              fontSize: 42,
+              fontSize: 22,
               fontWeight: FontWeight.w700,
               color: _white,
-              shadows: [Shadow(color: _gold.withAlpha(100), blurRadius: 20)],
+              shadows: [Shadow(color: _gold.withAlpha(100), blurRadius: 12)],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               dedication,
               textAlign: TextAlign.center,
               style: GoogleFonts.playfairDisplay(
-                fontSize: 26,
+                fontSize: 15,
                 fontStyle: FontStyle.italic,
-                height: 1.5,
+                height: 1.4,
                 color: _white.withAlpha(220),
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 18),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 48),
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(12),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: _gold.withAlpha(40)),
             ),
             child: Column(
@@ -498,18 +502,18 @@ class _ShareCard extends StatelessWidget {
                   '"${inspiration.quote}"',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 22,
+                    fontSize: 13,
                     fontStyle: FontStyle.italic,
-                    height: 1.5,
+                    height: 1.4,
                     color: _white,
                   ),
                 ),
                 if (inspiration.author != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
                   Text(
                     '— ${inspiration.author}',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: _gold,
                     ),
@@ -518,34 +522,34 @@ class _ShareCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 40, height: 1.5, color: _gold.withAlpha(80)),
+              Container(width: 20, height: 1, color: _gold.withAlpha(80)),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   'De: $sender',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 18,
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: _gold,
                   ),
                 ),
               ),
-              Container(width: 40, height: 1.5, color: _gold.withAlpha(80)),
+              Container(width: 20, height: 1, color: _gold.withAlpha(80)),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 14),
           Opacity(
             opacity: 0.35,
             child: Text(
               'amarillas • tu jardín emocional 🌻',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
+                fontSize: 8,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 2,
+                letterSpacing: 1.2,
                 color: _white,
               ),
             ),

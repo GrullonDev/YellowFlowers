@@ -16,10 +16,12 @@ class SpecialMessagesBloc extends BaseModel {
     bool Function()? isMusicPlaying,
     Future<void> Function()? pauseMusic,
     Future<void> Function()? resumeMusic,
+    Duration speechTimeout = const Duration(seconds: 30),
   })  : _ttsService = ttsService ?? sl<TtsService>(),
         _isMusicPlaying = isMusicPlaying ?? (() => sl<AudioPlayer>().playing),
         _pauseMusic = pauseMusic ?? (() => sl<AudioPlayer>().pause()),
-        _resumeMusic = resumeMusic ?? (() => sl<AudioPlayer>().play());
+        _resumeMusic = resumeMusic ?? (() => sl<AudioPlayer>().play()),
+        _speechTimeout = speechTimeout;
 
   final TextEditingController controller = TextEditingController();
 
@@ -27,6 +29,13 @@ class SpecialMessagesBloc extends BaseModel {
   final bool Function() _isMusicPlaying;
   final Future<void> Function() _pauseMusic;
   final Future<void> Function() _resumeMusic;
+  final Duration _speechTimeout;
+
+  /// The currently in-flight [_speak] call, if any — lets a new call
+  /// interrupt and wait for the previous one to fully pause/resume before
+  /// starting its own cycle, so two overlapping calls can never interleave
+  /// their pause/resume bookkeeping.
+  Future<void>? _activeSpeech;
 
   MessageCategory selected = MessageCategory.love;
   String name = '';
@@ -158,37 +167,60 @@ class SpecialMessagesBloc extends BaseModel {
   }
 
   /// Ducks whatever music is already playing for the duration of the
-  /// narration, then resumes it once speech actually finishes (not just
-  /// once the `speak` call returns — flutter_tts reports completion
-  /// asynchronously via [TtsService.stateNotifier]).
+  /// narration, then resumes it once speech actually finishes. If another
+  /// call is already in flight, it's interrupted and fully unwound first
+  /// so two calls' pause/resume bookkeeping can never interleave.
   Future<void> _speak(String text) async {
+    final inFlight = _activeSpeech;
+    if (inFlight != null) {
+      await _ttsService.stop();
+      await inFlight;
+    }
+
+    final completer = Completer<void>();
+    _activeSpeech = completer.future;
     final wasPlaying = _isMusicPlaying();
     try {
       if (wasPlaying) {
         await _pauseMusic();
       }
-      await _ttsService.speak(text);
-      await _awaitSpeechEnd();
+      await _speakAndWaitForEnd(text);
     } catch (_) {
     } finally {
       if (wasPlaying) {
         await _resumeMusic();
       }
+      completer.complete();
+      if (identical(_activeSpeech, completer.future)) {
+        _activeSpeech = null;
+      }
     }
   }
 
-  Future<void> _awaitSpeechEnd() async {
-    if (_ttsService.state != TtsState.speaking) return;
+  /// Registers the completion listener *before* asking [TtsService] to
+  /// speak, then waits for a full speaking -> not-speaking cycle (bounded
+  /// by [_speechTimeout]). This matters because flutter_tts's speak()
+  /// Future resolves once the native call is dispatched, not once speech
+  /// actually starts — checking state only *after* that Future resolves
+  /// can miss a delayed onStart callback entirely.
+  Future<void> _speakAndWaitForEnd(String text) async {
     final completer = Completer<void>();
+    var started = _ttsService.state == TtsState.speaking;
     void listener() {
-      if (_ttsService.state != TtsState.speaking) {
-        _ttsService.stateNotifier.removeListener(listener);
-        if (!completer.isCompleted) completer.complete();
+      if (_ttsService.state == TtsState.speaking) {
+        started = true;
+      } else if (started && !completer.isCompleted) {
+        completer.complete();
       }
     }
 
     _ttsService.stateNotifier.addListener(listener);
-    await completer.future;
+    try {
+      await _ttsService.speak(text);
+      await completer.future.timeout(_speechTimeout);
+    } finally {
+      _ttsService.stateNotifier.removeListener(listener);
+    }
   }
 
   String _categoryEmoji(MessageCategory c) => c.emoji;

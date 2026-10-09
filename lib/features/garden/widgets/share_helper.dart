@@ -8,6 +8,15 @@ import 'package:yellow_flowers/core/share_origin.dart';
 import 'package:yellow_flowers/utils/constants.dart';
 import 'package:yellow_flowers/widgets/share_canvas.dart';
 
+/// Shared failure message for every share/export flow in the app, so a
+/// future copy edit or localization only has to happen in one place.
+void showShareFailureSnackBar(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+        content: Text('No pudimos compartir la imagen. Intenta de nuevo.')),
+  );
+}
+
 Future<void> captureAndShare(
   BuildContext context, {
   required Widget card,
@@ -65,10 +74,7 @@ Future<void> captureAndShare(
   } catch (e) {
     debugPrint('Share error: $e');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('No pudimos compartir la imagen. Intenta de nuevo.')),
-      );
+      showShareFailureSnackBar(context);
     }
   } finally {
     overlay.remove();
