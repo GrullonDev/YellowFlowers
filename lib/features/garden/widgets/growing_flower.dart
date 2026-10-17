@@ -218,7 +218,7 @@ const _warmPalette = [
   Color(0xFFFFCA28),
 ];
 
-/// Paletas por DailyMood.index: happy, calm, strong, reflective, loving.
+/// Paletas por DailyMood.index, en el mismo orden que el enum.
 const _moodPalettes = <List<Color>>[
   // happy — amarillos brillantes y naranjas alegres
   [
@@ -252,6 +252,62 @@ const _moodPalettes = <List<Color>>[
     Color(0xFFEC407A),
     Color(0xFFF8BBD0),
     Color(0xFFE91E63),
+    Color(0xFFFCE4EC)
+  ],
+  // sad — azules suaves, como la lluvia que también hace crecer
+  [
+    Color(0xFF90CAF9),
+    Color(0xFF64B5F6),
+    Color(0xFFBBDEFB),
+    Color(0xFF42A5F5),
+    Color(0xFFE3F2FD)
+  ],
+  // angry — rojos y corales que se van calmando
+  [
+    Color(0xFFEF5350),
+    Color(0xFFFF8A80),
+    Color(0xFFE57373),
+    Color(0xFFFFAB91),
+    Color(0xFFFFCDD2)
+  ],
+  // anxious — turquesas y mentas
+  [
+    Color(0xFF4DB6AC),
+    Color(0xFF80CBC4),
+    Color(0xFFB2DFDB),
+    Color(0xFF26A69A),
+    Color(0xFFE0F2F1)
+  ],
+  // tired — grises lavanda, como un atardecer nublado
+  [
+    Color(0xFFB0BEC5),
+    Color(0xFF90A4AE),
+    Color(0xFFCFD8DC),
+    Color(0xFFB39DDB),
+    Color(0xFFECEFF1)
+  ],
+  // lonely — violetas
+  [
+    Color(0xFF9575CD),
+    Color(0xFFB39DDB),
+    Color(0xFF7E57C2),
+    Color(0xFFD1C4E9),
+    Color(0xFFEDE7F6)
+  ],
+  // overwhelmed — durazno y coral
+  [
+    Color(0xFFFF8A65),
+    Color(0xFFFFAB91),
+    Color(0xFFFFCCBC),
+    Color(0xFFFF7043),
+    Color(0xFFFBE9E7)
+  ],
+  // sensitive — rosas suaves
+  [
+    Color(0xFFF06292),
+    Color(0xFFF8BBD0),
+    Color(0xFFF48FB1),
+    Color(0xFFFFC1E3),
     Color(0xFFFCE4EC)
   ],
 ];
