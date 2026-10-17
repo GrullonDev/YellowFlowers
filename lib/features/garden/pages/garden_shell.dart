@@ -19,6 +19,7 @@ import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_pa
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yellow_flowers/features/onboarding/pages/storytelling_onboarding.dart';
+import 'package:yellow_flowers/utils/constants.dart';
 
 const _gold = Color(0xFFFFD54F);
 const _warmWhite = Color(0xFFFFF8E1);
@@ -354,8 +355,7 @@ class _GardenDrawerState extends State<_GardenDrawer> {
   }
 
   Future<void> _openBetaSignup(BuildContext context) async {
-    const betaUrl = 'https://forms.gle/REPLACE_WITH_YOUR_FORM_ID';
-    final uri = Uri.parse(betaUrl);
+    final uri = Uri.parse(kBetaSignupUrl);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }

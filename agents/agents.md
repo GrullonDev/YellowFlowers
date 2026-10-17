@@ -413,9 +413,6 @@ animation work, and flag every platform-specific difference (Android vs iOS).
   `FlutterTts` inside `special_messages_bloc.dart`.
 - Flutter warns that AGP 8.x support will be dropped (requires AGP ≥ 9.0.1). Migrating means adopting the AGP 9
   DSL in `android/build.gradle` — plan it, don't do it inside a feature PR.
-- `garden_shell.dart` `_openBetaSignup` still points at the placeholder
-  `https://forms.gle/REPLACE_WITH_YOUR_FORM_ID`. The tile ships a dead link until the real form ID
-  replaces it.
 - The share icons added to `garden_page.dart` and `mood_checkin_page.dart` are bare `GestureDetector`s
   with no `Semantics` label, which does not satisfy §2.3. Add a label or tooltip.
 - `share_helper.dart` lives in `features/garden/widgets/` but is a function, not a widget, so it
