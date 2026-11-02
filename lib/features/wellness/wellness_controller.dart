@@ -3,7 +3,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Emotion { happy, relaxed, romantic, motivated, nostalgic }
+enum Emotion {
+  happy,
+  relaxed,
+  romantic,
+  motivated,
+  nostalgic,
+  anxious,
+  grateful,
+  empowered,
+  melancholic,
+  hopeful,
+  overwhelmed,
+  tender,
+  confident,
+}
 
 class WellnessController extends ChangeNotifier {
   // YYYY-MM-DD -> Emotion.name
@@ -33,7 +47,6 @@ class WellnessController extends ChangeNotifier {
   }
 
   String dailyPhrase({required Emotion emotion}) {
-    // frases muy básicas por emoción; se pueden mejorar luego
     switch (emotion) {
       case Emotion.motivated:
         return 'Hoy puedes con todo. Un paso a la vez ✨';
@@ -45,6 +58,22 @@ class WellnessController extends ChangeNotifier {
         return 'Que esta sonrisa te acompañe todo el día 💛';
       case Emotion.relaxed:
         return 'Respira profundo, todo está en calma 🌿';
+      case Emotion.anxious:
+        return 'Esto también pasará. Respira y confía 🕊️';
+      case Emotion.grateful:
+        return 'Hoy es un buen día para dar gracias 🌼';
+      case Emotion.empowered:
+        return 'Tu fuerza interior no tiene límites 👑';
+      case Emotion.melancholic:
+        return 'Sentir es humano. Abráza lo que eres hoy 🌧️';
+      case Emotion.hopeful:
+        return 'Algo hermoso viene en camino 🌅';
+      case Emotion.overwhelmed:
+        return 'No tienes que resolverlo todo hoy 🫧';
+      case Emotion.tender:
+        return 'Tu sensibilidad es un regalo al mundo 🦋';
+      case Emotion.confident:
+        return 'Confía en ti. Ya has superado tanto 💫';
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/core/user_gender.dart';
 import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/features/garden/widgets/share_helper.dart';
@@ -19,6 +20,35 @@ enum DailyMood {
   strong,
   reflective,
   loving,
+  anxious,
+  grateful,
+  empowered,
+  melancholic,
+  hopeful,
+  overwhelmed,
+  tender,
+  confident,
+}
+
+List<DailyMood> moodsForGender(UserGender gender) {
+  switch (gender) {
+    case UserGender.female:
+      return DailyMood.values;
+    case UserGender.male:
+      return [
+        DailyMood.happy,
+        DailyMood.calm,
+        DailyMood.strong,
+        DailyMood.reflective,
+        DailyMood.loving,
+        DailyMood.anxious,
+        DailyMood.grateful,
+        DailyMood.confident,
+        DailyMood.hopeful,
+      ];
+    case UserGender.unspecified:
+      return DailyMood.values;
+  }
 }
 
 class MoodCheckinPage extends StatefulWidget {
@@ -94,7 +124,10 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
 
   @override
   Widget build(BuildContext context) {
-    final name = sl<PersonalizationService>().getUserName() ?? 'hermosa';
+    final personalization = sl<PersonalizationService>();
+    final name = personalization.getUserName() ?? personalization.defaultGreetingName;
+    final gender = personalization.getUserGender();
+    final availableMoods = moodsForGender(gender);
     final hPad = context.wp(20).clamp(14.0, 28.0);
 
     return Stack(
@@ -124,7 +157,7 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                           fontSize: context.sp(13).clamp(11, 15),
                           color: _warmWhite.withAlpha(170))),
                   SizedBox(height: context.hp(16)),
-                  ...DailyMood.values.map((m) => Padding(
+                  ...availableMoods.map((m) => Padding(
                         padding: EdgeInsets.only(bottom: context.hp(6)),
                         child: _MoodOption(
                           mood: m,
@@ -350,6 +383,30 @@ _MoodMeta _moodMeta(DailyMood mood) {
     case DailyMood.loving:
       return const _MoodMeta(
           '💖', 'Enamorada', 'El amor llena mi día', Color(0xFFE91E8C));
+    case DailyMood.anxious:
+      return const _MoodMeta(
+          '😰', 'Ansiosa', 'Siento inquietud o preocupación', Color(0xFF5C6BC0));
+    case DailyMood.grateful:
+      return const _MoodMeta(
+          '🙏', 'Agradecida', 'Valoro lo que tengo hoy', Color(0xFF26A69A));
+    case DailyMood.empowered:
+      return const _MoodMeta(
+          '👑', 'Empoderada', 'Soy capaz de todo lo que me proponga', Color(0xFFAB47BC));
+    case DailyMood.melancholic:
+      return const _MoodMeta(
+          '🥀', 'Melancólica', 'Un poco triste, y está bien', Color(0xFF78909C));
+    case DailyMood.hopeful:
+      return const _MoodMeta(
+          '🌅', 'Esperanzada', 'Confío en que viene algo bueno', Color(0xFFFF8A65));
+    case DailyMood.overwhelmed:
+      return const _MoodMeta(
+          '🌊', 'Abrumada', 'Necesito soltar un poco de peso', Color(0xFF42A5F5));
+    case DailyMood.tender:
+      return const _MoodMeta(
+          '🦋', 'Sensible', 'Todo me toca el corazón hoy', Color(0xFFEC407A));
+    case DailyMood.confident:
+      return const _MoodMeta(
+          '✨', 'Segura', 'Confío en mí y en mi camino', Color(0xFFFFCA28));
   }
 }
 
@@ -365,6 +422,22 @@ String _responseEmoji(DailyMood mood) {
       return '✨';
     case DailyMood.loving:
       return '🌹';
+    case DailyMood.anxious:
+      return '🕊️';
+    case DailyMood.grateful:
+      return '🌼';
+    case DailyMood.empowered:
+      return '👑';
+    case DailyMood.melancholic:
+      return '🌧️';
+    case DailyMood.hopeful:
+      return '🌅';
+    case DailyMood.overwhelmed:
+      return '🫧';
+    case DailyMood.tender:
+      return '🦋';
+    case DailyMood.confident:
+      return '💫';
   }
 }
 
@@ -380,6 +453,22 @@ String _responseMessage(DailyMood mood, String name) {
       return 'Está bien sentirse así, $name. Los momentos de reflexión nos ayudan a crecer. Tu jardín te abraza.';
     case DailyMood.loving:
       return 'El amor te rodea, $name. Hoy tu jardín floreció con un brillo especial, justo como tú.';
+    case DailyMood.anxious:
+      return 'Respira, $name. La ansiedad es pasajera, pero tu fuerza es permanente. Tu jardín es un lugar seguro.';
+    case DailyMood.grateful:
+      return 'La gratitud transforma, $name. Reconocer lo bueno multiplica la luz en tu vida. Tu jardín lo celebra.';
+    case DailyMood.empowered:
+      return '¡Imparable, $name! Esa energía que sientes hoy puede mover montañas. Tu jardín brilla con tu poder.';
+    case DailyMood.melancholic:
+      return 'Está bien sentir melancolía, $name. Las emociones profundas son señal de un corazón que siente mucho.';
+    case DailyMood.hopeful:
+      return 'La esperanza es tu superpoder, $name. Cada amanecer trae nuevas posibilidades. Tu jardín crece contigo.';
+    case DailyMood.overwhelmed:
+      return 'Un paso a la vez, $name. No tienes que resolverlo todo hoy. Tu jardín te recuerda: florecer toma tiempo.';
+    case DailyMood.tender:
+      return 'Tu sensibilidad es un don, $name. Sentir profundo es vivir plenamente. Tu jardín te envuelve con ternura.';
+    case DailyMood.confident:
+      return 'Brillas con luz propia, $name. Esa seguridad que sientes hoy es solo el reflejo de quien realmente eres.';
   }
 }
 
