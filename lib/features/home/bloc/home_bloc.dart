@@ -8,6 +8,7 @@ import 'package:yellow_flowers/features/garden/pages/garden_page.dart';
 import 'package:yellow_flowers/features/home/model/menu_item.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
+import 'package:yellow_flowers/features/mandala/pages/mandala_gallery_page.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
@@ -49,6 +50,12 @@ class HomeBloc extends BaseModel {
           icon: Icons.headphones_rounded,
           destination: const MusicPage(),
           description: 'Canciones según tu estado de ánimo 🎵',
+        ),
+        MenuItem(
+          title: 'Mandalas',
+          icon: Icons.palette_rounded,
+          destination: const MandalaGalleryPage(),
+          description: 'Colorea mandalas y relaja tu mente 🎨',
         ),
         if (gender == UserGender.female)
         MenuItem(

@@ -16,6 +16,7 @@ import 'package:yellow_flowers/features/garden/pages/greenhouse_page.dart';
 import 'package:yellow_flowers/features/garden/pages/mood_checkin_page.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
+import 'package:yellow_flowers/features/mandala/pages/mandala_gallery_page.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yellow_flowers/core/user_gender.dart';
@@ -261,6 +262,12 @@ class _GardenDrawerState extends State<_GardenDrawer> {
               label: 'Tu Música',
               color: const Color(0xFF7E57C2),
               onTap: () => _navigate(context, const MusicPage()),
+            ),
+            _DrawerTile(
+              icon: Icons.palette_rounded,
+              label: 'Mandalas',
+              color: const Color(0xFFFF7043),
+              onTap: () => _navigate(context, const MandalaGalleryPage()),
             ),
             if (sl<PersonalizationService>().getUserGender() == UserGender.female)
             _DrawerTile(
