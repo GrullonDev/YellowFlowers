@@ -13,6 +13,7 @@ import 'package:yellow_flowers/features/flowers/models/daily_inspiration.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 import 'package:yellow_flowers/features/flowers/widgets/screen_parts/particle_layer.dart';
 import 'package:yellow_flowers/features/garden/data/garden_service.dart';
+import 'package:yellow_flowers/features/garden/models/daily_mood.dart';
 import 'package:yellow_flowers/features/garden/widgets/growing_flower.dart';
 import 'package:yellow_flowers/features/garden/widgets/share_helper.dart';
 import 'package:yellow_flowers/features/music/widgets/ambient_sounds_sheet.dart';
@@ -60,24 +61,8 @@ class _GardenPageState extends State<GardenPage> with TickerProviderStateMixin {
     _load();
   }
 
-  static Mood _dailyMoodToMood(int? index) {
-    // DailyMood: 0=happy, 1=calm, 2=strong, 3=reflective, 4=loving
-    // Mood: joy, calm, passion
-    switch (index) {
-      case 0:
-        return Mood.joy;
-      case 1:
-        return Mood.calm;
-      case 2:
-        return Mood.passion;
-      case 3:
-        return Mood.calm;
-      case 4:
-        return Mood.passion;
-      default:
-        return Mood.calm;
-    }
-  }
+  static Mood _dailyMoodToMood(int? index) =>
+      DailyMoodX.fromIndex(index)?.inspirationMood ?? Mood.calm;
 
   int? _todayMoodIndex() {
     final prefs = sl<SharedPreferences>();

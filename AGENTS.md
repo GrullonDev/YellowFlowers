@@ -16,7 +16,7 @@ Proyectos de plataforma presentes: android, ios, web. Esto no garantiza que todo
 
 ## Estructura del repositorio
 
-`lib/main.dart` inicializa servicios; `lib/app.dart` configura la app. `lib/core/` contiene diseño, resultados e integraciones; `lib/di/injector.dart` registra dependencias. Agregar funcionalidad en su módulo de `lib/features/`; respetar el directorio `Flowers` y sus mayúsculas. `lib/theme/`, `lib/widgets/` y `assets/` reúnen recursos compartidos.
+`lib/main.dart` inicializa servicios; `lib/app.dart` configura la app. `lib/core/` contiene diseño, resultados e integraciones; `lib/di/injector.dart` registra dependencias. Agregar funcionalidad en su módulo de `lib/features/`; el módulo de flores vive en `lib/features/flowers/`, en minúscula como en los imports (en Linux las mayúsculas importan). `lib/theme/`, `lib/widgets/` y `assets/` reúnen recursos compartidos.
 
 ## Preparación y comandos
 
@@ -55,7 +55,7 @@ La configuración Firebase no autoriza acceso por sí sola. No tratar un identif
 
 ## Pruebas y validación
 
-Validar onboarding → personalización → exportar/compartir, plantado diario sin duplicados, recuperación del jardín, reproducción/pausa y denegación de permisos. `test/widget_test.dart` es el test disponible: comprobar que corresponde a la app antes de interpretar su resultado.
+Validar onboarding → personalización → exportar/compartir, plantado diario sin duplicados, recuperación del jardín, reproducción/pausa y denegación de permisos. `test/widget_test.dart` es la plantilla del contador de Flutter y no corresponde a la app; `test/daily_mood_test.dart` y `test/mandala_test.dart` sí prueban código real.
 
 Ejecutar análisis y pruebas relevantes según el cambio; compilar solo plataformas afectadas. Un cambio exclusivamente documental requiere revisar rutas, comandos, alcance y diff, sin pruebas artificiales que repliquen el texto. No afirmar que una prueba pasó si no se ejecutó.
 
