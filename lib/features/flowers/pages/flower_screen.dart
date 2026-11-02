@@ -75,7 +75,7 @@ class _FlowerScreenState extends State<FlowerScreen>
     'Tu determinación mueve montañas. 🏔️',
     'Eres un ejemplo de fortaleza y gracia. 👑',
     'Tu bondad hace del mundo un lugar mejor. 🌈',
-    'No hay límites para una mujer que sueña en grande. 🚀',
+    'No hay límites para quien sueña en grande. 🚀',
     'Tu inteligencia y belleza son incomparables. 💫',
     'Eres la protagonista de tu propia historia. 📖',
     'Tu presencia alegra cada espacio. 🌺',

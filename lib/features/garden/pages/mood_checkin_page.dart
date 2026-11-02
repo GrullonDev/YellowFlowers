@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/core/user_gender.dart';
 import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/core/responsive.dart';
 import 'package:yellow_flowers/features/garden/models/daily_mood.dart';
@@ -87,7 +88,10 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
 
   @override
   Widget build(BuildContext context) {
-    final name = sl<PersonalizationService>().getUserName() ?? 'hermosa';
+    final personalization = sl<PersonalizationService>();
+    final name = personalization.getUserName() ?? personalization.defaultGreetingName;
+    final gender = personalization.getUserGender();
+    final availableMoods = moodsForGender(gender);
     final hPad = context.wp(20).clamp(14.0, 28.0);
 
     return Stack(
@@ -119,14 +123,14 @@ class _MoodCheckinPageState extends State<MoodCheckinPage>
                   SizedBox(height: context.hp(16)),
                   _MoodGroup(
                     title: 'Hoy me siento bien',
-                    moods: DailyMood.values.where((m) => m.isBright).toList(),
+                    moods: availableMoods.where((m) => m.isBright).toList(),
                     selected: _selected,
                     onTap: _select,
                   ),
                   SizedBox(height: context.hp(14)),
                   _MoodGroup(
                     title: 'Hoy me cuesta un poco',
-                    moods: DailyMood.values.where((m) => !m.isBright).toList(),
+                    moods: availableMoods.where((m) => !m.isBright).toList(),
                     selected: _selected,
                     onTap: _select,
                   ),

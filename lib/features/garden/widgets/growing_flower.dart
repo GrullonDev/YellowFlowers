@@ -310,4 +310,36 @@ const _moodPalettes = <List<Color>>[
     Color(0xFFFFC1E3),
     Color(0xFFFCE4EC)
   ],
+  // grateful — verdes jade y turquesa
+  [
+    Color(0xFF26A69A),
+    Color(0xFF4DB6AC),
+    Color(0xFF80CBC4),
+    Color(0xFFB2DFDB),
+    Color(0xFFE0F2F1)
+  ],
+  // empowered — púrpuras reales
+  [
+    Color(0xFFAB47BC),
+    Color(0xFFCE93D8),
+    Color(0xFF9C27B0),
+    Color(0xFFE1BEE7),
+    Color(0xFFF3E5F5)
+  ],
+  // hopeful — durazno y coral amanecer
+  [
+    Color(0xFFFF8A65),
+    Color(0xFFFFAB91),
+    Color(0xFFFF7043),
+    Color(0xFFFFCCBC),
+    Color(0xFFFFF3E0)
+  ],
+  // confident — dorados y ámbar
+  [
+    Color(0xFFFFCA28),
+    Color(0xFFFFD54F),
+    Color(0xFFFFC107),
+    Color(0xFFFFE082),
+    Color(0xFFFFF8E1)
+  ],
 ];

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
+import 'package:yellow_flowers/core/personalization_service.dart';
+import 'package:yellow_flowers/core/user_gender.dart';
+import 'package:yellow_flowers/di/injector.dart';
 import 'package:yellow_flowers/features/flowers/pages/flower_onboarding.dart';
 import 'package:yellow_flowers/features/garden/pages/garden_page.dart';
 import 'package:yellow_flowers/features/home/model/menu_item.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
+import 'package:yellow_flowers/features/mandala/pages/mandala_gallery_page.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:yellow_flowers/features/cycle/pages/cycle_music_page.dart';
 import 'package:yellow_flowers/utils/base_model.dart';
@@ -14,7 +18,9 @@ class HomeBloc extends BaseModel {
 
   BuildContext context;
 
-  List<MenuItem> get menuItems => [
+  List<MenuItem> get menuItems {
+    final gender = sl<PersonalizationService>().getUserGender();
+    return [
         MenuItem(
           title: 'Amarillas',
           icon: Icons.local_florist,
@@ -46,27 +52,20 @@ class HomeBloc extends BaseModel {
           description: 'Canciones según tu estado de ánimo 🎵',
         ),
         MenuItem(
+          title: 'Mandalas',
+          icon: Icons.palette_rounded,
+          destination: const MandalaGalleryPage(),
+          description: 'Colorea mandalas y relaja tu mente 🎨',
+        ),
+        if (gender == UserGender.female)
+        MenuItem(
           title: 'Mi Ciclo',
           icon: Icons.spa_rounded,
           destination: const CycleMusicPage(),
           description: 'Lleva el control de tu ciclo con amor 🌸',
         ),
-        /* MenuItem(
-          title: 'Tarjetas Virtuales',
-          icon: Icons.card_giftcard,
-          destination: AlertDialog(
-            title: const Text('Mensaje'),
-            content: const Text('¡Hola! Este es un mensaje de prueba.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
-          ),
-          description: 'Diseña y comparte una tarjeta en segundos 🎁',
-        ), */
       ];
+  }
 
   void showMessage() {
     // Show a message to the user

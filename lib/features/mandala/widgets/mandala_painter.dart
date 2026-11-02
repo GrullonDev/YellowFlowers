@@ -1,58 +1,98 @@
 import 'package:flutter/material.dart';
 
-import 'package:yellow_flowers/features/mandala/data/mandala_designs.dart';
+import '../models/mandala_template.dart';
 
-const kMandalaInk = Color(0xFF4A3466);
-const kMandalaPaper = Color(0xFFFFFDF7);
-
-/// Dibuja un mandala con sus zonas coloreadas y el contorno encima.
+/// Renders a [MandalaTemplate] on a canvas, filling each section with its
+/// current color and drawing a thin outline on top.
+///
+/// The mandala paths are authored in a 300x300 coordinate space centered at
+/// (0,0). The painter translates and scales them to fit the provided [size],
+/// keeping aspect ratio 1:1 and centering the result.
 class MandalaPainter extends CustomPainter {
-  MandalaPainter(this.design, this.colors, {this.version = 0});
+  MandalaPainter({required this.template})
+      : _colorSnapshot =
+            template.sections.map((s) => s.color).toList(growable: false);
 
-  final MandalaDesign design;
-  final Map<int, Color> colors;
+  final MandalaTemplate template;
 
-  /// Cambia con cada trazo, para repintar aunque el mapa sea el mismo objeto.
-  final int version;
+  /// Snapshot of every section's color at the time this painter was created.
+  /// Used by [shouldRepaint] to detect color changes without comparing Path
+  /// objects.
+  final List<Color> _colorSnapshot;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scale = size.shortestSide / kMandalaCanvas;
+    final double side = size.shortestSide;
+    // The mandala lives in [-150, 150] on both axes (300 wide).
+    final double scale = side / 300.0;
+
     canvas.save();
-    canvas.scale(scale);
+    // Center the mandala in the available area.
+    canvas.translate(size.width / 2, size.height / 2);
+    canvas.scale(scale, scale);
 
-    final regions = design.regions;
-    final fill = Paint()..style = PaintingStyle.fill;
-    canvas.drawCircle(const Offset(kMandalaCanvas / 2, kMandalaCanvas / 2),
-        kMandalaCanvas / 2, fill..color = kMandalaPaper);
-    for (var i = 0; i < regions.length; i++) {
-      canvas.drawPath(regions[i], fill..color = colors[i] ?? kMandalaPaper);
-    }
+    final fillPaint = Paint()..style = PaintingStyle.fill;
 
-    final stroke = Paint()
+    final strokePaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.4
-      ..strokeJoin = StrokeJoin.round
-      ..color = kMandalaInk;
-    for (final region in regions) {
-      canvas.drawPath(region, stroke);
+      ..color = const Color(0xFF4E342E) // warm dark brown, matches app palette
+      ..strokeWidth = 0.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    for (final section in template.sections) {
+      fillPaint.color = section.color;
+      canvas.drawPath(section.path, fillPaint);
+      canvas.drawPath(section.path, strokePaint);
     }
+
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(MandalaPainter old) =>
-      old.design.id != design.id ||
-      old.version != version ||
-      !identical(old.colors, colors);
-}
-
-/// Zona bajo [local] (en coordenadas del widget de lado [side]), o null.
-int? hitMandalaRegion(MandalaDesign design, Offset local, double side) {
-  final point = local * (kMandalaCanvas / side);
-  final regions = design.regions;
-  for (var i = regions.length - 1; i >= 0; i--) {
-    if (regions[i].contains(point)) return i;
+  bool shouldRepaint(covariant MandalaPainter oldDelegate) {
+    if (identical(template, oldDelegate.template) &&
+        _colorsEqual(oldDelegate._colorSnapshot)) {
+      return false;
+    }
+    return true;
   }
-  return null;
+
+  bool _colorsEqual(List<Color> other) {
+    if (_colorSnapshot.length != other.length) return false;
+    for (int i = 0; i < _colorSnapshot.length; i++) {
+      if (_colorSnapshot[i] != other[i]) return false;
+    }
+    return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Hit-testing
+  // ---------------------------------------------------------------------------
+
+  /// Given a tap [point] in the widget's local coordinate space and the
+  /// widget's [size], returns the index of the tapped [MandalaSection], or
+  /// -1 if the tap landed outside every section.
+  ///
+  /// Sections are tested in reverse order so that sections painted later
+  /// (visually on top) take priority.
+  static int sectionHitTest(MandalaTemplate template, Offset point, Size size) {
+    final double side = size.shortestSide;
+    final double scale = side / 300.0;
+
+    // Convert the tap point from widget-local coordinates into the mandala's
+    // own coordinate space (centered at origin, 300x300).
+    final Offset mandalaPoint = Offset(
+      (point.dx - size.width / 2) / scale,
+      (point.dy - size.height / 2) / scale,
+    );
+
+    // Walk backwards so the topmost painted section wins.
+    for (int i = template.sections.length - 1; i >= 0; i--) {
+      if (template.sections[i].path.contains(mandalaPoint)) {
+        return i;
+      }
+    }
+    return -1;
+  }
 }

@@ -38,7 +38,8 @@ class _GiftChestPageState extends State<GiftChestPage>
   int? _openingIndex;
 
   List<_Gift> _buildGifts() {
-    final name = sl<PersonalizationService>().getUserName() ?? 'hermosa';
+    final ps = sl<PersonalizationService>();
+    final name = ps.getUserName() ?? ps.defaultGreetingName;
     return [
       _Gift(
         streakRequired: 3,

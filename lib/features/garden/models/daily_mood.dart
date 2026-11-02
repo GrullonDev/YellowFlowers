@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:yellow_flowers/core/user_gender.dart';
 import 'package:yellow_flowers/features/flowers/models/personalization.dart';
 
 /// Estado de ánimo que la usuaria registra cada día.
@@ -20,6 +21,10 @@ enum DailyMood {
   lonely,
   overwhelmed,
   sensitive,
+  grateful,
+  empowered,
+  hopeful,
+  confident,
 }
 
 /// Pequeños gestos que la app ofrece cuando el día pesa.
@@ -55,7 +60,17 @@ extension DailyMoodX on DailyMood {
   MoodInfo get info => _info[this]!;
 
   /// Ánimos de días ligeros; el resto se agrupa como "hoy me cuesta".
-  bool get isBright => index <= DailyMood.loving.index;
+  bool get isBright => const {
+        DailyMood.happy,
+        DailyMood.calm,
+        DailyMood.strong,
+        DailyMood.reflective,
+        DailyMood.loving,
+        DailyMood.grateful,
+        DailyMood.empowered,
+        DailyMood.hopeful,
+        DailyMood.confident,
+      }.contains(this);
 
   /// Respuesta del día: cambia según la fecha para no repetir siempre la misma.
   String messageFor(String name, {DateTime? now}) {
@@ -67,7 +82,11 @@ extension DailyMoodX on DailyMood {
 
   /// Ánimo de [DailyInspiration] que mejor acompaña a este estado.
   Mood get inspirationMood => switch (this) {
-        DailyMood.happy || DailyMood.strong => Mood.joy,
+        DailyMood.happy ||
+        DailyMood.strong ||
+        DailyMood.empowered ||
+        DailyMood.confident =>
+          Mood.joy,
         DailyMood.loving ||
         DailyMood.lonely ||
         DailyMood.sensitive =>
@@ -252,4 +271,72 @@ const _info = <DailyMood, MoodInfo>{
       ComfortAction.mandala
     ],
   ),
+  DailyMood.grateful: MoodInfo(
+    emoji: '🙏',
+    label: 'Agradecida',
+    subtitle: 'Valoro lo que tengo hoy',
+    color: Color(0xFF26A69A),
+    responseEmoji: '🌼',
+    messages: [
+      'La gratitud transforma, {name}. Reconocer lo bueno multiplica la luz en tu vida.',
+      'Qué bonito detenerse a agradecer, {name}. Tu jardín celebra contigo.',
+    ],
+  ),
+  DailyMood.empowered: MoodInfo(
+    emoji: '👑',
+    label: 'Empoderada',
+    subtitle: 'Soy capaz de todo lo que me proponga',
+    color: Color(0xFFAB47BC),
+    responseEmoji: '👑',
+    messages: [
+      '¡Imparable, {name}! Esa energía que sientes hoy puede mover montañas.',
+      'Mírate brillar, {name}. Esa seguridad es tuya y nadie te la quita.',
+    ],
+  ),
+  DailyMood.hopeful: MoodInfo(
+    emoji: '🌅',
+    label: 'Esperanzada',
+    subtitle: 'Confío en que viene algo bueno',
+    color: Color(0xFFFF8A65),
+    responseEmoji: '🌅',
+    messages: [
+      'La esperanza es tu superpoder, {name}. Cada amanecer trae nuevas posibilidades.',
+      'Algo hermoso viene en camino, {name}. Tu jardín crece contigo.',
+    ],
+  ),
+  DailyMood.confident: MoodInfo(
+    emoji: '✨',
+    label: 'Segura',
+    subtitle: 'Confío en mí y en mi camino',
+    color: Color(0xFFFFCA28),
+    responseEmoji: '💫',
+    messages: [
+      'Brillas con luz propia, {name}. Esa seguridad es solo el reflejo de quien realmente eres.',
+      'Confía en ti, {name}. Ya has superado tanto para llegar hasta aquí.',
+    ],
+  ),
 };
+
+List<DailyMood> moodsForGender(UserGender gender) {
+  switch (gender) {
+    case UserGender.female:
+    case UserGender.unspecified:
+      return DailyMood.values;
+    case UserGender.male:
+      return [
+        DailyMood.happy,
+        DailyMood.calm,
+        DailyMood.strong,
+        DailyMood.reflective,
+        DailyMood.loving,
+        DailyMood.sad,
+        DailyMood.angry,
+        DailyMood.anxious,
+        DailyMood.tired,
+        DailyMood.overwhelmed,
+        DailyMood.grateful,
+        DailyMood.hopeful,
+        DailyMood.confident,
+      ];
+  }
+}

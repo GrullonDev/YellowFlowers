@@ -1,89 +1,115 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:yellow_flowers/core/responsive.dart';
-import 'package:yellow_flowers/di/injector.dart';
-import 'package:yellow_flowers/features/mandala/data/mandala_designs.dart';
-import 'package:yellow_flowers/features/mandala/data/mandala_store.dart';
+import 'package:flutter/services.dart';
+import 'package:yellow_flowers/core/design_system.dart';
+import 'package:yellow_flowers/core/transitions.dart';
+import 'package:yellow_flowers/features/mandala/data/mandala_templates.dart';
+import 'package:yellow_flowers/features/mandala/models/mandala_template.dart';
 import 'package:yellow_flowers/features/mandala/pages/mandala_coloring_page.dart';
-import 'package:yellow_flowers/features/mandala/widgets/mandala_painter.dart';
-import 'package:yellow_flowers/widgets/luminous_background.dart';
+import 'package:yellow_flowers/features/mandala/widgets/mandala_painter.dart'
+    show MandalaPainter;
 
+/// The dark cosmic background used consistently across the garden area.
+const _cosmicBg = Color(0xFF0B0820);
+
+/// Lighter cosmic tone for card surfaces.
+const _cosmicCard = Color(0xFF160F35);
+const _cosmicCardBorder = Color(0xFF2A2255);
 const _gold = Color(0xFFFFD54F);
-const _warmWhite = Color(0xFFFFF8E1);
 
-/// Lista de mandalas para colorear, con el avance de cada uno.
-class MandalaGalleryPage extends StatefulWidget {
+/// A gallery page that displays available mandala templates in a 2-column grid.
+///
+/// Each card shows a small preview of the mandala rendered via [MandalaPainter],
+/// the template name, emoji, and difficulty stars. Tapping a card navigates
+/// to [MandalaColoringPage].
+class MandalaGalleryPage extends StatelessWidget {
   const MandalaGalleryPage({super.key});
 
   @override
-  State<MandalaGalleryPage> createState() => _MandalaGalleryPageState();
-}
-
-class _MandalaGalleryPageState extends State<MandalaGalleryPage> {
-  final _store = MandalaStore(sl<SharedPreferences>());
-
-  Future<void> _open(MandalaDesign design) async {
-    await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => MandalaColoringPage(design: design)));
-    if (mounted) setState(() {}); // refresca miniaturas y avance
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final hPad = context.wp(16).clamp(12.0, 24.0);
-    final cols = context.gridColumns(small: 2, medium: 3, large: 4);
+    final mandalas = getBuiltInMandalas();
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    // Two-column grid: account for padding and spacing.
+    const crossAxisCount = 2;
+    const horizontalPadding = PremiumDesign.s16 * 2;
+    const spacing = PremiumDesign.s16;
+    final cardWidth =
+        (screenWidth - horizontalPadding - spacing * (crossAxisCount - 1)) /
+            crossAxisCount;
+    // Keep cards roughly square plus room for the label area.
+    final childAspectRatio = cardWidth / (cardWidth + 72);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0820),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: _warmWhite,
-        title: Text('Mandalas',
-            style: GoogleFonts.playfairDisplay(
-                fontWeight: FontWeight.w700, color: _warmWhite)),
-      ),
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: LuminousBackground()),
-          SafeArea(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 16),
-                  sliver: SliverToBoxAdapter(
-                    child: Text(
-                      'Colorear despacio calma la mente. Elige uno y pinta '
-                      'a tu ritmo: tus colores se guardan solos.',
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: context.sp(13).clamp(11, 15),
-                          height: 1.4,
-                          color: _warmWhite.withAlpha(170)),
-                    ),
-                  ),
+      backgroundColor: _cosmicBg,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            backgroundColor: _cosmicBg,
+            pinned: true,
+            expandedHeight: 120,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded, color: _gold),
+              tooltip: 'Back',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                'Mandalas',
+                style: PremiumDesign.serifHeading.copyWith(
+                  color: Colors.white,
+                  fontSize: 24,
                 ),
-                SliverPadding(
-                  padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 32),
-                  sliver: SliverGrid.count(
-                    crossAxisCount: cols,
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 14,
-                    childAspectRatio: 0.82,
-                    children: [
-                      for (final design in kMandalaDesigns)
-                        _MandalaTile(
-                          design: design,
-                          colors: _store.load(design.id),
-                          onTap: () => _open(design),
+              ),
+              titlePadding:
+                  const EdgeInsetsDirectional.only(start: 56, bottom: 16),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PremiumDesign.s16,
+              vertical: PremiumDesign.s12,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                'Choose a mandala to color',
+                style: PremiumDesign.sansBody.copyWith(
+                  color: Colors.white54,
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s16),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final template = mandalas[index];
+                  return _MandalaCard(
+                    template: template,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      Navigator.of(context).push(
+                        PremiumTransitions.fadeThrough(
+                          MandalaColoringPage(template: template),
                         ),
-                    ],
-                  ),
-                ),
-              ],
+                      );
+                    },
+                  );
+                },
+                childCount: mandalas.length,
+              ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: PremiumDesign.s16,
+                crossAxisSpacing: PremiumDesign.s16,
+                childAspectRatio: childAspectRatio,
+              ),
+            ),
+          ),
+          // Bottom safe-area spacer.
+          SliverPadding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.paddingOf(context).bottom + PremiumDesign.s32,
             ),
           ),
         ],
@@ -92,61 +118,127 @@ class _MandalaGalleryPageState extends State<MandalaGalleryPage> {
   }
 }
 
-class _MandalaTile extends StatelessWidget {
-  const _MandalaTile(
-      {required this.design, required this.colors, required this.onTap});
-  final MandalaDesign design;
-  final Map<int, Color> colors;
+class _MandalaCard extends StatelessWidget {
+  const _MandalaCard({
+    required this.template,
+    required this.onTap,
+  });
+
+  final MandalaTemplate template;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final progress = colors.length / design.regions.length;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          color: Colors.white.withAlpha(16),
-          border: Border.all(color: _gold.withAlpha(40)),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: CustomPaint(painter: MandalaPainter(design, colors)),
+    return Semantics(
+      button: true,
+      label: '${template.name} mandala, difficulty ${template.difficulty} of 3',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: _cosmicCard,
+            borderRadius: BorderRadius.circular(PremiumDesign.cardRadius / 2),
+            border: Border.all(color: _cosmicCardBorder, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(40),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(design.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: _warmWhite)),
-            const SizedBox(height: 6),
-            LinearProgressIndicator(
-              value: progress,
-              minHeight: 3,
-              borderRadius: BorderRadius.circular(2),
-              color: _gold,
-              backgroundColor: _warmWhite.withAlpha(25),
-            ),
-            const SizedBox(height: 4),
-            Text(
-                progress == 0
-                    ? 'Sin empezar'
-                    : progress >= 1
-                        ? 'Terminado ✨'
-                        : '${(progress * 100).round()}% coloreado',
-                style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11, color: _warmWhite.withAlpha(140))),
-          ],
+            ],
+          ),
+          child: Column(
+            children: [
+              // Mandala preview area
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(PremiumDesign.s16),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final previewSize =
+                          constraints.maxWidth.clamp(0.0, constraints.maxHeight);
+                      return Center(
+                        child: SizedBox(
+                          width: previewSize,
+                          height: previewSize,
+                          child: CustomPaint(
+                            painter: MandalaPainter(
+                              template: template,
+                            ),
+                            size: Size.square(previewSize),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              // Info area
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  PremiumDesign.s12,
+                  0,
+                  PremiumDesign.s12,
+                  PremiumDesign.s12,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          template.emoji,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            template.name,
+                            style: PremiumDesign.sansBody.copyWith(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    _DifficultyStars(level: template.difficulty),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _DifficultyStars extends StatelessWidget {
+  const _DifficultyStars({required this.level});
+
+  final int level;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(3, (i) {
+        final filled = i < level;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 1),
+          child: Icon(
+            filled ? Icons.star_rounded : Icons.star_outline_rounded,
+            color: filled ? _gold : Colors.white24,
+            size: 16,
+          ),
+        );
+      }),
     );
   }
 }
