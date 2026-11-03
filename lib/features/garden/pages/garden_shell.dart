@@ -17,7 +17,6 @@ import 'package:yellow_flowers/features/garden/pages/mood_checkin_page.dart';
 import 'package:yellow_flowers/features/mandala/pages/mandala_gallery_page.dart';
 import 'package:yellow_flowers/features/messages/pages/special_messages_page.dart';
 import 'package:yellow_flowers/features/moments_gallery/pages/moments_gallery_page.dart';
-import 'package:yellow_flowers/features/mandala/pages/mandala_gallery_page.dart';
 import 'package:yellow_flowers/features/music/pages/music_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yellow_flowers/core/user_gender.dart';
@@ -270,19 +269,14 @@ class _GardenDrawerState extends State<_GardenDrawer> {
               color: const Color(0xFF7E57C2),
               onTap: () => _navigate(context, const MusicPage()),
             ),
-            _DrawerTile(
-              icon: Icons.palette_rounded,
-              label: 'Mandalas',
-              color: const Color(0xFFFF7043),
-              onTap: () => _navigate(context, const MandalaGalleryPage()),
-            ),
-            if (sl<PersonalizationService>().getUserGender() == UserGender.female)
-            _DrawerTile(
-              icon: Icons.spa_rounded,
-              label: 'Mi Ciclo',
-              color: const Color(0xFF0097A7),
-              onTap: () => _navigate(context, const CycleMusicPage()),
-            ),
+            if (sl<PersonalizationService>().getUserGender() ==
+                UserGender.female)
+              _DrawerTile(
+                icon: Icons.spa_rounded,
+                label: 'Mi Ciclo',
+                color: const Color(0xFF0097A7),
+                onTap: () => _navigate(context, const CycleMusicPage()),
+              ),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),

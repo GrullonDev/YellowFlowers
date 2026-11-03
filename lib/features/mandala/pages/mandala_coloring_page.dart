@@ -2,34 +2,27 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:yellow_flowers/core/design_system.dart';
 import 'package:yellow_flowers/core/share_origin.dart';
-import 'package:yellow_flowers/features/mandala/models/mandala_template.dart';
+import 'package:yellow_flowers/di/injector.dart';
+import 'package:yellow_flowers/features/mandala/controllers/mandala_coloring_controller.dart';
+import 'package:yellow_flowers/features/mandala/data/mandala_store.dart';
+import 'package:yellow_flowers/features/mandala/models/mandala_definition.dart';
 import 'package:yellow_flowers/features/mandala/widgets/color_palette.dart';
 import 'package:yellow_flowers/features/mandala/widgets/mandala_painter.dart';
+import 'package:yellow_flowers/features/mandala/widgets/mandala_preview.dart';
 
-/// The dark cosmic background used consistently across the garden area.
 const _cosmicBg = Color(0xFF0B0820);
 const _gold = Color(0xFFFFD54F);
 
-/// Main coloring page for a mandala.
-///
-/// Features:
-/// - Large interactive canvas that fills the available width
-/// - Tap-to-color with hit-testing via [hitTestMandala]
-/// - Undo stack for reverting individual section changes
-/// - Progress indicator (sections colored / total)
-/// - Reset with confirmation dialog
-/// - Share the finished mandala as an image
 class MandalaColoringPage extends StatefulWidget {
-  const MandalaColoringPage({super.key, required this.template});
+  const MandalaColoringPage({super.key, required this.definition});
 
-  final MandalaTemplate template;
+  final MandalaDefinition definition;
 
   @override
   State<MandalaColoringPage> createState() => _MandalaColoringPageState();
@@ -37,161 +30,121 @@ class MandalaColoringPage extends StatefulWidget {
 
 class _MandalaColoringPageState extends State<MandalaColoringPage>
     with TickerProviderStateMixin {
-  /// Currently selected paint color.
-  Color _selectedColor = const Color(0xFFD4AF37); // default gold
+  late final MandalaColoringController _controller;
+  late final TransformationController _transformController;
+  late final AnimationController _highlightAnim;
+  late final AnimationController _completionAnim;
 
-  /// Undo stack: each entry is (sectionIndex, previousColor).
-  final List<_UndoEntry> _undoStack = [];
-
-  /// Key for RepaintBoundary around the mandala canvas.
-  final GlobalKey _canvasBoundaryKey = GlobalKey();
-
-  /// Controls whether we're sharing (to show a loading indicator).
   bool _sharing = false;
+  bool _isScaling = false;
 
-  /// Animation controller for the "flash" when a section is painted.
-  late final AnimationController _flashController;
+  static const _minScale = 1.0;
+  static const _maxScale = 5.0;
 
   @override
   void initState() {
     super.initState();
-    _flashController = AnimationController(
+    _controller = MandalaColoringController(
+      definition: widget.definition,
+      store: sl<MandalaStore>(),
+    );
+    _controller.addListener(_onControllerChanged);
+
+    _transformController = TransformationController();
+
+    _highlightAnim = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+
+    _completionAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
     );
   }
 
   @override
   void dispose() {
-    _flashController.dispose();
+    _controller
+      ..removeListener(_onControllerChanged)
+      ..dispose();
+    _transformController.dispose();
+    _highlightAnim.dispose();
+    _completionAnim.dispose();
     super.dispose();
   }
 
-  // ---------------------------------------------------------------------------
-  // Coloring logic
-  // ---------------------------------------------------------------------------
-
-  int get _coloredCount {
-    return widget.template.sections
-        .where((s) => s.color != Colors.white)
-        .length;
+  void _onControllerChanged() {
+    if (_controller.isComplete &&
+        _completionAnim.status != AnimationStatus.completed) {
+      _completionAnim.forward();
+    }
+    setState(() {});
   }
 
-  int get _totalSections => widget.template.sections.length;
+  // ── Zoom ───────────────────────────────────────────────────────────────
 
-  void _onTapCanvas(Offset localPosition, double canvasSize) {
-    final index = _hitTestSection(localPosition, canvasSize);
-    if (index < 0) return;
-
-    final section = widget.template.sections[index];
-    final previousColor = section.color;
-
-    // Don't record a no-op.
-    if (previousColor == _selectedColor) return;
-
-    _undoStack.add(_UndoEntry(index, previousColor));
-    section.color = _selectedColor;
-
+  void _resetView() {
+    _transformController.value = Matrix4.identity();
     HapticFeedback.lightImpact();
-    _flashController.forward(from: 0.0);
-
-    setState(() {});
   }
 
-  void _undo() {
-    if (_undoStack.isEmpty) return;
-    final entry = _undoStack.removeLast();
-    widget.template.sections[entry.sectionIndex].color = entry.previousColor;
-    HapticFeedback.selectionClick();
-    setState(() {});
-  }
-
-  /// Hit-test the mandala sections at [localPosition] within a square canvas
-  /// of [canvasSize]. Returns the section index or -1 if nothing was tapped.
-  ///
-  /// Mandala paths live in a 300x300 coordinate space centered at the origin.
-  int _hitTestSection(Offset localPosition, double canvasSize) {
-    final double scale = canvasSize / 300.0;
-    final Offset mandalaPoint = Offset(
-      (localPosition.dx - canvasSize / 2) / scale,
-      (localPosition.dy - canvasSize / 2) / scale,
-    );
-    final sections = widget.template.sections;
-    for (int i = sections.length - 1; i >= 0; i--) {
-      if (sections[i].path.contains(mandalaPoint)) return i;
+  void _handleDoubleTap() {
+    final currentScale = _transformController.value.getMaxScaleOnAxis();
+    if (currentScale > 1.5) {
+      _resetView();
+    } else {
+      _transformController.value = Matrix4.diagonal3Values(3.0, 3.0, 1.0);
     }
-    return -1;
+    HapticFeedback.lightImpact();
   }
 
-  Future<void> _resetWithConfirmation() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1530),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(PremiumDesign.cardRadius / 2),
-        ),
-        title: Text(
-          'Reset mandala?',
-          style: PremiumDesign.serifSubHeading.copyWith(color: Colors.white),
-        ),
-        content: Text(
-          'This will clear all colors and cannot be undone.',
-          style: PremiumDesign.sansBody.copyWith(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Cancel',
-              style: PremiumDesign.sansBody.copyWith(color: Colors.white54),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              'Reset',
-              style:
-                  PremiumDesign.sansBody.copyWith(color: PremiumDesign.radiantGold),
-            ),
-          ),
-        ],
-      ),
+  // ── Canvas tap ─────────────────────────────────────────────────────────
+
+  void _onCanvasTapUp(TapUpDetails details, Size canvasSize) {
+    if (_isScaling) return;
+
+    // The GestureDetector is inside InteractiveViewer, so localPosition
+    // is already in the child's (untransformed) coordinate space.
+    final regionId = hitTestMandalaRegion(
+      widget.definition,
+      details.localPosition,
+      canvasSize,
     );
-
-    if (confirmed == true) {
-      for (final section in widget.template.sections) {
-        section.color = Colors.white;
-      }
-      _undoStack.clear();
-      HapticFeedback.mediumImpact();
-      setState(() {});
-    }
+    if (regionId == null) return;
+    _controller.colorRegion(regionId);
   }
 
-  // ---------------------------------------------------------------------------
-  // Share
-  // ---------------------------------------------------------------------------
+  // ── Export / share ─────────────────────────────────────────────────────
 
   Future<void> _shareMandala() async {
     if (_sharing) return;
     setState(() => _sharing = true);
 
-    // Capture origin before any async gap.
     final origin = shareOrigin(context);
 
     try {
-      final boundary = _canvasBoundaryKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) {
-        throw Exception('Canvas boundary not found');
-      }
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      const exportSize = Size(2048, 2048);
 
-      final image = await boundary.toImage(pixelRatio: 3.0);
+      // White background
+      canvas.drawRect(
+        Offset.zero & exportSize,
+        Paint()..color = Colors.white,
+      );
+
+      MandalaPainter(
+        definition: widget.definition,
+        regionColors: Map.of(_controller.coloredRegions),
+        exportMode: true,
+        showNumbers: false,
+      ).paint(canvas, exportSize);
+
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(2048, 2048);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) {
-        throw Exception('Failed to encode image');
-      }
+      if (byteData == null) throw Exception('Failed to encode image');
 
       final pngBytes = byteData.buffer.asUint8List();
       final dir = await getTemporaryDirectory();
@@ -202,7 +155,7 @@ class _MandalaColoringPageState extends State<MandalaColoringPage>
 
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path)],
-        text: 'My ${widget.template.name} mandala ${widget.template.emoji}',
+        text: 'Mi mandala ${widget.definition.name} ${widget.definition.emoji}',
         sharePositionOrigin: origin,
       ));
     } catch (e) {
@@ -211,7 +164,7 @@ class _MandalaColoringPageState extends State<MandalaColoringPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Could not share the mandala. Please try again.',
+              'No se pudo compartir el mandala. Intenta de nuevo.',
               style: PremiumDesign.sansBody.copyWith(color: Colors.white),
             ),
             backgroundColor: const Color(0xFF2A2255),
@@ -223,134 +176,264 @@ class _MandalaColoringPageState extends State<MandalaColoringPage>
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Build
-  // ---------------------------------------------------------------------------
+  // ── Reset ──────────────────────────────────────────────────────────────
+
+  Future<void> _resetWithConfirmation() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1530),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(PremiumDesign.cardRadius / 2),
+        ),
+        title: Text(
+          '¿Reiniciar mandala?',
+          style: PremiumDesign.serifSubHeading.copyWith(color: Colors.white),
+        ),
+        content: Text(
+          'Se borrarán todos los colores y no se puede deshacer.',
+          style: PremiumDesign.sansBody.copyWith(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(
+              'Cancelar',
+              style: PremiumDesign.sansBody.copyWith(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              'Reiniciar',
+              style: PremiumDesign.sansBody
+                  .copyWith(color: PremiumDesign.radiantGold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _controller.reset();
+      _completionAnim.reset();
+      _resetView();
+    }
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final canvasSize = screenWidth - PremiumDesign.s32; // 16px padding each side
-    final progress = _totalSections > 0 ? _coloredCount / _totalSections : 0.0;
+    final canvasSize = screenWidth - PremiumDesign.s32;
 
-    return Scaffold(
-      backgroundColor: _cosmicBg,
-      appBar: AppBar(
+    final remainingCounts = <int, int>{};
+    for (final entry in widget.definition.palette) {
+      remainingCounts[entry.number] =
+          _controller.remainingForNumber(entry.number);
+    }
+
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _controller.flushSave();
+      },
+      child: Scaffold(
         backgroundColor: _cosmicBg,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: _gold),
-          tooltip: 'Back',
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          '${widget.template.emoji} ${widget.template.name}',
-          style: PremiumDesign.serifSubHeading.copyWith(
-            color: Colors.white,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          // Undo button
-          IconButton(
-            icon: Icon(
-              Icons.undo_rounded,
-              color: _undoStack.isNotEmpty ? _gold : Colors.white24,
+        appBar: _buildAppBar(),
+        body: Column(
+          children: [
+            _ProgressBar(
+              colored: _controller.coloredCount,
+              total: _controller.totalRegions,
+              progress: _controller.progress,
             ),
-            tooltip: 'Undo',
-            onPressed: _undoStack.isNotEmpty ? _undo : null,
-          ),
-          // Reset button
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: Colors.white54),
-            tooltip: 'Reset',
-            onPressed: _resetWithConfirmation,
-          ),
-        ],
+            Expanded(
+              child: Stack(
+                children: [
+                  _buildCanvas(canvasSize),
+                  MandalaPreview(
+                    definition: widget.definition,
+                    regionColors: Map.of(_controller.coloredRegions),
+                  ),
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: _ZoomButton(
+                      icon: Icons.center_focus_strong_rounded,
+                      tooltip: 'Restablecer vista',
+                      onTap: _resetView,
+                    ),
+                  ),
+                  if (_controller.isComplete)
+                    _CompletionOverlay(animation: _completionAnim),
+                ],
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: PremiumDesign.s16),
+              child: _ShareButton(
+                onTap: _shareMandala,
+                sharing: _sharing,
+              ),
+            ),
+            NumberedColorPalette(
+              palette: widget.definition.palette,
+              selectedNumber: _controller.selectedNumber,
+              onNumberSelected: _controller.selectNumber,
+              remainingCounts: remainingCounts,
+              mode: _controller.mode,
+            ),
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          // Progress bar
-          _ProgressBar(
-            colored: _coloredCount,
-            total: _totalSections,
-            progress: progress,
-          ),
+    );
+  }
 
-          // Mandala canvas (expanded to fill space between progress and palette)
-          Expanded(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(PremiumDesign.s16),
-                child: RepaintBoundary(
-                  key: _canvasBoundaryKey,
-                  child: Container(
-                    width: canvasSize,
-                    height: canvasSize,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.circular(PremiumDesign.cardRadius / 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(50),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: _cosmicBg,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_rounded, color: _gold),
+        tooltip: 'Volver',
+        onPressed: () {
+          _controller.flushSave();
+          Navigator.of(context).pop();
+        },
+      ),
+      title: Text(
+        '${widget.definition.emoji} ${widget.definition.name}',
+        style: PremiumDesign.serifSubHeading.copyWith(
+          color: Colors.white,
+          fontSize: 20,
+        ),
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.undo_rounded,
+            color: _controller.canUndo ? _gold : Colors.white24,
+          ),
+          tooltip: 'Deshacer',
+          onPressed: _controller.canUndo ? _controller.undo : null,
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.redo_rounded,
+            color: _controller.canRedo ? _gold : Colors.white24,
+          ),
+          tooltip: 'Rehacer',
+          onPressed: _controller.canRedo ? _controller.redo : null,
+        ),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert_rounded, color: Colors.white54),
+          color: const Color(0xFF1A1530),
+          onSelected: (value) {
+            switch (value) {
+              case 'reset':
+                _resetWithConfirmation();
+              case 'mode':
+                _controller.switchMode(
+                  _controller.mode == ColoringMode.guided
+                      ? ColoringMode.free
+                      : ColoringMode.guided,
+                );
+            }
+          },
+          itemBuilder: (ctx) => [
+            PopupMenuItem(
+              value: 'mode',
+              child: Text(
+                _controller.mode == ColoringMode.guided
+                    ? 'Modo libre'
+                    : 'Modo guiado',
+                style: PremiumDesign.sansBody.copyWith(color: Colors.white),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'reset',
+              child: Text(
+                'Reiniciar',
+                style: PremiumDesign.sansBody.copyWith(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCanvas(double canvasSize) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(PremiumDesign.s16),
+        child: Container(
+          width: canvasSize,
+          height: canvasSize,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(PremiumDesign.cardRadius / 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(50),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(PremiumDesign.cardRadius / 2),
+            child: GestureDetector(
+              onDoubleTap: _handleDoubleTap,
+              child: InteractiveViewer(
+                transformationController: _transformController,
+                minScale: _minScale,
+                maxScale: _maxScale,
+                panEnabled: true,
+                scaleEnabled: true,
+                boundaryMargin: const EdgeInsets.all(double.infinity),
+                onInteractionStart: (details) {
+                  if (details.pointerCount >= 2) _isScaling = true;
+                },
+                onInteractionEnd: (_) {
+                  Future.delayed(const Duration(milliseconds: 50), () {
+                    if (mounted) _isScaling = false;
+                  });
+                },
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapUp: (details) =>
+                      _onCanvasTapUp(details, Size.square(canvasSize)),
+                  child: AnimatedBuilder(
+                    animation: _highlightAnim,
+                    builder: (context, _) {
+                      return CustomPaint(
+                        painter: MandalaPainter(
+                          definition: widget.definition,
+                          regionColors: Map.of(_controller.coloredRegions),
+                          highlightNumber: _controller.selectedNumber,
+                          highlightPhase: _highlightAnim.value,
+                          showNumbers: true,
+                          mode: _controller.mode,
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(PremiumDesign.cardRadius / 2),
-                      child: GestureDetector(
-                        onTapDown: (details) {
-                          _onTapCanvas(details.localPosition, canvasSize);
-                        },
-                        child: AnimatedBuilder(
-                          animation: _flashController,
-                          builder: (context, _) {
-                            return CustomPaint(
-                              painter: MandalaPainter(
-                                template: widget.template,
-                              ),
-                              size: Size.square(canvasSize),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+                        size: Size.square(canvasSize),
+                      );
+                    },
                   ),
                 ),
               ),
             ),
           ),
-
-          // Share button row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: PremiumDesign.s16),
-            child: _ShareButton(
-              onTap: _shareMandala,
-              sharing: _sharing,
-            ),
-          ),
-
-          // Color palette
-          ColorPalette(
-            selectedColor: _selectedColor,
-            onColorSelected: (color) {
-              setState(() => _selectedColor = color);
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// -----------------------------------------------------------------------------
-// Supporting widgets
-// -----------------------------------------------------------------------------
+// ── Supporting widgets ───────────────────────────────────────────────────────
 
 class _ProgressBar extends StatelessWidget {
   const _ProgressBar({
@@ -377,7 +460,7 @@ class _ProgressBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$colored of $total',
+                '$colored de $total',
                 style: PremiumDesign.sansLabel.copyWith(
                   color: Colors.white54,
                   letterSpacing: 1.0,
@@ -425,7 +508,7 @@ class _ShareButton extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: PremiumDesign.s8),
       child: Semantics(
         button: true,
-        label: 'Share mandala',
+        label: 'Compartir mandala',
         child: GestureDetector(
           onTap: sharing ? null : onTap,
           child: Container(
@@ -454,7 +537,7 @@ class _ShareButton extends StatelessWidget {
                             color: Colors.white, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'SHARE',
+                          'COMPARTIR',
                           style: PremiumDesign.sansLabel.copyWith(
                             color: Colors.white,
                             letterSpacing: 2.0,
@@ -470,8 +553,96 @@ class _ShareButton extends StatelessWidget {
   }
 }
 
-class _UndoEntry {
-  const _UndoEntry(this.sectionIndex, this.previousColor);
-  final int sectionIndex;
-  final Color previousColor;
+class _ZoomButton extends StatelessWidget {
+  const _ZoomButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: Colors.white.withAlpha(220),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(30),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(icon, size: 18, color: const Color(0xFF4E342E)),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompletionOverlay extends StatelessWidget {
+  const _CompletionOverlay({required this.animation});
+
+  final AnimationController animation;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, _) {
+        final opacity = Curves.easeInOut.transform(
+          (animation.value * 2).clamp(0.0, 1.0),
+        );
+        final scale = 0.5 +
+            0.5 *
+                Curves.elasticOut.transform(
+                  ((animation.value - 0.2) * 1.25).clamp(0.0, 1.0),
+                );
+        if (opacity < 0.01) return const SizedBox.shrink();
+
+        return Center(
+          child: Opacity(
+            opacity: opacity * 0.9,
+            child: Transform.scale(
+              scale: scale,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1530).withAlpha(230),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: PremiumDesign.goldGlow,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('✨', style: TextStyle(fontSize: 36)),
+                    const SizedBox(height: 8),
+                    Text(
+                      '¡Completado!',
+                      style: PremiumDesign.serifSubHeading.copyWith(
+                        color: _gold,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

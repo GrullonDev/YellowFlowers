@@ -2,92 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yellow_flowers/core/design_system.dart';
 
-/// A horizontal scrollable color palette for mandala coloring.
+import '../models/mandala_definition.dart';
+
+/// A horizontal scrollable numbered color palette for color-by-number.
 ///
-/// Displays a curated set of warm, pastel, and jewel-tone colors
-/// plus an eraser option. The selected color shows a gold ring
-/// and a subtle scale animation.
-class ColorPalette extends StatefulWidget {
-  const ColorPalette({
+/// Shows an eraser button followed by numbered color swatches. Each swatch
+/// displays its number and optionally the remaining uncolored count.
+/// The selected swatch gets a gold ring and scale animation.
+class NumberedColorPalette extends StatelessWidget {
+  const NumberedColorPalette({
     super.key,
-    required this.selectedColor,
-    required this.onColorSelected,
+    required this.palette,
+    required this.selectedNumber,
+    required this.onNumberSelected,
+    required this.remainingCounts,
+    required this.mode,
   });
 
-  final Color selectedColor;
-  final ValueChanged<Color> onColorSelected;
+  final List<NumberedColor> palette;
 
-  @override
-  State<ColorPalette> createState() => _ColorPaletteState();
-}
+  /// Currently selected number, or null for eraser.
+  final int? selectedNumber;
+  final ValueChanged<int?> onNumberSelected;
 
-class _ColorPaletteState extends State<ColorPalette>
-    with TickerProviderStateMixin {
-  late final List<_PaletteEntry> _entries;
-
-  /// Track per-swatch bounce controllers keyed by index.
-  final Map<int, AnimationController> _bounceControllers = {};
-
-  static const _eraserColor = Colors.white;
-
-  /// Curated colors: warm tones, pastels, and jewel tones that feel organic
-  /// and match the app's gold/cream/lavender identity.
-  static const List<_PaletteEntry> _colors = [
-    _PaletteEntry(Color(0xFFD4AF37), 'Gold'),           // radiant gold
-    _PaletteEntry(Color(0xFFF9E076), 'Sunflower'),      // bright sunflower
-    _PaletteEntry(Color(0xFFFFAB76), 'Apricot'),        // warm apricot
-    _PaletteEntry(Color(0xFFFF8A80), 'Coral'),          // soft coral
-    _PaletteEntry(Color(0xFFF48FB1), 'Rose'),           // pastel rose
-    _PaletteEntry(Color(0xFFCE93D8), 'Orchid'),         // soft orchid
-    _PaletteEntry(Color(0xFF9FA8DA), 'Periwinkle'),     // periwinkle
-    _PaletteEntry(Color(0xFF81D4FA), 'Sky'),            // sky blue
-    _PaletteEntry(Color(0xFF80CBC4), 'Sage'),           // sage teal
-    _PaletteEntry(Color(0xFFA5D6A7), 'Mint'),          // mint green
-    _PaletteEntry(Color(0xFF2D5D3A), 'Forest'),         // leaf green (from PremiumDesign)
-    _PaletteEntry(Color(0xFF8D6E63), 'Cinnamon'),       // warm brown
-    _PaletteEntry(Color(0xFFBCAAA4), 'Sand'),           // warm sand
-    _PaletteEntry(Color(0xFF7E57C2), 'Amethyst'),       // jewel amethyst
-    _PaletteEntry(Color(0xFFE53935), 'Ruby'),           // jewel ruby
-    _PaletteEntry(Color(0xFF1E88E5), 'Sapphire'),       // jewel sapphire
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    // Build full list: eraser first, then colors.
-    _entries = [
-      const _PaletteEntry(_eraserColor, 'Eraser'),
-      ..._colors,
-    ];
-  }
-
-  @override
-  void dispose() {
-    for (final c in _bounceControllers.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  AnimationController _controllerFor(int index) {
-    return _bounceControllers.putIfAbsent(index, () {
-      return AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 250),
-      );
-    });
-  }
-
-  void _onSelect(int index) {
-    final color = _entries[index].color;
-    HapticFeedback.selectionClick();
-
-    // Trigger bounce on the tapped swatch.
-    final ctrl = _controllerFor(index);
-    ctrl.forward(from: 0.0);
-
-    widget.onColorSelected(color);
-  }
+  /// Number → remaining uncolored regions count.
+  final Map<int, int> remainingCounts;
+  final ColoringMode mode;
 
   @override
   Widget build(BuildContext context) {
@@ -117,44 +57,53 @@ class _ColorPaletteState extends State<ColorPalette>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Current color indicator
+            // Selected color label
             Padding(
               padding: const EdgeInsets.only(bottom: PremiumDesign.s8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _selectedLabel(),
-                    style: PremiumDesign.sansLabel.copyWith(
-                      color: dark
-                          ? PremiumDesign.radiantGold
-                          : PremiumDesign.secondaryText,
-                    ),
-                  ),
-                ],
+              child: Text(
+                _selectedLabel(),
+                style: PremiumDesign.sansLabel.copyWith(
+                  color: dark
+                      ? PremiumDesign.radiantGold
+                      : PremiumDesign.secondaryText,
+                ),
               ),
             ),
             // Scrollable swatches
             SizedBox(
-              height: 52,
+              height: 56,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding:
                     const EdgeInsets.symmetric(horizontal: PremiumDesign.s8),
-                itemCount: _entries.length,
+                itemCount: palette.length + 1, // +1 for eraser
                 separatorBuilder: (_, __) =>
                     const SizedBox(width: PremiumDesign.s8),
                 itemBuilder: (context, index) {
-                  final entry = _entries[index];
-                  final isSelected = widget.selectedColor == entry.color;
-                  final isEraser = index == 0;
+                  if (index == 0) {
+                    return _EraserSwatch(
+                      isSelected: selectedNumber == null,
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        onNumberSelected(null);
+                      },
+                    );
+                  }
+                  final entry = palette[index - 1];
+                  final remaining = remainingCounts[entry.number] ?? 0;
+                  final isSelected = selectedNumber == entry.number;
+                  final isDone = remaining == 0;
 
-                  return _SwatchButton(
+                  return _NumberedSwatch(
+                    number: entry.number,
                     color: entry.color,
                     isSelected: isSelected,
-                    isEraser: isEraser,
-                    bounceController: _controllerFor(index),
-                    onTap: () => _onSelect(index),
+                    isDone: isDone,
+                    remaining: mode == ColoringMode.guided ? remaining : null,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      onNumberSelected(entry.number);
+                    },
                   );
                 },
               ),
@@ -166,97 +115,146 @@ class _ColorPaletteState extends State<ColorPalette>
   }
 
   String _selectedLabel() {
-    for (final entry in _entries) {
-      if (entry.color == widget.selectedColor) {
-        return entry.label.toUpperCase();
+    if (selectedNumber == null) return 'BORRADOR';
+    for (final entry in palette) {
+      if (entry.number == selectedNumber) {
+        return entry.name.toUpperCase();
       }
     }
     return 'COLOR';
   }
 }
 
-class _SwatchButton extends StatelessWidget {
-  const _SwatchButton({
+class _NumberedSwatch extends StatelessWidget {
+  const _NumberedSwatch({
+    required this.number,
     required this.color,
     required this.isSelected,
-    required this.isEraser,
-    required this.bounceController,
+    required this.isDone,
+    required this.remaining,
     required this.onTap,
   });
 
+  final int number;
   final Color color;
   final bool isSelected;
-  final bool isEraser;
-  final AnimationController bounceController;
+  final bool isDone;
+  final int? remaining;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final dark = PremiumDesign.isDarkMode(context);
-
-    return AnimatedBuilder(
-      animation: bounceController,
-      builder: (context, child) {
-        // Bounce: scale up then back down.
-        final t = bounceController.value;
-        final scale = isSelected
-            ? 1.15 + 0.08 * _bounce(t)
-            : 1.0 + 0.15 * _bounce(t);
-
-        return Transform.scale(
-          scale: scale,
-          child: child,
-        );
-      },
-      child: Semantics(
-        button: true,
-        label: isEraser ? 'Eraser' : 'Color swatch',
-        child: GestureDetector(
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: PremiumDesign.fast,
-            curve: Curves.easeOutCubic,
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isEraser
-                  ? (dark ? const Color(0xFF2A2540) : Colors.white)
-                  : color,
-              border: isSelected
-                  ? Border.all(
-                      color: PremiumDesign.radiantGold,
-                      width: 3.0,
-                    )
-                  : Border.all(
-                      color: dark
-                          ? Colors.white.withAlpha(30)
-                          : Colors.black.withAlpha(15),
-                      width: 1.0,
+    return Semantics(
+      button: true,
+      label: 'Color $number${isDone ? ', completado' : ''}',
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedScale(
+          scale: isSelected ? 1.15 : 1.0,
+          duration: PremiumDesign.fast,
+          curve: Curves.easeOutCubic,
+          child: SizedBox(
+            width: 48,
+            height: 56,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: PremiumDesign.fast,
+                  curve: Curves.easeOutCubic,
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                    border: isSelected
+                        ? Border.all(
+                            color: PremiumDesign.radiantGold, width: 3.0)
+                        : Border.all(
+                            color: Colors.black.withAlpha(20), width: 1.0),
+                    boxShadow: isSelected ? PremiumDesign.goldGlow : null,
+                  ),
+                  child: Center(
+                    child: isDone
+                        ? const Icon(Icons.check_rounded,
+                            size: 18, color: Colors.white)
+                        : Text(
+                            '$number',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: _contrastColor(color),
+                            ),
+                          ),
+                  ),
+                ),
+                if (remaining != null && !isDone)
+                  Text(
+                    '$remaining',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: Colors.grey.shade500,
                     ),
-              boxShadow: isSelected ? PremiumDesign.goldGlow : null,
+                  ),
+              ],
             ),
-            child: isEraser
-                ? Icon(
-                    Icons.auto_fix_high_rounded,
-                    size: 20,
-                    color: dark ? Colors.white70 : PremiumDesign.secondaryText,
-                  )
-                : null,
           ),
         ),
       ),
     );
   }
 
-  /// Simple bounce curve: goes up then back to zero.
-  double _bounce(double t) {
-    return 4.0 * t * (1.0 - t);
+  static Color _contrastColor(Color bg) {
+    final luminance = bg.computeLuminance();
+    return luminance > 0.5 ? const Color(0xFF333333) : Colors.white;
   }
 }
 
-class _PaletteEntry {
-  const _PaletteEntry(this.color, this.label);
-  final Color color;
-  final String label;
+class _EraserSwatch extends StatelessWidget {
+  const _EraserSwatch({
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = PremiumDesign.isDarkMode(context);
+    return Semantics(
+      button: true,
+      label: 'Borrador',
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedScale(
+          scale: isSelected ? 1.15 : 1.0,
+          duration: PremiumDesign.fast,
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: PremiumDesign.fast,
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: dark ? const Color(0xFF2A2540) : Colors.white,
+              border: isSelected
+                  ? Border.all(color: PremiumDesign.radiantGold, width: 3.0)
+                  : Border.all(
+                      color: dark
+                          ? Colors.white.withAlpha(30)
+                          : Colors.black.withAlpha(15),
+                      width: 1.0),
+              boxShadow: isSelected ? PremiumDesign.goldGlow : null,
+            ),
+            child: Icon(
+              Icons.auto_fix_high_rounded,
+              size: 20,
+              color: dark ? Colors.white70 : PremiumDesign.secondaryText,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

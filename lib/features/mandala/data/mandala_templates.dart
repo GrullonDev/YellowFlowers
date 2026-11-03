@@ -32,7 +32,8 @@ MandalaTemplate _buildLotusFlower() {
 
   for (int i = 0; i < petalCount; i++) {
     final double angle = (2 * pi * i) / petalCount;
-    sections.add(MandalaSection(path: _lotusPetal(angle, petalLength, petalWidth)));
+    sections
+        .add(MandalaSection(path: _lotusPetal(angle, petalLength, petalWidth)));
   }
 
   // Center circle
@@ -169,7 +170,8 @@ MandalaTemplate _buildHarmonyCircles() {
   // chord length is R*sqrt(3)/2. The "inner" intersection of adjacent outer
   // circles lands at distance R/sqrt(3) ≈ 28.87 from origin for R=50.
   const double coreR = R * 0.42; // visually tuned
-  sections.add(MandalaSection(path: _regularPolygon(6, coreR, offset: -pi / 2)));
+  sections
+      .add(MandalaSection(path: _regularPolygon(6, coreR, offset: -pi / 2)));
 
   // ------ 2. Six inner leaf lenses (center ∩ outer_i, minus core) ------
   for (int i = 0; i < n; i++) {
@@ -228,7 +230,8 @@ Path _lensShape(
   final path = Path();
 
   // Arc on circle centered at c1 (from theta - halfArc to theta + halfArc).
-  _addArcCenter(path, c1, radius, theta - halfArc, theta + halfArc, moveTo: true);
+  _addArcCenter(path, c1, radius, theta - halfArc, theta + halfArc,
+      moveTo: true);
   // Arc on circle centered at c2 (from theta + pi - halfArc to theta + pi + halfArc).
   _addArcCenter(path, c2, radius, theta + pi - halfArc, theta + pi + halfArc);
 
