@@ -399,14 +399,12 @@ animation work, and flag every platform-specific difference (Android vs iOS).
 
 ## 6. Known Debt — do not build on these
 
-- `test/` contains only the unmodified Flutter counter template; it cannot pass. Treat the suite as empty and add
-  a real test with any feature.
+- `test/widget_test.dart` is the unmodified Flutter counter template; it cannot pass. Real tests live next to it
+  (`daily_mood_test.dart`, `mandala_test.dart`); add one with any feature.
 - Unreferenced files: `features/experience/**`, `features/mood/mood_entry_page.dart`,
-  `features/cycle/widgets/cycle_phase_bar.dart`, `features/Flowers/pages/flower_screen.dart`,
+  `features/cycle/widgets/cycle_phase_bar.dart`, `features/flowers/pages/flower_screen.dart`,
   `features/music/pages/romantic_music_page.dart` (duplicate of `music_page.dart`, declares a second
   `MusicPage`), `lib/utils/app_theme.dart`, `lib/core/failures.dart` (duplicates `result.dart`).
-- `lib/features/Flowers/` is capitalized on disk while being imported as `features/flowers/` — it works on
-  case-insensitive filesystems and **breaks Linux CI**. Normalize to `flowers/` when convenient.
 - `.github/workflows/android-release.yml` pins Flutter 3.35.2 while `.fvmrc` pins 3.47.1; the CI has no analyze or
   test step.
 - `lib/core/tts/tts_service.dart` is registered but never resolved; TTS actually runs through a second

@@ -1,7 +1,5 @@
 name: Android Release (APK + Firebase App Distribution)
 
-# Solo manual: los tags v*.*.* marcan releases de iOS y no deben disparar
-# este workflow (usa Java 17 y Flutter 3.35.2, que ya no coinciden con el proyecto).
 on:
   workflow_dispatch:
 
@@ -11,6 +9,10 @@ jobs:
 
     env:
       BUILD_NUMBER: ${{ github.run_number }}
+      STORE_FILE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
 
     steps:
       - name: Checkout
@@ -22,11 +24,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Read Flutter version from .fvmrc
+        id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.2'
+          flutter-version: ${{ steps.fvm.outputs.version }}
           channel: 'stable'
+          cache: true
 
       - name: Flutter Pub Get
         run: flutter pub get

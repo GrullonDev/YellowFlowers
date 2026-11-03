@@ -226,7 +226,7 @@ class _EmotionalHeroState extends State<_EmotionalHero>
   Widget build(BuildContext context) {
     final mood = context.watch<MoodController>().mood;
     final personalization = di.sl<PersonalizationService>();
-    final name = personalization.getUserName() ?? 'hermosa';
+    final name = personalization.getUserName() ?? personalization.defaultGreetingName;
     final greeting = _greetingForTime(name);
 
     return FadeTransition(
@@ -994,6 +994,22 @@ Color _emotionColor(Emotion? e) {
       return const Color(0xFFF57C00);
     case Emotion.nostalgic:
       return const Color(0xFF7E57C2);
+    case Emotion.anxious:
+      return const Color(0xFF5C6BC0);
+    case Emotion.grateful:
+      return const Color(0xFF26A69A);
+    case Emotion.empowered:
+      return const Color(0xFFAB47BC);
+    case Emotion.melancholic:
+      return const Color(0xFF78909C);
+    case Emotion.hopeful:
+      return const Color(0xFFFF8A65);
+    case Emotion.overwhelmed:
+      return const Color(0xFF42A5F5);
+    case Emotion.tender:
+      return const Color(0xFFEC407A);
+    case Emotion.confident:
+      return const Color(0xFFFFCA28);
     default:
       return const Color(0xFFBDBDBD);
   }
@@ -1011,6 +1027,22 @@ String _emotionLabel(Emotion e) {
       return 'Motivada ✨';
     case Emotion.nostalgic:
       return 'Nostálgica 🌙';
+    case Emotion.anxious:
+      return 'Ansiosa 😰';
+    case Emotion.grateful:
+      return 'Agradecida 🙏';
+    case Emotion.empowered:
+      return 'Empoderada 👑';
+    case Emotion.melancholic:
+      return 'Melancólica 🥀';
+    case Emotion.hopeful:
+      return 'Esperanzada 🌅';
+    case Emotion.overwhelmed:
+      return 'Abrumada 🌊';
+    case Emotion.tender:
+      return 'Sensible 🦋';
+    case Emotion.confident:
+      return 'Segura ✨';
   }
 }
 
@@ -1048,7 +1080,8 @@ void _breathingDialog(BuildContext context) {
 }
 
 void _affirmationDialog(BuildContext context) {
-  final name = di.sl<PersonalizationService>().getUserName() ?? 'hermosa';
+  final ps = di.sl<PersonalizationService>();
+  final name = ps.getUserName() ?? ps.defaultGreetingName;
   final affirmations = [
     'Eres suficiente tal como eres, $name.',
     'Mereces amor, paz y todo lo hermoso, $name.',

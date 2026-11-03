@@ -1,7 +1,8 @@
 name: Store Release (App Store Connect + Google Play)
 
-# iOS se publica solo en TestFlight cuando cambia la versión en pubspec.yaml
-# dentro de main. También se puede ejecutar a mano desde la pestaña Actions.
+# Cuando cambia la versión en pubspec.yaml dentro de main se publica iOS en
+# TestFlight y Android en la pista internal de Google Play. También se puede
+# ejecutar a mano desde la pestaña Actions.
 # Los secrets necesarios están en docs/RELEASE.md.
 on:
   push:
@@ -82,43 +83,77 @@ jobs:
           if-no-files-found: ignore
 
   android:
-    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.platform == 'both' || inputs.platform == 'android') }}
+    # En push a main sube a la pista internal; a mano se elige pista y estado.
+    if: ${{ github.event_name == 'push' || inputs.platform == 'both' || inputs.platform == 'android' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
       PLAY_JSON_KEY_PATH: ${{ github.workspace }}/fastlane/play-service-account.json
+      ANDROID_TRACK: ${{ inputs.android_track || 'internal' }}
+      ANDROID_STATUS: ${{ inputs.android_status || 'completed' }}
+      # SHA-1 del certificado de carga registrado en Play Console.
+      UPLOAD_CERT_SHA1: "EF:01:C1:61:A2:44:F3:03:63:1F:F9:8F:07:4B:AF:94:A3:AB:63:0C"
     steps:
+      - name: Check Android secrets
+        id: secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          missing=""
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD PLAY_SERVICE_ACCOUNT_JSON; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -z "$missing" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            # Sin secrets no se rompe el release de iOS: solo se omite Android.
+            echo "::warning::Android omitido, faltan secrets:$missing (ver docs/RELEASE.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Faltan secrets de Android:$missing (ver docs/RELEASE.md)"
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ready == 'true'
 
       - name: Read Flutter version from .fvmrc
+        if: steps.secrets.outputs.ready == 'true'
         id: fvm
         run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
+        if: steps.secrets.outputs.ready == 'true'
         with:
           distribution: temurin
           java-version: "21"
 
       - uses: subosito/flutter-action@v2
+        if: steps.secrets.outputs.ready == 'true'
         with:
           flutter-version: ${{ steps.fvm.outputs.version }}
           channel: stable
           cache: true
 
       - uses: ruby/setup-ruby@v1
+        if: steps.secrets.outputs.ready == 'true'
         with:
           ruby-version: "3.3"
           bundler-cache: true
 
       - name: Write signing key and Play credentials
+        if: steps.secrets.outputs.ready == 'true'
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'upload' }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          echo "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > android/app/upload-keystore.jks
           {
             echo "storeFile=upload-keystore.jks"
             echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
@@ -127,13 +162,24 @@ jobs:
           } > android/key.properties
           echo "$PLAY_SERVICE_ACCOUNT_JSON" > "$PLAY_JSON_KEY_PATH"
 
-      - run: flutter pub get
+          # Falla antes de compilar si el keystore no es el registrado en Play.
+          sha1=$(keytool -list -v -keystore android/app/upload-keystore.jks \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" \
+            | awk '/SHA1:/ {print $2}')
+          if [ "$sha1" != "$UPLOAD_CERT_SHA1" ]; then
+            echo "::error::El keystore no coincide con el certificado de carga de Play (SHA-1: ${sha1:-ninguno})"
+            exit 1
+          fi
+
+      - if: steps.secrets.outputs.ready == 'true'
+        run: flutter pub get
 
       - name: Build and upload to Google Play
-        run: bundle exec fastlane android deploy track:${{ inputs.android_track }} status:${{ inputs.android_status }}
+        if: steps.secrets.outputs.ready == 'true'
+        run: bundle exec fastlane android deploy track:$ANDROID_TRACK status:$ANDROID_STATUS
 
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.secrets.outputs.ready == 'true'
         with:
           name: android-aab
           path: build/app/outputs/bundle/release/*.aab

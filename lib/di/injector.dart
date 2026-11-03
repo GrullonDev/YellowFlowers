@@ -11,6 +11,7 @@ import 'package:yellow_flowers/core/personalization_service.dart';
 import 'package:yellow_flowers/core/tts/tts_service.dart';
 import 'package:yellow_flowers/data/music_service/firebase_music_service.dart';
 import 'package:yellow_flowers/features/garden/data/garden_service.dart';
+import 'package:yellow_flowers/features/mandala/data/mandala_store.dart';
 import 'package:yellow_flowers/features/music/bloc/music_bloc.dart';
 import 'package:yellow_flowers/features/music/data/datasource/music_local_datasource.dart';
 import 'package:yellow_flowers/features/music/data/datasource/music_remote_datasource.dart';
@@ -34,6 +35,7 @@ Future<void> initDependencies() async {
   sl.registerSingleton<SharedPreferences>(prefs);
   sl.registerSingleton<PersonalizationService>(PersonalizationService(prefs));
   sl.registerSingleton<GardenService>(GardenService(prefs));
+  sl.registerSingleton<MandalaStore>(MandalaStore(prefs));
   sl.registerSingleton<HomeWidgetService>(
       HomeWidgetService(sl<PersonalizationService>(), sl<GardenService>()));
   sl.registerSingleton<NotificationService>(
